@@ -46,7 +46,7 @@ func (this *ConfigService) InitGlobalConfigs() bool {
 	if userInfo.UserId == "" {
 		return false
 	}
-	this.adminUserId = userInfo.UserId.Hex()
+	this.adminUserId = userInfo.UserId
 
 	configs := []info.Config{}
 	// db.ListByQ(db.Configs, bson.M{"UserId": userInfo.UserId}, &configs)
@@ -96,8 +96,8 @@ func (this *ConfigService) updateGlobalConfig(userId, key string, value interfac
 	// 判断是否存在
 	if _, ok := this.GlobalAllConfigs[key]; !ok {
 		// 需要添加
-		config := info.Config{ConfigId: bson.NewObjectId(),
-			UserId:      bson.ObjectIdHex(userId), // 没用
+		config := info.Config{ConfigId: db.NewUUID(),
+			UserId:      userId, // 没用
 			Key:         key,
 			IsArr:       isArr,
 			IsMap:       isMap,
@@ -191,7 +191,7 @@ func (this *ConfigService) IsOpenRegister() bool {
 	return this.GetGlobalStringConfig("openRegister") != ""
 }
 
-//-------
+// -------
 // 修改共享笔记的配置
 func (this *ConfigService) UpdateShareNoteConfig(registerSharedUserId string,
 	registerSharedNotebookPerms, registerSharedNotePerms []int,
@@ -462,7 +462,7 @@ func (this *ConfigService) GetBackup(createdTime string) (map[string]string, boo
 	return backup, true
 }
 
-//--------------
+// --------------
 // sub domain
 var defaultDomain string
 var schema = "http://"

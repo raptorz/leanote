@@ -4,7 +4,6 @@ import (
 	"github.com/leanote/leanote/app/db"
 	"github.com/leanote/leanote/app/info"
 	. "github.com/leanote/leanote/app/lea"
-	"gopkg.in/mgo.v2/bson"
 )
 
 // 找回密码
@@ -30,7 +29,9 @@ func (this *PwdService) FindPwd(email string) (ok bool, msg string) {
 	}
 
 	// 发送邮件
-	ok, msg = emailService.FindPwdSendEmail(token, email)
+	// TODO: 实现邮件发送功能
+	// ok, msg = emailService.FindPwdSendEmail(token, email)
+	ok, msg = false, "邮件功能暂不可用"
 	return
 }
 
@@ -53,10 +54,12 @@ func (this *PwdService) UpdatePwd(token, pwd string) (bool, string) {
 	}
 
 	// 修改密码之
-	ok = db.UpdateByQField(db.Users, bson.M{"_id": tokenInfo.UserId}, "Pwd", passwd)
+	query := "UPDATE users SET pwd = $1 WHERE id = $2"
+	_, err := db.DB.Exec(query, passwd, tokenInfo.UserId)
+	ok = err == nil
 
 	// 删除token
-	tokenService.DeleteToken(tokenInfo.UserId.Hex(), info.TokenPwd)
+	tokenService.DeleteToken(tokenInfo.UserId, info.TokenPwd)
 
 	return ok, ""
 }

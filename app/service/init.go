@@ -3,8 +3,6 @@ package service
 import (
 	"github.com/leanote/leanote/app/db"
 	. "github.com/leanote/leanote/app/lea"
-	"gopkg.in/mgo.v2"
-	"gopkg.in/mgo.v2/bson"
 	"net/url"
 	"regexp"
 	"strconv"
@@ -32,6 +30,7 @@ var attachService, AttachS *AttachService
 var configService, ConfigS *ConfigService
 var PwdS *PwdService
 var SuggestionS *SuggestionService
+
 var emailService, EmailS *EmailService
 var AuthS *AuthService
 var UpgradeS *UpgradeService
@@ -122,30 +121,44 @@ func fixUrlTitle(urlTitle string) string {
 func getUniqueUrlTitle(userId string, urlTitle string, types string, padding int) string {
 	urlTitle2 := urlTitle
 
-	// 判断urlTitle是不是过长, 过长则截断, 300
-	// 不然生成index有问题
-	// it will not index a single field with more than 1024 bytes.
-	// If you're indexing a field that is 2.5MB, it's not really indexing it, it's being skipped.
 	if len(urlTitle2) > 320 {
-		urlTitle2 = urlTitle2[:300] // 为什么要少些, 因为怕无限循环, 因为把padding截了
+		urlTitle2 = urlTitle2[:300]
 	}
 
 	if padding > 1 {
 		urlTitle2 = urlTitle + "-" + strconv.Itoa(padding)
 	}
-	userIdO := bson.ObjectIdHex(userId)
 
-	var collection *mgo.Collection
+	var count int
+	var err error
+
 	if types == "note" {
-		collection = db.Notes
+		err = db.DB.QueryRow("SELECT COUNT(*) FROM notes WHERE user_id = $1 AND url_title = $2", userId, urlTitle2).Scan(&count)
 	} else if types == "notebook" {
-		collection = db.Notebooks
+		err = db.DB.QueryRow("SELECT COUNT(*) FROM notebooks WHERE user_id = $1 AND url_title = $2", userId, urlTitle2).Scan(&count)
 	} else if types == "single" {
-		collection = db.BlogSingles
+		err = db.DB.QueryRow("SELECT COUNT(*) FROM blog_singles WHERE user_id = $1 AND url_title = $2", userId, urlTitle2).Scan(&count)
 	}
-	for db.Has(collection, bson.M{"UserId": userIdO, "UrlTitle": urlTitle2}) { // 用户下唯一
+
+	if err != nil {
+		count = 0
+	}
+
+	for count > 0 {
 		padding++
 		urlTitle2 = urlTitle + "-" + strconv.Itoa(padding)
+
+		if types == "note" {
+			err = db.DB.QueryRow("SELECT COUNT(*) FROM notes WHERE user_id = $1 AND url_title = $2", userId, urlTitle2).Scan(&count)
+		} else if types == "notebook" {
+			err = db.DB.QueryRow("SELECT COUNT(*) FROM notebooks WHERE user_id = $1 AND url_title = $2", userId, urlTitle2).Scan(&count)
+		} else if types == "single" {
+			err = db.DB.QueryRow("SELECT COUNT(*) FROM blog_singles WHERE user_id = $1 AND url_title = $2", userId, urlTitle2).Scan(&count)
+		}
+
+		if err != nil {
+			count = 0
+		}
 	}
 
 	return urlTitle2
@@ -158,21 +171,29 @@ func subIdHalf(id string) string {
 	return idMd5[:12]
 }
 
+// Hex辅助函数 - 为了兼容MongoDB的ObjectId.Hex()调用
+func Hex(id string) string {
+	return id
+}
+
+// func HexO(id bson.ObjectId) string {
+// 	return id.Hex()
+// }
+
 // types == note,notebook,single
 // id noteId, notebookId, singleId 当title没的时候才有用, 用它来替换
-func GetUrTitle(userId string, title string, types string, id string) string {
-	urlTitle := strings.Trim(title, " ")
-	if urlTitle == "" {
-		if id == "" {
-			urlTitle = "Untitled-" + userId
-		} else {
-			urlTitle = subIdHalf(id)
-		}
-		// 不允许title是ObjectId
-	} else if bson.IsObjectIdHex(title) {
-		urlTitle = subIdHalf(id)
-	}
-
-	urlTitle = fixUrlTitle(urlTitle)
-	return getUniqueUrlTitle(userId, urlTitle, types, 1)
-}
+// func GetUrTitle(userId string, title string, types string, id string) string {
+// 	urlTitle := strings.Trim(title, " ")
+// 	if urlTitle == "" {
+// 		if id == "" {
+// 			urlTitle = "Untitled-" + userId
+// 		} else {
+// 			urlTitle = subIdHalf(id)
+// 		}
+// 	} else if isValidUUID(title) {
+// 		urlTitle = subIdHalf(id)
+// 	}
+//
+// 	urlTitle = fixUrlTitle(urlTitle)
+// 	return getUniqueUrlTitle(userId, urlTitle, types, 1)
+// }

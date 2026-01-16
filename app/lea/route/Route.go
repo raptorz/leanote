@@ -3,7 +3,7 @@ package route
 import (
 	"github.com/leanote/leanote/app/db"
 	"github.com/revel/revel"
-		// . "github.com/leanote/leanote/app/lea"
+	// . "github.com/leanote/leanote/app/lea"
 	"net/url"
 	"strings"
 )
@@ -48,14 +48,14 @@ func RouterFilter(c *revel.Controller, fc []revel.Filter) {
 	*/
 	if route.ControllerName != "Static" {
 
-		// 检查mongodb 是否lost
-		db.CheckMongoSessionLost()
+		// 检查数据库连接是否丢失
+		db.CheckConnection()
 
 		// /api/file/getImage -> App\file (/api/file/getImage)
 		// App\auth
 		// App\note
 		// static\static
-		// 
+		//
 		// Log("---------" + route.ControllerName + "  " + path)
 
 		// api设置

@@ -3,7 +3,6 @@ package service
 import (
 	"github.com/leanote/leanote/app/db"
 	"github.com/leanote/leanote/app/info"
-	"gopkg.in/mgo.v2/bson"
 )
 
 // 回收站
@@ -34,10 +33,12 @@ func (this *TrashService) DeleteNote(noteId, userId string) bool {
 	// 首先删除其共享
 	if shareService.DeleteShareNoteAll(noteId, userId) {
 		// 更新note isTrash = true
-		if db.UpdateByIdAndUserId(db.Notes, noteId, userId, bson.M{"$set": bson.M{"IsTrash": true, "Usn": userService.IncrUsn(userId)}}) {
+		usn := userService.IncrUsn(userId)
+		query := `UPDATE notes SET is_trash = true, usn = $1 WHERE note_id = $2 AND user_id = $3`
+		_, err := db.DB.Exec(query, usn, noteId, userId)
+		if err == nil {
 			// recount notebooks' notes number
-			notebookIdO := noteService.GetNotebookId(noteId)
-			notebookId := notebookIdO.Hex()
+			notebookId := noteService.GetNotebookId(noteId)
 			notebookService.ReCountNotebookNumberNotes(notebookId)
 			return true
 		}
@@ -50,20 +51,22 @@ func (this *TrashService) DeleteNote(noteId, userId string) bool {
 // 先判断我是否有权限, 笔记是否是我创建的
 func (this *TrashService) DeleteSharedNote(noteId, myUserId string) bool {
 	note := noteService.GetNoteById(noteId)
-	userId := note.UserId.Hex()
-	if shareService.HasUpdatePerm(userId, myUserId, noteId) && note.CreatedUserId.Hex() == myUserId {
-		return db.UpdateByIdAndUserId(db.Notes, noteId, userId, bson.M{"$set": bson.M{"IsTrash": true, "Usn": userService.IncrUsn(userId)}})
+	userId := note.UserId
+	if shareService.HasUpdatePerm(userId, myUserId, noteId) && note.CreatedUserId == myUserId {
+		usn := userService.IncrUsn(userId)
+		query := `UPDATE notes SET is_trash = true, usn = $1 WHERE note_id = $2 AND user_id = $3`
+		_, err := db.DB.Exec(query, usn, noteId, userId)
+		return err == nil
 	}
 	return false
 }
 
 // recover
 func (this *TrashService) recoverNote(noteId, notebookId, userId string) bool {
-	re := db.UpdateByIdAndUserId(db.Notes, noteId, userId,
-		bson.M{"$set": bson.M{"IsTrash": false,
-			"Usn":        userService.IncrUsn(userId),
-			"NotebookId": bson.ObjectIdHex(notebookId)}})
-	return re
+	usn := userService.IncrUsn(userId)
+	query := `UPDATE notes SET is_trash = false, usn = $1, notebook_id = $2 WHERE note_id = $3 AND user_id = $4`
+	_, err := db.DB.Exec(query, usn, notebookId, noteId, userId)
+	return err == nil
 }
 
 // 删除trash
@@ -76,17 +79,20 @@ func (this *TrashService) DeleteTrash(noteId, userId string) bool {
 	ok := attachService.DeleteAllAttachs(noteId, userId)
 
 	// 设置删除位
-	ok = db.UpdateByIdAndUserIdMap(db.Notes, noteId, userId,
-		bson.M{"IsDeleted": true,
-			"Usn": userService.IncrUsn(userId)})
-	// delete note
-	//	ok = db.DeleteByIdAndUserId(db.Notes, noteId, userId)
+	usn := userService.IncrUsn(userId)
+	query := `UPDATE notes SET is_deleted = true, usn = $1 WHERE note_id = $2 AND user_id = $3`
+	_, err := db.DB.Exec(query, usn, noteId, userId)
+	ok = err == nil
 
 	// delete content
-	ok = db.DeleteByIdAndUserId(db.NoteContents, noteId, userId)
+	query = `DELETE FROM note_contents WHERE note_id = $1 AND user_id = $2`
+	_, err = db.DB.Exec(query, noteId, userId)
+	ok = err == nil
 
 	// 删除content history
-	ok = db.DeleteByIdAndUserId(db.NoteContentHistories, noteId, userId)
+	query = `DELETE FROM note_content_histories WHERE note_id = $1 AND user_id = $2`
+	_, err = db.DB.Exec(query, noteId, userId)
+	ok = err == nil
 
 	// 重新统计tag's count
 	// TODO 这里会改变tag's Usn
@@ -111,19 +117,23 @@ func (this *TrashService) DeleteTrashApi(noteId, userId string, usn int) (bool, 
 
 	// 设置删除位
 	afterUsn := userService.IncrUsn(userId)
-	ok = db.UpdateByIdAndUserIdMap(db.Notes, noteId, userId,
-		bson.M{"IsDeleted": true,
-			"Usn": afterUsn})
+	query := `UPDATE notes SET is_deleted = true, usn = $1 WHERE note_id = $2 AND user_id = $3`
+	_, err := db.DB.Exec(query, afterUsn, noteId, userId)
+	ok = err == nil
 
 	// delete content
-	ok = db.DeleteByIdAndUserId(db.NoteContents, noteId, userId)
+	query = `DELETE FROM note_contents WHERE note_id = $1 AND user_id = $2`
+	_, err = db.DB.Exec(query, noteId, userId)
+	ok = err == nil
 
 	// 删除content history
-	ok = db.DeleteByIdAndUserId(db.NoteContentHistories, noteId, userId)
+	query = `DELETE FROM note_content_histories WHERE note_id = $1 AND user_id = $2`
+	_, err = db.DB.Exec(query, noteId, userId)
+	ok = err == nil
 
 	// 一个BUG, iOS删除直接调用这个API, 结果没有重新recount
 	// recount notebooks' notes number
-	notebookService.ReCountNotebookNumberNotes(note.NotebookId.Hex())
+	notebookService.ReCountNotebookNumberNotes(note.NotebookId)
 
 	return ok, "", afterUsn
 }
