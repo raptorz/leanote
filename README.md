@@ -44,6 +44,16 @@ Interested in our product and want to try it out from your web browser? Welcome 
 
 Feeling suspicious about how those note-taking companies treat your personal data? You can install Leanote on your server, and use Leanote App (Desktop, iOS, Android) to sync notes with your self-hosted server.
 
+**� New Feature: Database Abstraction & Migration**
+
+Leanote now supports both **MongoDB** and **PostgreSQL** databases with:
+- Unified database interface for seamless database switching
+- Bidirectional data migration tools (MongoDB ↔ PostgreSQL)
+- Automatic ID mapping and data validation
+- Configurable via `conf/app.conf`
+
+See [DATABASE_ABSTRACTION_README.md](DATABASE_ABSTRACTION_README.md) for details.
+
 More information about how to install Leanote please see:
 
 * Leanote binary installation tutorial:
@@ -56,6 +66,13 @@ More information about how to install Leanote please see:
 ## 4. Documentation
 
 Please see [wiki](https://github.com/leanote/leanote/wiki) for detailed instruction on how to install Leanote on various platforms, trouble shooting and configuration explanations.
+
+**Database Abstraction & Migration Documentation**:
+- [DATABASE_ABSTRACTION_README.md](DATABASE_ABSTRACTION_README.md) - Project overview and quick start
+- [docs/DATABASE_ABSTRACTION_GUIDE.md](docs/DATABASE_ABSTRACTION_GUIDE.md) - Complete usage guide
+- [PLAN.md](PLAN.md) - Detailed execution plan
+- [EXECUTION_SUMMARY.md](EXECUTION_SUMMARY.md) - Implementation summary
+- [COMPLETION_REPORT.md](COMPLETION_REPORT.md) - Project completion report
 
 
 ## 5. How to develop Leanote
@@ -178,6 +195,11 @@ Leanote还有很多问题, 如果你喜欢它, 欢迎加入我们一起完善Lea
 * [Leanote Desktop App](https://github.com/leanote/desktop-app), [下载地址](http://app.leanote.com)
 * [Leanote iOS](https://github.com/leanote/leanote-ios), [从App Store下载](https://itunes.apple.com/zn/app/leanote/id1022302858?mt=8)
 * [Leanote Android](https://github.com/leanote/leanote-android), 开发阶段
+
+**数据库工具**:
+* [Database Abstraction Layer](app/db/) - 统一的MongoDB和PostgreSQL接口
+* [Migration Tools](migration/) - 双向数据迁移工具
+* [Migration Scripts](scripts/) - 命令行迁移工具
 
 欢迎加入我们!
 
