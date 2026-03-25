@@ -1,0 +1,26 @@
+version: '3.3'
+services:
+
+  postgres:
+    image: postgres:14
+    container_name: postgres
+    restart: always
+    environment:
+      POSTGRES_USER: leanote
+      POSTGRES_PASSWORD: leanote
+      POSTGRES_DB: leanote
+    ports:
+      - 127.0.0.1:5432:5432
+    volumes:
+      - ~/postgres_data:/var/lib/postgresql/data
+
+  leanote:
+    image: leanote:v2.7.0
+    container_name: leanote
+    restart: always
+    depends_on:
+      - postgres
+    ports:
+      - 127.0.0.1:9000:9000
+    volumes:
+      - ~/leanote/conf/app.conf:/opt/leanote/conf/app.conf

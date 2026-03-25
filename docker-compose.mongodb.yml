@@ -1,0 +1,22 @@
+version: '3.3'
+services:
+
+  mongodb:
+    image: mongo:4.2
+    container_name: mongodb
+    restart: always
+    ports:
+      - 127.0.0.1:27017:27017
+    volumes:
+      - ~/mongo_data:/data
+
+  leanote:
+    image: leanote:v2.7.0
+    container_name: leanote
+    restart: always
+    depends_on:
+      - mongodb
+    ports:
+      - 127.0.0.1:9000:9000
+    volumes:
+      - ~/leanote/conf/app.conf:/opt/leanote/conf/app.conf

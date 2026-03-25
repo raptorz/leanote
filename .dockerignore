@@ -1,0 +1,7 @@
+.git
+.gitignore
+.dockerignore
+*.md
+tmp/
+*.log
+*.swp

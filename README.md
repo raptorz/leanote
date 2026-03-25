@@ -201,6 +201,70 @@ Leanote还有很多问题, 如果你喜欢它, 欢迎加入我们一起完善Lea
 * [Migration Tools](migration/) - 双向数据迁移工具
 * [Migration Scripts](scripts/) - 命令行迁移工具
 
+## 11. Docker 部署
+
+Leanote 支持 Docker 部署，并提供 MongoDB 和 PostgreSQL 两种数据库配置。
+
+### 镜像构建
+
+从源码构建：
+
+```bash
+docker build -t leanote:v2.7.0 .
+```
+
+或者直接使用预构建的镜像：
+
+```bash
+docker pull raptor/leanote:v2.7.0
+```
+
+### PostgreSQL 部署（推荐）
+
+PostgreSQL 配置利用了 Leanote 的数据库抽象层，推荐新部署使用：
+
+```bash
+# 启动 PostgreSQL 版本
+docker-compose -f docker-compose.postgres.yml up -d
+
+# 初始化数据库（首次运行）
+docker exec postgres psql -U leanote -d leanote -f /docker-entrypoint-initdb.d/init.sql
+
+# 或者使用迁移工具从 MongoDB 导入数据
+docker exec leanote /opt/leanote/scripts/migrate_from_mongodb.sh
+```
+
+### MongoDB 部署
+
+传统的 MongoDB 部署方式：
+
+```bash
+# 初始化 MongoDB 数据（首次运行）
+docker run -d -v ~/mongo_data:/data --name=mongodb mongo:4.2
+docker run -it --rm -v ~/leanote/mongodb_backup/leanote_install_data:/root/initdata --link=mongodb --entrypoint="" mongo:4.2 mongorestore -h mongodb -d leanote --dir /root/initdata/
+docker rm -f mongodb
+
+# 启动 MongoDB 版本
+docker-compose -f docker-compose.mongodb.yml up -d
+```
+
+### 配置说明
+
+配置文件 `conf/app.conf` 包含 PostgreSQL 和 MongoDB 两种数据库配置：
+
+- 默认使用 PostgreSQL（`db.type=postgresql`）
+- 如需使用 MongoDB，修改 `db.type=mongodb` 并取消注释 MongoDB 配置部分
+
+自定义配置：
+1. 修改 `conf/app.conf` 中的数据库类型和连接参数
+2. 修改 `app.secret` 为你自己的值（安全必需）
+3. PostgreSQL 部署使用 `docker-compose -f docker-compose.postgres.yml`
+4. MongoDB 部署使用 `docker-compose -f docker-compose.mongodb.yml`
+
+### 访问 Leanote
+
+部署完成后，访问 `http://localhost:9000` 即可使用 Leanote。
+
 欢迎加入我们!
 
 ## 联系&加入我们
