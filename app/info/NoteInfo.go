@@ -1,72 +1,67 @@
 package info
 
 import (
+	"gopkg.in/mgo.v2/bson"
 	"time"
 )
-
-// ObjectId - 为了兼容MongoDB的bson.ObjectId
-type ObjectId string
-
-// Hex - 返回ObjectId的十六进制字符串表示
-func (o ObjectId) Hex() string {
-	return string(o)
-}
 
 // 只存笔记基本信息
 // 内容不存放
 type Note struct {
-	NoteId        string `db:"id"`
-	UserId        string `db:"user_id"`
-	CreatedUserId string `db:"created_user_id"`
-	NotebookId    string `db:"notebook_id"`
-	Title         string `db:"title"`
-	Desc          string `db:"description"`
+	NoteId        bson.ObjectId `bson:"_id,omitempty"`           // 必须要设置bson:"_id" 不然mgo不会认为是主键
+	UserId        bson.ObjectId `bson:"UserId"`                  // 谁的
+	CreatedUserId bson.ObjectId `bson:"CreatedUserId,omitempty"` // 谁创建的(UserId != CreatedUserId, 是因为共享). 只是共享才有, 默认为空, 不存 必须要加omitempty
+	NotebookId    bson.ObjectId `bson:"NotebookId"`
+	Title         string        `Title` // 标题
+	Desc          string        `Desc`  // 描述, 非html
 
-	Src string `db:"src"`
+	Src string   `Src,omitempty` // 来源, 2016/4/22
 
-	ImgSrc string   `db:"img_src"`
-	Tags   []string `db:"tags"`
+	ImgSrc string   `ImgSrc` // 图片, 第一张缩略图地址
+	Tags   []string `Tags,omitempty`
 
-	IsTrash bool `db:"is_trash"`
+	IsTrash bool `IsTrash` // 是否是trash, 默认是false
 
-	IsBlog         bool   `db:"is_blog"`
-	UrlTitle       string `db:"url_title"`
-	IsRecommend    bool   `db:"is_recommend"`
-	IsTop          bool   `db:"is_top"`
-	HasSelfDefined bool   `db:"has_self_defined"`
+	IsBlog         bool   `IsBlog,omitempty`      // 是否设置成了blog 2013/12/29 新加
+	UrlTitle       string `UrlTitle,omitempty`    // 博客的url标题, 为了更友好的url, 在UserId, UrlName下唯一
+	IsRecommend    bool   `IsRecommend,omitempty` // 是否为推荐博客 2014/9/24新加
+	IsTop          bool   `IsTop,omitempty`       // blog是否置顶
+	HasSelfDefined bool   `HasSelfDefined`        // 是否已经自定义博客图片, desc, abstract
 
-	ReadNum    int `db:"read_num"`
-	LikeNum    int `db:"like_num"`
-	CommentNum int `db:"comment_num"`
+	// 2014/9/28 添加评论社交功能
+	ReadNum    int `ReadNum,omitempty`    // 阅读次数 2014/9/28
+	LikeNum    int `LikeNum,omitempty`    // 点赞次数 2014/9/28
+	CommentNum int `CommentNum,omitempty` // 评论次数 2014/9/28
 
-	IsMarkdown bool `db:"is_markdown"`
+	IsMarkdown bool `IsMarkdown` // 是否是markdown笔记, 默认是false
 
-	AttachNum int `db:"attach_num"`
+	AttachNum int `AttachNum` // 2014/9/21, attachments num
 
-	CreatedTime   time.Time `db:"created_time"`
-	UpdatedTime   time.Time `db:"updated_time"`
-	RecommendTime time.Time `db:"recommend_time"`
-	PublicTime    time.Time `db:"public_time"`
-	UpdatedUserId string    `db:"updated_user_id"`
+	CreatedTime   time.Time     `CreatedTime`
+	UpdatedTime   time.Time     `UpdatedTime`
+	RecommendTime time.Time     `RecommendTime,omitempty` // 推荐时间
+	PublicTime    time.Time     `PublicTime,omitempty`    // 发表时间, 公开为博客则设置
+	UpdatedUserId bson.ObjectId `bson:"UpdatedUserId"`    // 如果共享了, 并可写, 那么可能是其它他修改了
 
-	Usn int `db:"usn"`
+	// 2015/1/15, 更新序号
+	Usn int `Usn` // UpdateSequenceNum
 
-	IsDeleted bool `db:"is_deleted"`
+	IsDeleted bool `IsDeleted` // 删除位
 }
 
 // 内容
 type NoteContent struct {
-	NoteId string `db:"note_id"`
-	UserId string `db:"user_id"`
+	NoteId bson.ObjectId `bson:"_id,omitempty"`
+	UserId bson.ObjectId `bson:"UserId"`
 
-	IsBlog bool `db:"is_blog"`
+	IsBlog bool `IsBlog,omitempty` // 为了搜索博客
 
-	Content  string `db:"content"`
-	Abstract string `db:"abstract"`
+	Content  string `Content`
+	Abstract string `Abstract` // 摘要, 有html标签, 比content短, 在博客展示需要, 不放在notes表中
 
-	CreatedTime   time.Time `db:"created_time"`
-	UpdatedTime   time.Time `db:"updated_time"`
-	UpdatedUserId string    `db:"updated_user_id"`
+	CreatedTime   time.Time     `CreatedTime`
+	UpdatedTime   time.Time     `UpdatedTime`
+	UpdatedUserId bson.ObjectId `bson:"UpdatedUserId"` // 如果共享了, 并可写, 那么可能是其它他修改了
 }
 
 // 基本信息和内容在一起
@@ -78,16 +73,14 @@ type NoteAndContent struct {
 // 历史记录
 // 每一个历史记录对象
 type EachHistory struct {
-	UpdatedUserId string    `db:"updated_user_id"`
-	UpdatedTime   time.Time `db:"updated_time"`
-	Content       string    `db:"content"`
+	UpdatedUserId bson.ObjectId `UpdatedUserId`
+	UpdatedTime   time.Time     `UpdatedTime`
+	Content       string        `Content`
 }
 type NoteContentHistory struct {
-	NoteContentHistoryId string        `db:"id"`
-	NoteId               string        `db:"note_id"`
-	UserId               string        `db:"user_id"`
-	Histories            []EachHistory `db:"histories"`
-	CreatedTime          time.Time     `db:"created_time"`
+	NoteId    bson.ObjectId `bson:"_id,omitempty"`
+	UserId    bson.ObjectId `bson:"UserId"` // 所属者
+	Histories []EachHistory `Histories`
 }
 
 // 为了NoteController接收参数
@@ -114,6 +107,6 @@ type NoteOrContent struct {
 
 // 分开的
 type NoteAndContentSep struct {
-	NoteInfo        Note
+	NoteInfo Note
 	NoteContentInfo NoteContent
 }

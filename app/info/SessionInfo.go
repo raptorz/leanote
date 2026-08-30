@@ -1,25 +1,21 @@
 package info
 
 import (
+	"gopkg.in/mgo.v2/bson"
 	"time"
 )
 
+// http://docs.mongodb.org/manual/tutorial/expire-data/
 type Session struct {
-	Id         string    `db:"id"`
-	SessionId  string    `db:"session_id"`
+	Id bson.ObjectId `bson:"_id,omitempty"` // 没有意义
 
-	LoginTimes int       `db:"login_times"`
-	Captcha    string    `db:"captcha"`
+	SessionId string `bson:"SessionId"` // SessionId
 
-	UserId string `db:"user_id"`
+	LoginTimes int    `LoginTimes` // 登录错误时间
+	Captcha    string `Captcha`    // 验证码
 
-	CreatedTime time.Time `db:"created_time"`
-	UpdatedTime time.Time `db:"updated_time"`
-}
+	UserId string `UserId` // API时有值UserId
 
-type DBSession struct {
-	Id        string    `db:"id"`
-	UserId    string    `db:"user_id"`
-	Data      string    `db:"data"`
-	ExpiresAt time.Time `db:"expires_at"`
+	CreatedTime time.Time `CreatedTime`
+	UpdatedTime time.Time `UpdatedTime` // 更新时间, expire这个时间会自动清空
 }

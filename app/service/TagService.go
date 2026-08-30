@@ -1,10 +1,10 @@
 package service
 
 import (
-	"database/sql"
 	"github.com/leanote/leanote/app/db"
 	"github.com/leanote/leanote/app/info"
 	. "github.com/leanote/leanote/app/lea"
+	"gopkg.in/mgo.v2/bson"
 	"time"
 )
 
@@ -30,8 +30,13 @@ func (this *TagService) AddTagsI(userId string, tags interface{}) bool {
 	return false
 }
 func (this *TagService) AddTags(userId string, tags []string) bool {
-	// TODO: 需要实现PostgreSQL版本的标签添加
-	// 暂时返回true，后续实现
+	for _, tag := range tags {
+		if !db.Upsert(db.Tags,
+			bson.M{"_id": bson.ObjectIdHex(userId)},
+			bson.M{"$addToSet": bson.M{"Tags": tag}}) {
+			return false
+		}
+	}
 	return true
 }
 
@@ -45,59 +50,39 @@ func (this *TagService) AddTags(userId string, tags []string) bool {
 // 删除note时, 都可以调用
 // 万能
 func (this *TagService) AddOrUpdateTag(userId string, tag string) info.NoteTag {
+	userIdO := bson.ObjectIdHex(userId)
 	noteTag := info.NoteTag{}
-
-	// 查询是否已存在
-	query := "SELECT tag_id, user_id, tag, count, usn, created_time, updated_time, is_deleted FROM note_tags WHERE user_id = $1 AND tag = $2"
-	err := db.DB.QueryRow(query, userId, tag).Scan(
-		&noteTag.TagId, &noteTag.UserId, &noteTag.Tag, &noteTag.Count,
-		&noteTag.Usn, &noteTag.CreatedTime, &noteTag.UpdatedTime, &noteTag.IsDeleted,
-	)
+	db.GetByQ(db.NoteTags, bson.M{"UserId": userIdO, "Tag": tag}, &noteTag)
 
 	// 存在, 则更新之
-	if err == nil && noteTag.TagId != "" {
+	if noteTag.TagId != "" {
 		// 统计note数
 		count := noteService.CountNoteByTag(userId, tag)
 		noteTag.Count = count
 		noteTag.UpdatedTime = time.Now()
+		//		noteTag.Usn = userService.IncrUsn(userId), 更新count而已
 
 		// 之前删除过的, 现在要添加回来了
 		if noteTag.IsDeleted {
 			Log("之前删除过的, 现在要添加回来了:  " + tag)
-			noteTag.Usn = incrUsn(userId)
+			noteTag.Usn = userService.IncrUsn(userId)
 			noteTag.IsDeleted = false
 		}
 
-		// 更新标签
-		updateQuery := "UPDATE note_tags SET count = $1, updated_time = $2, usn = $3, is_deleted = $4 WHERE tag_id = $5 AND user_id = $6"
-		_, err := db.DB.Exec(updateQuery, noteTag.Count, noteTag.UpdatedTime, noteTag.Usn, noteTag.IsDeleted, noteTag.TagId, userId)
-		if err != nil {
-			Log(err.Error())
-		}
+		db.UpdateByIdAndUserId(db.NoteTags, noteTag.TagId.Hex(), userId, noteTag)
 		return noteTag
 	}
 
 	// 不存在, 则创建之
-	if err == sql.ErrNoRows || noteTag.TagId == "" {
-		noteTag.TagId = db.NewUUID()
-		noteTag.Count = 1
-		noteTag.Tag = tag
-		noteTag.UserId = userId
-		noteTag.CreatedTime = time.Now()
-		noteTag.UpdatedTime = noteTag.CreatedTime
-		noteTag.Usn = incrUsn(userId)
-		noteTag.IsDeleted = false
-
-		insertQuery := `INSERT INTO note_tags (tag_id, user_id, tag, count, usn, created_time, updated_time, is_deleted) 
-			VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`
-		_, err := db.DB.Exec(insertQuery,
-			noteTag.TagId, noteTag.UserId, noteTag.Tag, noteTag.Count,
-			noteTag.Usn, noteTag.CreatedTime, noteTag.UpdatedTime, noteTag.IsDeleted,
-		)
-		if err != nil {
-			Log(err.Error())
-		}
-	}
+	noteTag.TagId = bson.NewObjectId()
+	noteTag.Count = 1
+	noteTag.Tag = tag
+	noteTag.UserId = bson.ObjectIdHex(userId)
+	noteTag.CreatedTime = time.Now()
+	noteTag.UpdatedTime = noteTag.CreatedTime
+	noteTag.Usn = userService.IncrUsn(userId)
+	noteTag.IsDeleted = false
+	db.Insert(db.NoteTags, noteTag)
 
 	return noteTag
 }
@@ -105,27 +90,9 @@ func (this *TagService) AddOrUpdateTag(userId string, tag string) info.NoteTag {
 // 得到标签, 按更新时间来排序
 func (this *TagService) GetTags(userId string) []info.NoteTag {
 	tags := []info.NoteTag{}
-	query := "SELECT tag_id, user_id, tag, count, usn, created_time, updated_time, is_deleted FROM note_tags WHERE user_id = $1 AND is_deleted = false ORDER BY updated_time DESC"
-
-	rows, err := db.DB.Query(query, userId)
-	if err != nil {
-		Log(err.Error())
-		return tags
-	}
-	defer rows.Close()
-
-	for rows.Next() {
-		var noteTag info.NoteTag
-		err := rows.Scan(
-			&noteTag.TagId, &noteTag.UserId, &noteTag.Tag, &noteTag.Count,
-			&noteTag.Usn, &noteTag.CreatedTime, &noteTag.UpdatedTime, &noteTag.IsDeleted,
-		)
-		if err != nil {
-			Log(err.Error())
-			continue
-		}
-		tags = append(tags, noteTag)
-	}
+	query := bson.M{"UserId": bson.ObjectIdHex(userId), "IsDeleted": false}
+	sortFieldR := "-UpdatedTime"
+	db.ListByQOptions(db.NoteTags, query, &tags, db.QueryOptions{Sort: []string{sortFieldR}})
 	return tags
 }
 
@@ -133,36 +100,29 @@ func (this *TagService) GetTags(userId string) []info.NoteTag {
 // 也删除所有的笔记含该标签的
 // 返回noteId => usn
 func (this *TagService) DeleteTag(userId string, tag string) map[string]int {
-	usn := incrUsn(userId)
-	query := "UPDATE note_tags SET usn = $1, is_deleted = true WHERE user_id = $2 AND tag = $3"
-	_, err := db.DB.Exec(query, usn, userId, tag)
-	if err != nil {
-		Log(err.Error())
-		return map[string]int{}
+	usn := userService.IncrUsn(userId)
+	if db.UpdateByQMap(db.NoteTags, bson.M{"UserId": bson.ObjectIdHex(userId), "Tag": tag}, bson.M{"Usn": usn, "IsDeleted": true}) {
+		return noteService.UpdateNoteToDeleteTag(userId, tag)
 	}
-	return noteService.UpdateNoteToDeleteTag(userId, tag)
+	return map[string]int{}
 }
 
 // 删除标签, 供API调用
 func (this *TagService) DeleteTagApi(userId string, tag string, usn int) (ok bool, msg string, toUsn int) {
 	noteTag := info.NoteTag{}
-	query := "SELECT tag_id, usn FROM note_tags WHERE user_id = $1 AND tag = $2"
-	err := db.DB.QueryRow(query, userId, tag).Scan(&noteTag.TagId, &noteTag.Usn)
+	db.GetByQ(db.NoteTags, bson.M{"UserId": bson.ObjectIdHex(userId), "Tag": tag}, &noteTag)
 
-	if err == sql.ErrNoRows || noteTag.TagId == "" {
+	if noteTag.TagId == "" {
 		return false, "notExists", 0
 	}
 	if noteTag.Usn > usn {
 		return false, "conflict", 0
 	}
-	toUsn = incrUsn(userId)
-	updateQuery := "UPDATE note_tags SET usn = $1, is_deleted = true WHERE user_id = $2 AND tag = $3"
-	_, err = db.DB.Exec(updateQuery, toUsn, userId, tag)
-	if err != nil {
-		Log(err.Error())
-		return false, "", 0
+	toUsn = userService.IncrUsn(userId)
+	if db.UpdateByQMap(db.NoteTags, bson.M{"UserId": bson.ObjectIdHex(userId), "Tag": tag}, bson.M{"Usn": usn, "IsDeleted": true}) {
+		return true, "", toUsn
 	}
-	return true, "", toUsn
+	return false, "", 0
 }
 
 // 重新统计标签的count
@@ -178,26 +138,7 @@ func (this *TagService) reCountTagCount(userId string, tags []string) {
 // 同步用
 func (this *TagService) GeSyncTags(userId string, afterUsn, maxEntry int) []info.NoteTag {
 	noteTags := []info.NoteTag{}
-	query := "SELECT tag_id, user_id, tag, count, usn, created_time, updated_time, is_deleted FROM note_tags WHERE user_id = $1 AND usn > $2 ORDER BY usn LIMIT $3"
-
-	rows, err := db.DB.Query(query, userId, afterUsn, maxEntry)
-	if err != nil {
-		Log(err.Error())
-		return noteTags
-	}
-	defer rows.Close()
-
-	for rows.Next() {
-		var noteTag info.NoteTag
-		err := rows.Scan(
-			&noteTag.TagId, &noteTag.UserId, &noteTag.Tag, &noteTag.Count,
-			&noteTag.Usn, &noteTag.CreatedTime, &noteTag.UpdatedTime, &noteTag.IsDeleted,
-		)
-		if err != nil {
-			Log(err.Error())
-			continue
-		}
-		noteTags = append(noteTags, noteTag)
-	}
+	db.ListByQOptions(db.NoteTags, bson.M{"UserId": bson.ObjectIdHex(userId), "Usn": bson.M{"$gt": afterUsn}},
+		&noteTags, db.QueryOptions{Sort: []string{"Usn"}, Limit: maxEntry})
 	return noteTags
 }

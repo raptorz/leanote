@@ -1,11 +1,11 @@
 package service
 
 import (
-	"encoding/json"
 	"github.com/leanote/leanote/app/db"
 	"github.com/leanote/leanote/app/info"
-	. "github.com/leanote/leanote/app/lea"
-	"time"
+	//	. "github.com/leanote/leanote/app/lea"
+	"gopkg.in/mgo.v2/bson"
+	//	"time"
 )
 
 // 历史记录
@@ -48,22 +48,13 @@ func (this *NoteContentHistoryService) AddHistory(noteId, userId string, eachHis
 
 // 新建历史
 func (this *NoteContentHistoryService) newHistory(noteId, userId string, eachHistory info.EachHistory) {
-	history := info.NoteContentHistory{
-		NoteContentHistoryId: db.NewUUID(),
-		NoteId:               noteId,
-		UserId:               userId,
-		Histories:            []info.EachHistory{eachHistory},
-		CreatedTime:          time.Now(),
+	history := info.NoteContentHistory{NoteId: bson.ObjectIdHex(noteId),
+		UserId:    bson.ObjectIdHex(userId),
+		Histories: []info.EachHistory{eachHistory},
 	}
 
 	// 保存之
-	query := "INSERT INTO note_content_histories (id, note_id, user_id, histories, created_time) VALUES ($1, $2, $3, $4, $5)"
-	// Note: histories is a JSONB field, need to convert to JSON
-	historiesJSON, _ := json.Marshal(history.Histories)
-	_, err := db.DB.Exec(query, history.NoteContentHistoryId, history.NoteId, history.UserId, historiesJSON, history.CreatedTime)
-	if err != nil {
-		Log(err.Error())
-	}
+	db.Insert(db.NoteContentHistories, history)
 }
 
 // 列表展示

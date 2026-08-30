@@ -91,14 +91,15 @@ mongodump --host localhost --port 27017 --db leanote --out mongodb_backup
 
 ```bash
 # 编译迁移工具
-cd scripts
-go build -o migrate migrate_mongo_to_pg.go
+go build -o migrate ./tools/migration
 
 # 运行迁移（确保 MongoDB 和 PostgreSQL 都在运行）
-./migrate
+./migrate -direction mongo_to_pg \
+  -mongo-url 'mongodb://127.0.0.1:27017/leanote' \
+  -postgres-url 'host=127.0.0.1 port=5432 user=leanote password=leanote dbname=leanote sslmode=disable'
 
 # 或者直接运行
-go run scripts/migrate_mongo_to_pg.go
+go run ./tools/migration -direction mongo_to_pg
 ```
 
 ### 4. 验证迁移

@@ -420,7 +420,7 @@ func init() {
 	// init Email
 	revel.OnAppStart(func() {
 		// 数据库
-		db.InitPG("", "")
+		db.Init("", "")
 		// email配置
 		InitEmail()
 		InitVd()

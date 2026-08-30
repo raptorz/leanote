@@ -1,12 +1,11 @@
 package service
 
 import (
-	"database/sql"
-	"fmt"
 	"github.com/leanote/leanote/app/db"
 	"github.com/leanote/leanote/app/info"
 	. "github.com/leanote/leanote/app/lea"
 	"github.com/revel/revel"
+	"gopkg.in/mgo.v2/bson"
 	"os"
 	"strings"
 	"time"
@@ -20,68 +19,45 @@ type AttachService struct {
 // fromApi表示是api添加的, updateNote传过来的, 此时不要incNote's usn, 因为updateNote会inc的
 func (this *AttachService) AddAttach(attach info.Attach, fromApi bool) (ok bool, msg string) {
 	attach.CreatedTime = time.Now()
+	ok = db.Insert(db.Attachs, attach)
 
-	// 生成新的附件ID
-	if attach.AttachId == "" {
-		attach.AttachId = db.NewUUID()
-	}
-
-	// 插入附件到数据库
-	query := `INSERT INTO attachs (
-		attach_id, note_id, upload_user_id, name, title, size, type, path, created_time
-	) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`
-
-	_, err := db.DB.Exec(query,
-		attach.AttachId, attach.NoteId, attach.UploadUserId,
-		attach.Name, attach.Title, attach.Size, attach.Type, attach.Path, attach.CreatedTime,
-	)
-
-	if err != nil {
-		Log(err.Error())
-		return false, "db error"
-	}
-
-	note := noteService.GetNoteById(attach.NoteId)
+	note := noteService.GetNoteById(attach.NoteId.Hex())
 
 	// api调用时, 添加attach之前是没有note的
 	var userId string
 	if note.NoteId != "" {
-		userId = note.UserId
+		userId = note.UserId.Hex()
 	} else {
-		userId = attach.UploadUserId
+		userId = attach.UploadUserId.Hex()
 	}
 
-	// 更新笔记的attachs num
-	this.updateNoteAttachNum(attach.NoteId, 1)
+	if ok {
+		// 更新笔记的attachs num
+		this.updateNoteAttachNum(attach.NoteId, 1)
+	}
 
 	if !fromApi {
 		// 增长note's usn
-		noteService.IncrNoteUsn(attach.NoteId, userId)
+		noteService.IncrNoteUsn(attach.NoteId.Hex(), userId)
 	}
 
-	return true, ""
+	return
 }
 
 // 更新笔记的附件个数
 // addNum 1或-1
-func (this *AttachService) updateNoteAttachNum(noteId string, addNum int) bool {
-	// 统计附件数量
-	var num int
-	query := "SELECT COUNT(*) FROM attachs WHERE note_id = $1"
-	err := db.DB.QueryRow(query, noteId).Scan(&num)
-	if err != nil {
-		Log(err.Error())
-		return false
-	}
-
-	// 更新笔记的附件数量
-	updateQuery := "UPDATE notes SET attach_num = $1 WHERE id = $2"
-	_, err = db.DB.Exec(updateQuery, num, noteId)
-	if err != nil {
-		Log(err.Error())
-		return false
-	}
-	return true
+func (this *AttachService) updateNoteAttachNum(noteId bson.ObjectId, addNum int) bool {
+	num := db.Count(db.Attachs, bson.M{"NoteId": noteId})
+	/*
+		note := info.Note{}
+		note = noteService.GetNoteById(noteId.Hex())
+		note.AttachNum += addNum
+		if note.AttachNum < 0 {
+			note.AttachNum = 0
+		}
+		Log(note.AttachNum)
+	*/
+	return db.UpdateByQField(db.Notes, bson.M{"_id": noteId}, "AttachNum", num)
 }
 
 // list attachs
@@ -89,12 +65,8 @@ func (this *AttachService) ListAttachs(noteId, userId string) []info.Attach {
 	attachs := []info.Attach{}
 
 	// 判断是否有权限为笔记添加附件, userId为空时表示是分享笔记的附件
-	if userId != "" {
-		// TODO: 需要迁移shareService后启用
-		// if !shareService.HasUpdateNotePerm(noteId, userId) {
-		// 	return attachs
-		// }
-		Log("TODO: Check update note permission")
+	if userId != "" && !shareService.HasUpdateNotePerm(noteId, userId) {
+		return attachs
 	}
 
 	// 笔记是否是自己的
@@ -105,76 +77,18 @@ func (this *AttachService) ListAttachs(noteId, userId string) []info.Attach {
 
 	// TODO 这里, 优化权限控制
 
-	// 查询附件
-	query := "SELECT attach_id, note_id, upload_user_id, name, title, size, type, path, created_time FROM attachs WHERE note_id = $1"
-	rows, err := db.DB.Query(query, noteId)
-	if err != nil {
-		Log(err.Error())
-		return attachs
-	}
-	defer rows.Close()
-
-	for rows.Next() {
-		var attach info.Attach
-		err := rows.Scan(
-			&attach.AttachId, &attach.NoteId, &attach.UploadUserId,
-			&attach.Name, &attach.Title, &attach.Size, &attach.Type, &attach.Path, &attach.CreatedTime,
-		)
-		if err != nil {
-			Log(err.Error())
-			continue
-		}
-		attachs = append(attachs, attach)
-	}
+	db.ListByQ(db.Attachs, bson.M{"NoteId": bson.ObjectIdHex(noteId)}, &attachs)
 
 	return attachs
 }
 
 // api调用, 通过noteIds得到note's attachs, 通过noteId归类返回
-func (this *AttachService) getAttachsByNoteIds(noteIds []string) map[string][]info.Attach {
+func (this *AttachService) getAttachsByNoteIds(noteIds []bson.ObjectId) map[string][]info.Attach {
 	attachs := []info.Attach{}
+	db.ListByQ(db.Attachs, bson.M{"NoteId": bson.M{"$in": noteIds}}, &attachs)
 	noteAttchs := make(map[string][]info.Attach)
-
-	if len(noteIds) == 0 {
-		return noteAttchs
-	}
-
-	// 构建IN查询
-	placeholders := make([]string, len(noteIds))
-	args := make([]interface{}, len(noteIds))
-	for i, id := range noteIds {
-		placeholders[i] = fmt.Sprintf("$%d", i+1)
-		args[i] = id
-	}
-
-	query := fmt.Sprintf(
-		"SELECT attach_id, note_id, upload_user_id, name, title, size, type, path, created_time FROM attachs WHERE note_id IN (%s)",
-		strings.Join(placeholders, ", "),
-	)
-
-	rows, err := db.DB.Query(query, args...)
-	if err != nil {
-		Log(err.Error())
-		return noteAttchs
-	}
-	defer rows.Close()
-
-	for rows.Next() {
-		var attach info.Attach
-		err := rows.Scan(
-			&attach.AttachId, &attach.NoteId, &attach.UploadUserId,
-			&attach.Name, &attach.Title, &attach.Size, &attach.Type, &attach.Path, &attach.CreatedTime,
-		)
-		if err != nil {
-			Log(err.Error())
-			continue
-		}
-		attachs = append(attachs, attach)
-	}
-
-	// 按noteId归类
 	for _, attach := range attachs {
-		noteId := attach.NoteId
+		noteId := attach.NoteId.Hex()
 		if itAttachs, ok := noteAttchs[noteId]; ok {
 			noteAttchs[noteId] = append(itAttachs, attach)
 		} else {
@@ -185,63 +99,19 @@ func (this *AttachService) getAttachsByNoteIds(noteIds []string) map[string][]in
 }
 
 func (this *AttachService) UpdateImageTitle(userId, fileId, title string) bool {
-	// TODO: 需要实现files表的更新
-	// query := "UPDATE files SET title = $1 WHERE file_id = $2 AND user_id = $3"
-	// _, err := db.DB.Exec(query, title, fileId, userId)
-	// if err != nil {
-	// 	Log(err.Error())
-	// 	return false
-	// }
-	// return true
-	Log("TODO: UpdateImageTitle not implemented for PostgreSQL")
-	return false
+	return db.UpdateByIdAndUserIdField(db.Files, fileId, userId, "Title", title)
 }
 
 // Delete note to delete attas firstly
 func (this *AttachService) DeleteAllAttachs(noteId, userId string) bool {
 	note := noteService.GetNoteById(noteId)
-	if note.UserId == userId {
+	if note.UserId.Hex() == userId {
 		attachs := []info.Attach{}
-
-		// 查询所有附件
-		query := "SELECT attach_id, note_id, upload_user_id, name, title, size, type, path, created_time FROM attachs WHERE note_id = $1"
-		rows, err := db.DB.Query(query, noteId)
-		if err != nil {
-			Log(err.Error())
-			return false
-		}
-		defer rows.Close()
-
-		for rows.Next() {
-			var attach info.Attach
-			err := rows.Scan(
-				&attach.AttachId, &attach.NoteId, &attach.UploadUserId,
-				&attach.Name, &attach.Title, &attach.Size, &attach.Type, &attach.Path, &attach.CreatedTime,
-			)
-			if err != nil {
-				Log(err.Error())
-				continue
-			}
-			attachs = append(attachs, attach)
-		}
-
-		// 删除文件
+		db.ListByQ(db.Attachs, bson.M{"NoteId": bson.ObjectIdHex(noteId)}, &attachs)
 		for _, attach := range attachs {
 			attach.Path = strings.TrimLeft(attach.Path, "/")
 			os.Remove(revel.BasePath + "/" + attach.Path)
 		}
-
-		// 从数据库删除
-		deleteQuery := "DELETE FROM attachs WHERE note_id = $1"
-		_, err = db.DB.Exec(deleteQuery, noteId)
-		if err != nil {
-			Log(err.Error())
-			return false
-		}
-
-		// 更新笔记附件数量
-		this.updateNoteAttachNum(noteId, 0)
-
 		return true
 	}
 
@@ -252,52 +122,30 @@ func (this *AttachService) DeleteAllAttachs(noteId, userId string) bool {
 // 删除附件为什么要incrNoteUsn ? 因为可能没有内容要修改的
 func (this *AttachService) DeleteAttach(attachId, userId string) (bool, string) {
 	attach := info.Attach{}
+	db.Get(db.Attachs, attachId, &attach)
 
-	// 查询附件信息
-	query := "SELECT attach_id, note_id, upload_user_id, name, title, size, type, path, created_time FROM attachs WHERE attach_id = $1"
-	err := db.DB.QueryRow(query, attachId).Scan(
-		&attach.AttachId, &attach.NoteId, &attach.UploadUserId,
-		&attach.Name, &attach.Title, &attach.Size, &attach.Type, &attach.Path, &attach.CreatedTime,
-	)
-
-	if err == nil && attach.AttachId != "" {
+	if attach.AttachId != "" {
 		// 判断是否有权限为笔记添加附件
-		// TODO: 需要迁移shareService后启用
-		// if !shareService.HasUpdateNotePerm(attach.NoteId, userId) {
-		// 	return false, "No Perm"
-		// }
-		Log("TODO: Check update note permission")
-
-		// 从数据库删除
-		deleteQuery := "DELETE FROM attachs WHERE attach_id = $1"
-		_, err := db.DB.Exec(deleteQuery, attachId)
-		if err != nil {
-			Log(err.Error())
-			return false, "db error"
+		if !shareService.HasUpdateNotePerm(attach.NoteId.Hex(), userId) {
+			return false, "No Perm"
 		}
 
-		// 更新笔记附件数量
-		this.updateNoteAttachNum(attach.NoteId, -1)
+		if db.Delete(db.Attachs, bson.M{"_id": bson.ObjectIdHex(attachId)}) {
+			this.updateNoteAttachNum(attach.NoteId, -1)
+			attach.Path = strings.TrimLeft(attach.Path, "/")
+			err := os.Remove(revel.BasePath + "/" + attach.Path)
+			if err == nil {
+				// userService.UpdateAttachSize(note.UserId.Hex(), -attach.Size)
+				// 修改note Usn
+				noteService.IncrNoteUsn(attach.NoteId.Hex(), userId)
 
-		// 删除文件
-		attach.Path = strings.TrimLeft(attach.Path, "/")
-		err = os.Remove(revel.BasePath + "/" + attach.Path)
-		if err == nil {
-			// userService.UpdateAttachSize(note.UserId, -attach.Size)
-			// 修改note Usn
-			noteService.IncrNoteUsn(attach.NoteId, userId)
-
-			return true, "delete file success"
+				return true, "delete file success"
+			}
+			return false, "delete file error"
 		}
-		return false, "delete file error"
+		return false, "db error"
 	}
-
-	if err == sql.ErrNoRows {
-		return false, "no such item"
-	}
-
-	Log(err.Error())
-	return false, "db error"
+	return false, "no such item"
 }
 
 // 获取文件路径
@@ -309,77 +157,46 @@ func (this *AttachService) GetAttach(attachId, userId string) (attach info.Attac
 	}
 
 	attach = info.Attach{}
-
-	// 查询附件信息
-	query := "SELECT attach_id, note_id, upload_user_id, name, title, size, type, path, created_time FROM attachs WHERE attach_id = $1"
-	err := db.DB.QueryRow(query, attachId).Scan(
-		&attach.AttachId, &attach.NoteId, &attach.UploadUserId,
-		&attach.Name, &attach.Title, &attach.Size, &attach.Type, &attach.Path, &attach.CreatedTime,
-	)
-
-	if err != nil || attach.Path == "" {
-		if err != nil && err != sql.ErrNoRows {
-			Log(err.Error())
-		}
-		return info.Attach{}
+	db.Get(db.Attachs, attachId, &attach)
+	path := attach.Path
+	if path == "" {
+		return
 	}
 
-	note := noteService.GetNoteById(attach.NoteId)
+	note := noteService.GetNoteById(attach.NoteId.Hex())
 
 	// 判断权限
 
 	// 笔记是否是公开的
 	if note.IsBlog {
-		return attach
+		return
 	}
 
 	// 笔记是否是我的
-	if note.UserId == userId {
-		return attach
+	if note.UserId.Hex() == userId {
+		return
 	}
 
 	// 我是否有权限查看或协作
-	// TODO: 需要迁移shareService后启用
-	// if shareService.HasReadNotePerm(attach.NoteId, userId) {
-	// 	return attach
-	// }
-	Log("TODO: Check read note permission")
+	if shareService.HasReadNotePerm(attach.NoteId.Hex(), userId) {
+		return
+	}
 
-	return info.Attach{}
+	attach = info.Attach{}
+	return
 }
 
 // 复制笔记时需要复制附件
 // noteService调用, 权限已判断
 func (this *AttachService) CopyAttachs(noteId, toNoteId, toUserId string) bool {
 	attachs := []info.Attach{}
-
-	// 查询源笔记的所有附件
-	query := "SELECT attach_id, user_id, note_id, upload_user_id, name, title, size, type, path, created_time FROM attachs WHERE note_id = $1"
-	rows, err := db.DB.Query(query, noteId)
-	if err != nil {
-		Log(err.Error())
-		return false
-	}
-	defer rows.Close()
-
-	for rows.Next() {
-		var attach info.Attach
-		err := rows.Scan(
-			&attach.AttachId, &attach.NoteId, &attach.UploadUserId,
-			&attach.Name, &attach.Title, &attach.Size, &attach.Type, &attach.Path, &attach.CreatedTime,
-		)
-		if err != nil {
-			Log(err.Error())
-			continue
-		}
-		attachs = append(attachs, attach)
-	}
+	db.ListByQ(db.Attachs, bson.M{"NoteId": bson.ObjectIdHex(noteId)}, &attachs)
 
 	// 复制之
+	toNoteIdO := bson.ObjectIdHex(toNoteId)
 	for _, attach := range attachs {
 		attach.AttachId = ""
-		attach.NoteId = toNoteId
-		attach.UploadUserId = toUserId
+		attach.NoteId = toNoteIdO
 
 		// 文件复制一份
 		_, ext := SplitFilename(attach.Name)
@@ -418,7 +235,7 @@ func (this *AttachService) UpdateOrDeleteAttachApi(noteId, userId string, files 
 	}
 
 	for _, attach := range attachs {
-		fileId := attach.AttachId
+		fileId := attach.AttachId.Hex()
 		if !nowAttachs[fileId] {
 			// 需要删除的
 			// TODO 权限验证去掉
@@ -427,4 +244,5 @@ func (this *AttachService) UpdateOrDeleteAttachApi(noteId, userId string, files 
 	}
 
 	return false
+
 }

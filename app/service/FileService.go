@@ -1,12 +1,16 @@
 package service
 
 import (
-	"database/sql"
+	"encoding/base64"
 	"fmt"
 	"github.com/leanote/leanote/app/db"
 	"github.com/leanote/leanote/app/info"
 	. "github.com/leanote/leanote/app/lea"
-	"github.com/lib/pq"
+	"github.com/revel/revel"
+	"gopkg.in/mgo.v2/bson"
+	"io/ioutil"
+	"net/http"
+	"os"
 	"strings"
 	"time"
 )
@@ -20,12 +24,12 @@ type FileService struct {
 func (this *FileService) AddImage(image info.File, albumId, userId string, needCheckSize bool) (ok bool, msg string) {
 	image.CreatedTime = time.Now()
 	if albumId != "" {
-		image.AlbumId = albumId
+		image.AlbumId = bson.ObjectIdHex(albumId)
 	} else {
-		image.AlbumId = DEFAULT_ALBUM_ID
+		image.AlbumId = bson.ObjectIdHex(DEFAULT_ALBUM_ID)
 		image.IsDefaultAlbum = true
 	}
-	image.UserId = userId
+	image.UserId = bson.ObjectIdHex(userId)
 
 	ok = db.Insert(db.Files, image)
 	return
@@ -37,54 +41,23 @@ func (this *FileService) ListImagesWithPage(userId, albumId, key string, pageNum
 	skipNum, sortFieldR := parsePageAndSort(pageNumber, pageSize, "CreatedTime", false)
 	files := []info.File{}
 
-	// Build PostgreSQL query
-	query := "SELECT * FROM files WHERE user_id = $1"
-	args := []interface{}{userId}
-	argIndex := 2
-
+	q := bson.M{"UserId": bson.ObjectIdHex(userId), "Type": ""} // life
 	if albumId != "" {
-		query += fmt.Sprintf(" AND album_id = $%d", argIndex)
-		args = append(args, albumId)
-		argIndex++
+		q["AlbumId"] = bson.ObjectIdHex(albumId)
 	} else {
-		query += " AND is_default_album = true"
+		q["IsDefaultAlbum"] = true
 	}
 	if key != "" {
-		query += fmt.Sprintf(" AND title ILIKE $%d", argIndex)
-		args = append(args, "%"+key+"%")
-		argIndex++
+		q["Title"] = bson.M{"$regex": bson.RegEx{".*?" + key + ".*", "i"}}
 	}
 
-	// Get total count
-	countQuery := strings.Replace(query, "SELECT *", "SELECT COUNT(*)", 1)
-	var count int
-	err := db.DB.QueryRow(countQuery, args...).Scan(&count)
-	if err != nil {
-		Log(err.Error())
-		return info.Page{Count: 0, List: []info.File{}}
-	}
+	//	LogJ(q)
 
-	// Add sorting and pagination
-	query += fmt.Sprintf(" ORDER BY %s OFFSET $%d LIMIT $%d", sortFieldR, argIndex, argIndex+1)
-	args = append(args, skipNum, pageSize)
+	count := db.Count(db.Files, q)
 
-	// Execute query
-	rows, err := db.DB.Query(query, args...)
-	if err != nil {
-		Log(err.Error())
-		return info.Page{Count: count, List: []info.File{}}
-	}
-	defer rows.Close()
-
-	for rows.Next() {
-		var file info.File
-		err := rows.Scan(&file.FileId, &file.UserId, &file.Name, &file.Title, &file.Size, &file.Path, &file.MimeType, &file.CreatedTime, &file.AlbumId, &file.IsDefaultAlbum)
-		if err != nil {
-			Log(err.Error())
-			continue
-		}
-		files = append(files, file)
-	}
+	db.ListByQOptions(db.Files, q, &files, db.QueryOptions{
+		Sort: []string{sortFieldR}, Skip: skipNum, Limit: pageSize,
+	})
 
 	return info.Page{Count: count, List: files}
 }
@@ -96,24 +69,9 @@ func (this *FileService) UpdateImageTitle(userId, fileId, title string) bool {
 // get all images names
 // for upgrade
 func (this *FileService) GetAllImageNamesMap(userId string) (m map[string]bool) {
+	q := bson.M{"UserId": bson.ObjectIdHex(userId)}
 	files := []info.File{}
-	query := "SELECT name FROM files WHERE user_id = $1"
-	rows, err := db.DB.Query(query, userId)
-	if err != nil {
-		Log(err.Error())
-		return make(map[string]bool)
-	}
-	defer rows.Close()
-
-	for rows.Next() {
-		var file info.File
-		err := rows.Scan(&file.Name)
-		if err != nil {
-			Log(err.Error())
-			continue
-		}
-		files = append(files, file)
-	}
+	db.ListByQWithFields(db.Files, q, []string{"Name"}, &files)
 
 	m = make(map[string]bool)
 	if len(files) == 0 {
@@ -134,9 +92,19 @@ func (this *FileService) DeleteImage(userId, fileId string) (bool, string) {
 	if file.FileId != "" {
 		if db.DeleteByIdAndUserId(db.Files, fileId, userId) {
 			// delete image
-			// TODO: 简化版本，不实际删除文件
-			Log("Would delete file: " + file.Path)
-			return true, ""
+			// TODO
+			file.Path = strings.TrimLeft(file.Path, "/")
+			var err error
+			if strings.HasPrefix(file.Path, "upload") {
+				Log(file.Path)
+				err = os.Remove(revel.BasePath + "/public/" + file.Path)
+			} else {
+				err = os.Remove(revel.BasePath + "/" + file.Path)
+			}
+			if err == nil {
+				return true, ""
+			}
+			return false, "delete file error!"
 		}
 		return false, "db error"
 	}
@@ -161,11 +129,23 @@ func (this *FileService) GetFileBase64(userId, fileId string) (str string, mine 
 		return "", ""
 	}
 
-	// 简化版本，返回空
-	return "", ""
+	path = revel.BasePath + "/" + strings.TrimLeft(path, "/")
 
-	// 简化版本，返回空
-	return "", ""
+	ff, err := ioutil.ReadFile(path)
+	if err != nil {
+		return "", ""
+	}
+
+	e64 := base64.StdEncoding
+	maxEncLen := e64.EncodedLen(len(ff))
+	encBuf := make([]byte, maxEncLen)
+
+	e64.Encode(encBuf, ff)
+
+	mime := http.DetectContentType(ff)
+
+	str = string(encBuf)
+	return str, mime
 }
 
 // 得到图片base64, 图片要在之前添加data:image/png;base64,
@@ -192,13 +172,7 @@ func (this *FileService) GetFile(userId, fileId string) string {
 	}
 
 	file := info.File{}
-	query := "SELECT * FROM files WHERE id = $1"
-	err := db.DB.QueryRow(query, fileId).Scan(
-		&file.FileId, &file.UserId, &file.Name, &file.Title, &file.Size,
-		&file.Path, &file.MimeType, &file.CreatedTime, &file.AlbumId, &file.IsDefaultAlbum, &file.FromFileId)
-	if err != nil {
-		return ""
-	}
+	db.Get(db.Files, fileId, &file)
 	path := file.Path
 	if path == "" {
 		return ""
@@ -207,7 +181,7 @@ func (this *FileService) GetFile(userId, fileId string) string {
 	// 1. 判断权限
 
 	// 是否是我的文件
-	if userId != "" && file.UserId == userId {
+	if userId != "" && file.UserId.Hex() == userId {
 		return path
 	}
 
@@ -218,18 +192,14 @@ func (this *FileService) GetFile(userId, fileId string) string {
 	noteIds := noteImageService.GetNoteIds(fileId)
 	if noteIds != nil && len(noteIds) > 0 {
 		// 这些笔记是否有public的
-		// Check if any note is a blog
-		query := "SELECT COUNT(*) FROM notes WHERE id = ANY($1) AND is_blog = true"
-		var count int
-		err := db.DB.QueryRow(query, pq.Array(noteIds)).Scan(&count)
-		if err == nil && count > 0 {
+		if db.Has(db.Notes, bson.M{"_id": bson.M{"$in": noteIds}, "IsBlog": true}) {
 			return path
 		}
 
 		// 2014/12/28 修复, 如果是分享给用户组, 那就不行, 这里可以实现
 		for _, noteId := range noteIds {
-			note := noteService.GetNoteById(noteId)
-			if shareService.HasReadPerm(note.UserId, userId, noteId) {
+			note := noteService.GetNoteById(noteId.Hex())
+			if shareService.HasReadPerm(note.UserId.Hex(), userId, noteId.Hex()) {
 				return path
 			}
 		}
@@ -260,11 +230,8 @@ func (this *FileService) GetFile(userId, fileId string) string {
 	// 可能是刚复制到owner上, 但内容又没有保存, 所以没有note->imageId的映射, 此时看是否有fromFileId
 	if file.FromFileId != "" {
 		fromFile := info.File{}
-		query := "SELECT * FROM files WHERE id = $1"
-		err := db.DB.QueryRow(query, file.FromFileId).Scan(
-			&fromFile.FileId, &fromFile.UserId, &fromFile.Name, &fromFile.Title, &fromFile.Size,
-			&fromFile.Path, &fromFile.MimeType, &fromFile.CreatedTime, &fromFile.AlbumId, &fromFile.IsDefaultAlbum, &fromFile.FromFileId)
-		if err == nil && fromFile.UserId == userId {
+		db.Get2(db.Files, file.FromFileId, &fromFile)
+		if fromFile.UserId.Hex() == userId {
 			return fromFile.Path
 		}
 	}
@@ -277,22 +244,16 @@ func (this *FileService) GetFile(userId, fileId string) string {
 func (this *FileService) CopyImage(userId, fileId, toUserId string) (bool, string) {
 	// 是否已经复制过了
 	file2 := info.File{}
-	query := "SELECT * FROM files WHERE user_id = $1 AND from_file_id = $2"
-	err := db.DB.QueryRow(query, toUserId, fileId).Scan(
-		&file2.FileId, &file2.UserId, &file2.Name, &file2.Title, &file2.Size,
-		&file2.Path, &file2.MimeType, &file2.CreatedTime, &file2.AlbumId, &file2.IsDefaultAlbum, &file2.FromFileId)
-	if err == nil && file2.FileId != "" {
-		return true, file2.FileId
+	db.GetByQ(db.Files, bson.M{"UserId": bson.ObjectIdHex(toUserId), "FromFileId": bson.ObjectIdHex(fileId)}, &file2)
+	if file2.FileId != "" {
+		return true, file2.FileId.Hex()
 	}
 
 	// 复制之
 	file := info.File{}
-	query = "SELECT * FROM files WHERE id = $1 AND user_id = $2"
-	err = db.DB.QueryRow(query, fileId, userId).Scan(
-		&file.FileId, &file.UserId, &file.Name, &file.Title, &file.Size,
-		&file.Path, &file.MimeType, &file.CreatedTime, &file.AlbumId, &file.IsDefaultAlbum, &file.FromFileId)
+	db.GetByIdAndUserId(db.Files, fileId, userId, &file)
 
-	if err == sql.ErrNoRows || file.FileId == "" || file.UserId != userId {
+	if file.FileId == "" || file.UserId.Hex() != userId {
 		return false, ""
 	}
 
@@ -304,38 +265,37 @@ func (this *FileService) CopyImage(userId, fileId, toUserId string) (bool, strin
 	// dir := "files/" + toUserId + "/images"
 	dir := "files/" + GetRandomFilePath(toUserId, guid) + "/images"
 	filePath := dir + "/" + newFilename
-	// 简化版本，不实际创建目录和复制文件
-	Log("Would copy file from " + file.Path + " to " + filePath)
+	err := os.MkdirAll(revel.BasePath+dir, 0755)
+	if err != nil {
+		return false, ""
+	}
 
-	fileInfo := info.File{
-		Name:       newFilename,
+	_, err = CopyFile(revel.BasePath+"/"+file.Path, revel.BasePath+"/"+filePath)
+	if err != nil {
+		return false, ""
+	}
+
+	fileInfo := info.File{Name: newFilename,
 		Title:      file.Title,
 		Path:       filePath,
 		Size:       file.Size,
-		FromFileId: file.FileId,
-		UserId:     toUserId,
-		MimeType:   file.MimeType,
-	}
-	id := db.NewUUID()
+		FromFileId: file.FileId}
+	id := bson.NewObjectId()
 	fileInfo.FileId = id
-	fileId = id
+	fileId = id.Hex()
 	Ok, _ := this.AddImage(fileInfo, "", toUserId, false)
 
 	if Ok {
-		return Ok, id
+		return Ok, id.Hex()
 	}
 	return false, ""
 }
 
 // 是否是我的文件
 func (this *FileService) IsMyFile(userId, fileId string) bool {
-	// Check if file exists and belongs to user
-	query := "SELECT COUNT(*) FROM files WHERE id = $1 AND user_id = $2"
-	var count int
-	err := db.DB.QueryRow(query, fileId, userId).Scan(&count)
-	if err != nil {
-		Log(err.Error())
+	// 如果有问题会panic
+	if !bson.IsObjectIdHex(fileId) || !bson.IsObjectIdHex(userId) {
 		return false
 	}
-	return count > 0
+	return db.Has(db.Files, bson.M{"UserId": bson.ObjectIdHex(userId), "_id": bson.ObjectIdHex(fileId)})
 }

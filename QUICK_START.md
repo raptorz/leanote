@@ -84,14 +84,15 @@ mongod --dbpath /path/to/mongodb/data
 ### 2. 运行迁移脚本
 
 ```bash
-cd scripts
-go run migrate_mongo_to_pg.go
+go run ./tools/migration -direction mongo_to_pg \
+  -mongo-url 'mongodb://127.0.0.1:27017/leanote' \
+  -postgres-url 'host=127.0.0.1 port=5432 user=leanote password=leanote dbname=leanote sslmode=disable'
 ```
 
 迁移脚本会自动：
 - 连接到 MongoDB
 - 读取所有用户、笔记本、笔记等数据
-- 转换 ObjectId 到 UUID
+- 原样保留 24 位 ObjectId 和关联关系
 - 写入 PostgreSQL
 
 ### 3. 验证迁移
@@ -189,9 +190,9 @@ GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO leanote;
 ## 文件位置
 
 - **数据库 Schema**: `database/schema.sql`
-- **数据库连接**: `app/db/Postgres.go`
-- **Service 示例**: `app/service/UserService_pg.go`
-- **迁移脚本**: `scripts/migrate_mongo_to_pg.go`
+- **数据库连接**: `app/db/`
+- **Service 层**: `app/service/`
+- **迁移工具**: `tools/migration/`
 - **配置文件**: `conf/app.conf`
 
 ## 获取帮助
@@ -215,7 +216,8 @@ revel run github.com/leanote/leanote                  # 运行应用
 revel build github.com/leanote/leanote leanote         # 编译应用
 
 # 迁移操作
-go run scripts/migrate_mongo_to_pg.go                 # 运行迁移
+go run ./tools/migration -direction mongo_to_pg       # MongoDB → PostgreSQL
+go run ./tools/migration -direction pg_to_mongo       # PostgreSQL → MongoDB
 
 # 监控操作
 psql -U leanote -d leanote -c "SELECT count(*) FROM pg_stat_activity WHERE datname = 'leanote';"  # 查看连接数

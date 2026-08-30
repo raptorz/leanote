@@ -4,35 +4,25 @@ import (
 	"github.com/leanote/leanote/app/db"
 	"github.com/leanote/leanote/app/info"
 	. "github.com/leanote/leanote/app/lea"
+	"gopkg.in/mgo.v2/bson"
 	"regexp"
-	"time"
+	//	"time"
 )
 
 type NoteImageService struct {
 }
 
 // 通过id, userId得到noteIds
-func (this *NoteImageService) GetNoteIds(imageId string) []string {
-	query := "SELECT note_id FROM note_images WHERE file_id = $1"
-	rows, err := db.DB.Query(query, imageId)
-	if err != nil {
-		Log(err.Error())
-		return nil
-	}
-	defer rows.Close()
+func (this *NoteImageService) GetNoteIds(imageId string) []bson.ObjectId {
+	noteImages := []info.NoteImage{}
+	db.ListByQWithFields(db.NoteImages, bson.M{"ImageId": bson.ObjectIdHex(imageId)}, []string{"NoteId"}, &noteImages)
 
-	noteIds := []string{}
-	for rows.Next() {
-		var noteImage info.NoteImage
-		err := rows.Scan(&noteImage.NoteId)
-		if err != nil {
-			Log(err.Error())
-			continue
+	if noteImages != nil && len(noteImages) > 0 {
+		noteIds := make([]bson.ObjectId, len(noteImages))
+		cnt := len(noteImages)
+		for i := 0; i < cnt; i++ {
+			noteIds[i] = noteImages[i].NoteId
 		}
-		noteIds = append(noteIds, noteImage.NoteId)
-	}
-
-	if len(noteIds) > 0 {
 		return noteIds
 	}
 
@@ -54,15 +44,11 @@ func (this *NoteImageService) UpdateNoteImages(userId, noteId, imgSrc, content s
 	find := reg.FindAllStringSubmatch(content, -1) // 查找所有的
 
 	// 删除旧的
-	query := "DELETE FROM note_images WHERE note_id = $1"
-	_, err := db.DB.Exec(query, noteId)
-	if err != nil {
-		Log(err.Error())
-	}
+	db.DeleteAll(db.NoteImages, bson.M{"NoteId": bson.ObjectIdHex(noteId)})
 
 	// 添加新的
 	var fileId string
-	noteImage := info.NoteImage{NoteId: noteId, UserId: userId}
+	noteImage := info.NoteImage{NoteId: bson.ObjectIdHex(noteId)}
 	hasAdded := make(map[string]bool)
 	if find != nil && len(find) > 0 {
 		for _, each := range find {
@@ -73,14 +59,8 @@ func (this *NoteImageService) UpdateNoteImages(userId, noteId, imgSrc, content s
 					Log(fileId)
 					// 判断是否是我的文件
 					if fileService.IsMyFile(userId, fileId) {
-						noteImage.FileId = fileId
-						noteImage.NoteImageId = db.NewUUID()
-						noteImage.CreatedTime = time.Now()
-						insertQuery := "INSERT INTO note_images (id, note_id, user_id, file_id, created_time) VALUES ($1, $2, $3, $4, $5)"
-						_, err := db.DB.Exec(insertQuery, noteImage.NoteImageId, noteImage.NoteId, noteImage.UserId, noteImage.FileId, noteImage.CreatedTime)
-						if err != nil {
-							Log(err.Error())
-						}
+						noteImage.ImageId = bson.ObjectIdHex(fileId)
+						db.Insert(db.NoteImages, noteImage)
 					}
 					hasAdded[fileId] = true
 				}
@@ -123,9 +103,13 @@ func (this *NoteImageService) CopyNoteImages(fromNoteId, fromUserId, newNoteId, 
 		fileId := each[len(each)-24:] // 得到后24位, 也即id
 
 		if _, ok := replaceMap[fileId]; !ok {
-			ok2, newImageId := fileService.CopyImage(fromUserId, fileId, toUserId)
-			if ok2 {
-				replaceMap[fileId] = newImageId
+			if bson.IsObjectIdHex(fileId) {
+				ok2, newImageId := fileService.CopyImage(fromUserId, fileId, toUserId)
+				if ok2 {
+					replaceMap[fileId] = newImageId
+				} else {
+					replaceMap[fileId] = ""
+				}
 			} else {
 				replaceMap[fileId] = ""
 			}
@@ -144,7 +128,47 @@ func (this *NoteImageService) CopyNoteImages(fromNoteId, fromUserId, newNoteId, 
 	return content
 }
 
-func (this *NoteImageService) getImagesByNoteIds(noteIds []string) map[string][]info.File {
-	// TODO: Implement PostgreSQL version
-	return make(map[string][]info.File)
+//
+func (this *NoteImageService) getImagesByNoteIds(noteIds []bson.ObjectId) map[string][]info.File {
+	noteNoteImages := []info.NoteImage{}
+	db.ListByQ(db.NoteImages, bson.M{"NoteId": bson.M{"$in": noteIds}}, &noteNoteImages)
+
+	// 得到imageId, 再去files表查所有的Files
+	imageIds := []bson.ObjectId{}
+
+	// 图片1 => N notes
+	imageIdNotes := map[string][]string{} // imageId => [noteId1, noteId2, ...]
+	for _, noteImage := range noteNoteImages {
+		imageId := noteImage.ImageId
+		imageIds = append(imageIds, imageId)
+
+		imageIdHex := imageId.Hex()
+		noteId := noteImage.NoteId.Hex()
+		if notes, ok := imageIdNotes[imageIdHex]; ok {
+			imageIdNotes[imageIdHex] = append(notes, noteId)
+		} else {
+			imageIdNotes[imageIdHex] = []string{noteId}
+		}
+	}
+
+	// 得到所有files
+	files := []info.File{}
+	db.ListByQ(db.Files, bson.M{"_id": bson.M{"$in": imageIds}}, &files)
+
+	// 建立note->file关联
+	noteImages := make(map[string][]info.File)
+	for _, file := range files {
+		fileIdHex := file.FileId.Hex() // == imageId
+		// 这个fileIdHex有哪些notes呢?
+		if notes, ok := imageIdNotes[fileIdHex]; ok {
+			for _, noteId := range notes {
+				if files, ok2 := noteImages[noteId]; ok2 {
+					noteImages[noteId] = append(files, file)
+				} else {
+					noteImages[noteId] = []info.File{file}
+				}
+			}
+		}
+	}
+	return noteImages
 }
