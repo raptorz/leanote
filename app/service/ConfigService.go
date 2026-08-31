@@ -5,6 +5,7 @@ import (
 	"github.com/pearlnote/pearlnote/app/db"
 	"github.com/pearlnote/pearlnote/app/info"
 	. "github.com/pearlnote/pearlnote/app/lea"
+	appversion "github.com/pearlnote/pearlnote/app/version"
 	"github.com/revel/revel"
 	"gopkg.in/mgo.v2/bson"
 	"os"
@@ -191,7 +192,7 @@ func (this *ConfigService) IsOpenRegister() bool {
 	return this.GetGlobalStringConfig("openRegister") != ""
 }
 
-//-------
+// -------
 // 修改共享笔记的配置
 func (this *ConfigService) UpdateShareNoteConfig(registerSharedUserId string,
 	registerSharedNotebookPerms, registerSharedNotePerms []int,
@@ -462,7 +463,7 @@ func (this *ConfigService) GetBackup(createdTime string) (map[string]string, boo
 	return backup, true
 }
 
-//--------------
+// --------------
 // sub domain
 var defaultDomain string
 var schema = "http://"
@@ -606,5 +607,5 @@ func (this *ConfigService) HomePageIsAdminsBlog() bool {
 }
 
 func (this *ConfigService) GetVersion() string {
-	return "2.6.1"
+	return appversion.Current
 }

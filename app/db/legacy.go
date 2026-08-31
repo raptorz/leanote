@@ -37,6 +37,11 @@ func Init(url, dbname string) {
 	if err != nil {
 		panic(err)
 	}
+	if err = migrate(globalDatabase); err != nil {
+		globalDatabase.Close()
+		globalDatabase = nil
+		panic(err)
+	}
 	globalDatabase.SetupLegacyVariables()
 }
 

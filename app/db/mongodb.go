@@ -3,6 +3,7 @@ package db
 import (
 	"fmt"
 	"strings"
+	"time"
 
 	. "github.com/pearlnote/pearlnote/app/lea"
 	"github.com/revel/revel"
@@ -221,6 +222,30 @@ func (m *MongoDatabase) IsValidID(id string) bool {
 
 func (m *MongoDatabase) GetType() string {
 	return "mongodb"
+}
+
+type mongoMigration struct {
+	Version   string    `bson:"_id"`
+	AppliedAt time.Time `bson:"applied_at"`
+}
+
+func (m *MongoDatabase) AppliedMigrations() ([]string, error) {
+	var records []mongoMigration
+	if err := m.db.C("pearlnote_schema_migrations").Find(nil).All(&records); err != nil {
+		return nil, err
+	}
+	versions := make([]string, 0, len(records))
+	for _, record := range records {
+		versions = append(versions, record.Version)
+	}
+	return versions, nil
+}
+
+func (m *MongoDatabase) RecordMigration(version string) error {
+	_, err := m.db.C("pearlnote_schema_migrations").UpsertId(version, mongoMigration{
+		Version: version, AppliedAt: time.Now().UTC(),
+	})
+	return err
 }
 
 func (m *MongoDatabase) getColl(collection interface{}) *mgo.Collection {

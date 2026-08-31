@@ -50,26 +50,17 @@ db.username=pearlnote
 db.password=pearlnote123
 ```
 
-### 步骤 5: 更新代码（可选）
-
-如果你要从 MongoDB 迁移数据：
-
-```bash
-# 编辑 app/service/init.go
-# 将 db.Init() 改为 db.InitPG()
-```
-
-### 步骤 6: 运行应用
+### 步骤 5: 运行应用
 
 ```bash
 # 开发模式
 revel run github.com/pearlnote/pearlnote
 
-# 或使用 PostgreSQL 模式
- revel run github.com/pearlnote/pearlnote --db=postgres
 ```
 
-### 步骤 7: 访问应用
+数据库类型由 `conf/app.conf` 的 `db.type` 选择，不需要修改代码。
+
+### 步骤 6: 访问应用
 
 打开浏览器访问: http://localhost:9000
 
@@ -179,7 +170,7 @@ GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO pearlnote;
 
 ## 下一步
 
-1. **完成 Service 迁移**: 按照 [MIGRATION_GUIDE.md](MIGRATION_GUIDE.md) 迁移剩余的 Service 文件
+1. **数据库升级**: 升级前备份；服务启动时会自动执行并记录数据库版本迁移
 
 2. **性能优化**: 参考 [DEPLOYMENT.md](DEPLOYMENT.md) 优化数据库配置
 
@@ -199,7 +190,7 @@ GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO pearlnote;
 
 - 详细迁移指南: [MIGRATION_GUIDE.md](MIGRATION_GUIDE.md)
 - 部署指南: [DEPLOYMENT.md](DEPLOYMENT.md)
-- 迁移总结: [MIGRATION_SUMMARY.md](MIGRATION_SUMMARY.md)
+- 数据库抽象完整指南: [DATABASE_ABSTRACTION_GUIDE.md](DATABASE_ABSTRACTION_GUIDE.md)
 
 ## 快速命令参考
 

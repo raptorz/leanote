@@ -160,6 +160,35 @@ func (p *PostgresDatabase) GetType() string {
 	return "postgresql"
 }
 
+func (p *PostgresDatabase) AppliedMigrations() ([]string, error) {
+	if _, err := p.db.Exec(`CREATE TABLE IF NOT EXISTS pearlnote_schema_migrations (
+		version TEXT PRIMARY KEY,
+		applied_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
+	)`); err != nil {
+		return nil, err
+	}
+	rows, err := p.db.Query("SELECT version FROM pearlnote_schema_migrations")
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var versions []string
+	for rows.Next() {
+		var version string
+		if err := rows.Scan(&version); err != nil {
+			return nil, err
+		}
+		versions = append(versions, version)
+	}
+	return versions, rows.Err()
+}
+
+func (p *PostgresDatabase) RecordMigration(version string) error {
+	_, err := p.db.Exec(`INSERT INTO pearlnote_schema_migrations (version)
+		VALUES ($1) ON CONFLICT (version) DO NOTHING`, version)
+	return err
+}
+
 func getTableName(collection interface{}) string {
 	switch c := collection.(type) {
 	case *mgo.Collection:

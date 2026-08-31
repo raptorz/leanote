@@ -63,6 +63,22 @@ db.password=your_secure_password
 db.url=host=127.0.0.1 port=5432 user=pearlnote password=your_secure_password dbname=pearlnote sslmode=disable
 ```
 
+### 5. 数据库版本与升级
+
+Pearlnote `1.0.0` 起会在启动时自动维护数据库版本。MongoDB 使用 `pearlnote_schema_migrations` 集合，PostgreSQL 使用同名表。
+
+```bash
+# PostgreSQL：查看已执行迁移
+psql -U pearlnote -d pearlnote -c \
+  "SELECT version, applied_at FROM pearlnote_schema_migrations ORDER BY applied_at;"
+
+# MongoDB：查看已执行迁移
+mongo pearlnote --eval \
+  'db.pearlnote_schema_migrations.find().sort({applied_at: 1}).pretty()'
+```
+
+升级流程：停止写入并备份数据库及附件文件，更新应用，然后启动服务。服务会在接受业务请求前执行未应用迁移；数据库版本高于应用版本时会拒绝启动。
+
 ## 数据迁移（从 MongoDB）
 
 ### 1. 安装 MongoDB
@@ -402,6 +418,6 @@ psql -U pearlnote -d pearlnote -c "SELECT version();"
 ## 支持
 
 如有问题，请参考：
-- [MIGRATION_SUMMARY.md](MIGRATION_SUMMARY.md)
 - [MIGRATION_GUIDE.md](MIGRATION_GUIDE.md)
+- [DATABASE_ABSTRACTION_GUIDE.md](DATABASE_ABSTRACTION_GUIDE.md)
 - [PostgreSQL 文档](https://www.postgresql.org/docs/)

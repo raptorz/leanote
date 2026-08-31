@@ -1,6 +1,11 @@
 -- Pearlnote PostgreSQL schema. IDs use MongoDB-compatible ObjectId hex strings.
 BEGIN;
 
+CREATE TABLE IF NOT EXISTS pearlnote_schema_migrations (
+ version TEXT PRIMARY KEY,
+ applied_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
 CREATE TABLE IF NOT EXISTS users (
  id CHAR(24) PRIMARY KEY, email TEXT NOT NULL, verified BOOLEAN NOT NULL DEFAULT FALSE,
  username TEXT NOT NULL, username_raw TEXT NOT NULL DEFAULT '', pwd TEXT NOT NULL DEFAULT '',

@@ -1,272 +1,150 @@
-# Pearlnote
+# Pearlnote（珠玑笔记）
 
-[![Build Status](https://travis-ci.org/pearlnote/pearlnote.svg)](https://travis-ci.org/pearlnote/pearlnote)
-[![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/pearlnote/pearlnote?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
+Pearlnote（珠玑笔记）是一套支持私有部署的开源笔记与知识管理系统，提供笔记本、标签、Markdown、富文本编辑、博客发布、分享与协作等功能。
 
-## 1. Introduction
+当前版本：`1.0.0`。
 
-Pearlnote, not just a notepad!
-**Highlighted Features**
+## 项目来源
 
-* Note-taking made easy: Pearlnote incorporates a clean and intuitive interface, the `tinymce` rich-text editor and a dedicated *markdown* editor, making your writing/typing more efficient and enjoyable. For more advanced users, we even offer `Vim` and `Emacs` writing modes to help boost your writing speed to another level.
-* Knowledge management: The flexible and versatile notebook-note-tagging system of Pearlnote makes it an ideal tool for knowledge management.
-* Sharing: Share your knowledge, thoughts and experiences with friends via Pearlnote. Invite your friends to join your notepad in the cloud.
-* Cooperating: Collaborate with colleagues to improve skills, fertilize ideas and brainstorm on the fly.
-* Blogging: Publish your work and make Pearlnote your personal blog.
+本项目基于开源项目 [Leanote](https://github.com/leanote/leanote) 修改开发。感谢 Leanote 原作者及所有贡献者奠定的基础。
 
-**Other Features**
+Pearlnote 在保留 Leanote 核心功能和客户端兼容性的基础上，主要进行了以下扩展：
 
-* Markdown syntax support
-* Distraction-free writing mode
-* `Vim` and `Emacs` editing mode
-* Export notes to PDFs
-* Batch note operation
-* Customizable themes for blogging
+- 增加 PostgreSQL 数据库支持，同时保留 MongoDB 支持；
+- 提供 MongoDB 与 PostgreSQL 双向数据迁移工具；
+- 两种数据库统一使用 MongoDB ObjectId 兼容的 24 位十六进制 ID；
+- 抽象数据库访问层，可通过配置选择 MongoDB 或 PostgreSQL；
+- 项目名称、默认数据库、配置、界面和相关资源更名为 Pearlnote／珠玑笔记；
+- 保持原有 HTTP API 路径、请求参数、响应字段及 MongoDB BSON 字段稳定，以兼容旧版 Leanote 客户端和已有数据。
 
-## 2. Why we create Pearlnote
+本项目继续遵循仓库中的开源许可证。使用、修改和分发时，请同时遵守原项目及本项目的许可证要求。
 
-We have been using the popular note-taking software/service `Evernote` as our knowledge management tool on a daily basis. Benefited from and inspired by `Evernote`, we decided to create a brand-new tool that provides everything `Evernote` has to offer, plus a bunch of new features that `Evernote` failed to deliver, such as:
+## 主要功能
 
-* A more powerful editor: `Evernote`'s editor lacks the functionalities of **document navigation**, **syntax based code rendering** (as a programmer, syntax highlighted code rendering is a necessity), **image resizing** and so forth.
-* Everybody loves *markdown*, however `Evernote` simply wouldn't add it despite of years' of requests from users. So we will do the favor and bring a *markdown* enabled editor to you, guess what, it is also rendered in real-time!
-* If you a developer and miss the `Vim` or `Emacs` ways of writing, we offer you the choice of `Vim` and `Emacs` editing modes. Equipped with *markdown* syntax for text formatting, you will never need to touch your mouse while writing.
-* We love managing knowledge and thoughts as much as sharing them, so everybody has their own note account (`Evernote`, `Onenote`, `Google doc`, `Wiz note` etc.) and social media account (`Facebook`, `Wordpress`, blogs, etc.). But why can’t those two be one? Pearlnote makes this first step to bridge the private note-taking and public knowledge sharing seamlessly.
-* A complete and all-platform (sorry Windows phone) covering software suite: that includes Pearlnote Web & Server (this repository), [Desktop app](https://github.com/pearlnote/desktop-app), [iOS](https://github.com/pearlnote/pearlnote-ios), [Android](https://github.com/pearlnote/pearlnote-android). And they are all open source!
-* ......
+- 笔记本、笔记和标签管理；
+- Markdown 编辑器与富文本编辑器；
+- Vim 和 Emacs 编辑模式；
+- 笔记分享与多人协作；
+- 博客发布与主题定制；
+- PDF 导出；
+- 批量笔记操作；
+- MongoDB 和 PostgreSQL 双数据库后端；
+- MongoDB ↔ PostgreSQL 双向迁移。
 
-## 3. How to get Pearlnote
+## 数据库支持
 
-The Pearlnote software suite contains: Pearlnote Web & Server (this repository), [Desktop app](https://github.com/pearlnote/desktop-app), [iOS](https://github.com/pearlnote/pearlnote-ios), [Android](https://github.com/pearlnote/pearlnote-android).
+数据库后端通过 `conf/app.conf` 中的 `db.type` 选择。
 
-Interested in our product and want to try it out from your web browser? Welcome to sign up on https://pearlnote.com.
+### PostgreSQL
 
-Feeling suspicious about how those note-taking companies treat your personal data? You can install Pearlnote on your server, and use Pearlnote App (Desktop, iOS, Android) to sync notes with your self-hosted server.
+PostgreSQL 是新部署的默认推荐后端：
 
-**Database abstraction and migration**
-
-Pearlnote now supports both **MongoDB** and **PostgreSQL** databases with:
-- Unified database interface for seamless database switching
-- Bidirectional data migration tools (MongoDB ↔ PostgreSQL)
-- Automatic ID mapping and data validation
-- Configurable via `conf/app.conf`
-
-See [DATABASE_ABSTRACTION_README.md](DATABASE_ABSTRACTION_README.md) for details.
-
-More information about how to install Pearlnote please see:
-
-* Pearlnote binary installation tutorial:
-    * [Windows](https://github.com/pearlnote/pearlnote/wiki/pearlnote-source-installation-on-Windows-(En))
-    * [Mac and Linux](https://github.com/pearlnote/pearlnote/wiki/pearlnote-binary-installation-on-Mac-and-Linux-(En))
-* Pearlnote source installation tutorial:
-    <!-- * [Windows](https://github.com/pearlnote/pearlnote/wiki/pearlnote-source-installation-on-Windows-(En)) -->
-    * [Mac and Linux](https://github.com/pearlnote/pearlnote/wiki/Pearlnote-source-installation-on-Mac-and-Linux-(En))
-
-## 4. Documentation
-
-Please see [wiki](https://github.com/pearlnote/pearlnote/wiki) for detailed instruction on how to install Pearlnote on various platforms, trouble shooting and configuration explanations.
-
-**Database Abstraction & Migration Documentation**:
-- [DATABASE_ABSTRACTION_README.md](DATABASE_ABSTRACTION_README.md) - Project overview and quick start
-- [docs/DATABASE_ABSTRACTION_GUIDE.md](docs/DATABASE_ABSTRACTION_GUIDE.md) - Complete usage guide
-
-### Rename compatibility
-
-Pearlnote keeps the existing HTTP API routes, request parameters, response fields, MongoDB BSON fields, and PostgreSQL columns unchanged. Existing deployments may continue pointing `db.dbname` at their current database; the new default database and deployment identifiers are `pearlnote`. The legacy `app.secretLeanote` setting remains supported as a fallback for upgrades.
-
-
-## 5. How to develop Pearlnote
-
-If you are a developer yourself and feel like to build on top of Pearlnote, please refer to [How-to-develop-pearlnote](https://github.com/pearlnote/pearlnote/wiki/How-to-develop-pearlnote-%E5%A6%82%E4%BD%95%E5%BC%80%E5%8F%91pearlnote).
-
-
-## 6. Contributions
-
-Like or dislike Pearlnote, please leave your comments and suggestions to help us improve it.
-If you encounter any issue, we suggest you first search the issues section to see whether a solution already exists, or open up a new one otherwise.
-
-We’d like to acknowledge the contributions made by our [developers and contributors](https://github.com/pearlnote/pearlnote/graphs/contributors) to
-this project. Pearlnote won’t exist without your hard work. Your help is much appreciated.
-
-## 7. Join us
-
-Please feel free to fork this repository and contribute back using [pull requests](https://github.com/pearlnote/pearlnote/pulls).
-
-If you find any problems or have any good ideas, feature requests, please submit here [issues](https://github.com/pearlnote/pearlnote/issues).
-
-
-## 8. Donation
-
-If you like our product, consider supporting us via [donate us](http://pearlnote.org/#donate).
-We acknowledge the donations made by all the [donators](http://pearlnote.pearlnote.com/post/pearlnote-donation-list).
-
-## 9. Related projects
-
-* [Pearlnote Desktop App](https://github.com/pearlnote/desktop-app), [Download](http://app.pearlnote.com)
-* [Pearlnote iOS](https://github.com/pearlnote/pearlnote-ios), [Download From App Store](https://itunes.apple.com/app/pearlnote/id1022302858)
-* [Pearlnote Android](https://github.com/pearlnote/pearlnote-android), development phase
-
-You are welcome to join us.
-
-## 10. Contacts
-
-* Email: pearlnote@pearlnote.com
-* [Pearlnote BBS](http://bbs.pearlnote.com)
-* [Pearlnote Google Group](https://groups.google.com/forum/#!forum/pearlnote)
-* QQ Groups: 326073529, 256076853, 158716820
-
------------------------------------------------------------------------
-
-# 珠玑笔记
-
-## 1. 介绍
-
-珠玑笔记, 不只是笔记!
-
-**特性**
-
-* 高效笔记：珠玑笔记 有易操作的界面, 包含一款富文本编辑器和Markdown编辑器，让您的笔记记录更轻松和高效。对高阶用户，我们还提供`Vim` 和`Emacs` 编辑模式，助推你的写作速度更上层楼。
-* 知识管理:  珠玑笔记 灵活而强大的“笔记本-笔记-标签”系统，让它成为你个人知识管理的利器。
-* 分享: 你可以通过珠玑笔记同好友分享知识、想法和经历, 邀请好友加入你的笔记簿，通过云端交流信息。
-* 协作: 珠玑笔记协助你与同事之间相互协作，激荡新思路，随时随地头脑风暴。
-* 博客: 珠玑笔记也可以作为你的个人博客, 把你的知识传播的更远!
-
-**其它特性**
-
-* 支持Markdown编辑
-* 写作模式
-* `Vim` 及 `Emacs` 编辑模式
-* 支持PDF导出
-* 支持批量操作
-* 博客自定义主题, 实现高度定制化
-
-## 2. 为什么我们要创建珠玑笔记?
-我们都曾是`Evernote`的忠实粉丝, 一直以来`Evernote`都是我们日常知识管理的有效工具。于是我们决定重新创造一款工具，提供`Evernote`所能提供的功能，同时弥补`Evernote`的不足，比如：
-* 功能更强的文本编辑器：`Evernote`的编辑器不能满足我们的需求, 不能实现文档导航、不能贴代码(格式会乱掉, 作为程序员, 代码是我们的基本需求啊), 图片不能缩放等。
-* `Evernote` 不支持所有人都喜爱的markdown语法，于是我们为珠玑笔记配备了一款可以实时渲染的markdown编辑器。
-* 如果你是一名开发者，觉得手指怀念`Vim` 或 `Emacs` 了，那么我们还提供给你`Vim` 和 `Emacs` 写作模式，配合*markdown*的格式编辑，写作的时候再也不用去碰鼠标了。
-* 知识积累和知识分享同样重要，因此大家都有自己的笔记账号和社交账号。但为什么这两者不能合二为一呢? 珠玑笔记 做到了将二者无缝衔接。
-* 一套完整的、全平台覆盖的软件套装，包括了web、桌面、安卓、IOS设备，而且全部开源！
-* 还有...
-
-## 3. 获取珠玑笔记
-
-珠玑笔记云笔记产品包括: 珠玑笔记 Web & Server(即本仓库), 桌面客户端, IOS, android. 4端全部开源!
-
-如果想试用我们的产品，欢迎在 https://pearlnote.com 上注册, 珠玑笔记团队为你提供稳定可靠的服务。
-担心服务厂商如何处理你的个人数据吗？你可以下载珠玑笔记安装在自己的服务器上, 通过珠玑笔记客户端连接与自建服务同步数据。
-
-这里详细整理了珠玑笔记二进版和珠玑笔记开发版的安装教程, 请移步至:
-
-* 珠玑笔记二进制详细安装教程:
-    * [Windows](https://github.com/pearlnote/pearlnote/wiki/Pearlnote%E4%BA%8C%E8%BF%9B%E5%88%B6%E7%89%88%E5%AE%89%E8%A3%85%E6%95%99%E7%A8%8B---Windows)
-    * [Mac, Linux](https://github.com/pearlnote/pearlnote/wiki/pearlnote%E4%BA%8C%E8%BF%9B%E5%88%B6%E7%89%88%E8%AF%A6%E7%BB%86%E5%AE%89%E8%A3%85%E6%95%99%E7%A8%8B)
-* 珠玑笔记源码详细安装教程:
-    <!-- * [Windows](https://github.com/pearlnote/pearlnote/wiki/Pearlnote-%E6%BA%90%E7%A0%81%E7%89%88%E8%AF%A6%E7%BB%86%E5%AE%89%E8%A3%85%E6%95%99%E7%A8%8B----Windows) -->
-    * [Mac, Linux](https://github.com/pearlnote/pearlnote/wiki/pearlnote%E5%BC%80%E5%8F%91%E7%89%88%E8%AF%A6%E7%BB%86%E5%AE%89%E8%A3%85%E6%95%99%E7%A8%8B)
-
-## 4. 相关文档
-
-更多详细的安装说明、问题处理和配置说明文档，请查看 [wiki](https://github.com/pearlnote/pearlnote/wiki)。
-
-## 5. 如何对珠玑笔记进行二次开发
-
-如果您有兴趣基于珠玑笔记二次开发，请查看 [How-to-develop-珠玑笔记](https://github.com/pearlnote/pearlnote/wiki/How-to-develop-pearlnote-%E5%A6%82%E4%BD%95%E5%BC%80%E5%8F%91pearlnote)。
-
-## 6. 贡献者
-
-在此对向珠玑笔记贡献力量的[贡献者们](https://github.com/pearlnote/pearlnote/graphs/contributors) 表示感谢。珠玑笔记因有你们而更完美!
-
-## 7. 加入我们
-
-欢迎提交[pull requests](https://github.com/pearlnote/pearlnote/pulls) 到珠玑笔记。
-
-有任何问题或建议, 请先搜索[issue](https://github.com/pearlnote/pearlnote/issues)区是否已经有解决方法。如果没有，欢迎提交新issue。
-
-珠玑笔记还有很多问题, 如果你喜欢它, 欢迎加入我们一起完善珠玑笔记。
-
-## 8. 捐赠
-
-如果您喜欢我们的产品，请考虑支持我们, [捐赠珠玑笔记](http://pearlnote.org/#donate)。
-
-感谢[这些捐赠者](http://pearlnote.pearlnote.com/post/pearlnote-donation-list), 谢谢你们的鼓励, 珠玑笔记会一直坚持!
-
-## 9. 其它相关项目
-* [珠玑笔记 Desktop App](https://github.com/pearlnote/desktop-app), [下载地址](http://app.pearlnote.com)
-* [珠玑笔记 iOS](https://github.com/pearlnote/pearlnote-ios), [从App Store下载](https://itunes.apple.com/zn/app/pearlnote/id1022302858?mt=8)
-* [珠玑笔记 Android](https://github.com/pearlnote/pearlnote-android), 开发阶段
-
-**数据库工具**:
-* [Database Abstraction Layer](app/db/) - 统一的MongoDB和PostgreSQL接口
-* [Migration Tools](tools/migration/) - 双向数据迁移工具
-
-## 11. Docker 部署
-
-珠玑笔记 支持 Docker 部署，并提供 MongoDB 和 PostgreSQL 两种数据库配置。
-
-### 镜像构建
-
-从源码构建：
-
-```bash
-docker build -t pearlnote:v2.7.0 .
+```ini
+db.type=postgresql
+db.url=host=127.0.0.1 port=5432 user=pearlnote password=pearlnote dbname=pearlnote sslmode=disable
 ```
 
-或者直接使用预构建的镜像：
+### MongoDB
 
-```bash
-docker pull raptor/pearlnote:v2.7.0
+继续使用 MongoDB：
+
+```ini
+db.type=mongodb
+db.url=mongodb://127.0.0.1:27017/pearlnote
 ```
 
-### PostgreSQL 部署（推荐）
+Pearlnote 的 MongoDB 集合名和 BSON 字段与原版 Leanote 保持兼容。升级已有 Leanote 实例时，可以直接连接原来的 `leanote` 数据库，不需要先修改数据库名：
 
-PostgreSQL 配置利用了 珠玑笔记 的数据库抽象层，推荐新部署使用：
+```ini
+db.type=mongodb
+db.url=mongodb://127.0.0.1:27017/leanote
+```
+
+连接已有数据库前请先完成备份。Pearlnote 不会自动发现 `leanote` 数据库，必须在配置中明确指定数据库名。
+
+## 版本与自动升级
+
+Pearlnote 从 `1.0.0` 起使用独立版本号。应用版本集中定义在 `app/version/version.go`，管理后台和数据库迁移流程均读取该版本。
+
+服务启动连接数据库后，会自动检查并执行尚未应用的数据库迁移：
+
+- MongoDB 在 `pearlnote_schema_migrations` 集合记录已应用版本；
+- PostgreSQL 在 `pearlnote_schema_migrations` 表记录已应用版本；
+- 原 Leanote MongoDB 或早期 Pearlnote 数据库没有版本记录时，会作为升级基线登记为 `1.0.0`，不会改写现有业务数据；
+- 如果数据库版本高于当前应用版本，服务会拒绝启动，防止旧程序破坏新结构。
+
+升级前仍应备份数据库和附件文件。新增数据库结构变更时，需要在 `app/db/migrations.go` 中增加幂等迁移，不能只修改 `database/schema.sql`。
+
+## 从 Leanote 迁移
+
+从旧 Leanote MongoDB 迁移至 Pearlnote PostgreSQL：
 
 ```bash
-# 启动 PostgreSQL 版本
+go run ./tools/migration \
+  -direction mongo_to_pg \
+  -mongo-url 'mongodb://127.0.0.1:27017/leanote' \
+  -postgres-url 'host=127.0.0.1 port=5432 user=pearlnote password=pearlnote dbname=pearlnote sslmode=disable'
+```
+
+迁移工具会保留原 MongoDB ObjectId，并默认执行 PostgreSQL Schema 和逐表记录数校验。迁移不会复制磁盘上的图片、附件实体文件，这些文件目录需要单独迁移或继续使用原挂载路径。
+
+迁移不是服务启动时的自动操作。正式迁移前应停止旧服务写入，同时备份源数据库、目标数据库及附件文件。
+
+## 快速启动
+
+### Docker + PostgreSQL
+
+```bash
 docker-compose -f docker-compose.postgres.yml up -d
-
-# 初始化数据库（首次运行）
-docker exec postgres psql -U pearlnote -d pearlnote -f /docker-entrypoint-initdb.d/init.sql
-
-# 或者使用迁移工具从 MongoDB 导入数据
-docker exec pearlnote /opt/pearlnote/scripts/migrate_from_mongodb.sh
 ```
 
-### MongoDB 部署
-
-传统的 MongoDB 部署方式：
+### Docker + MongoDB
 
 ```bash
-# 初始化 MongoDB 数据（首次运行）
-docker run -d -v ~/mongo_data:/data --name=mongodb mongo:4.2
-docker run -it --rm -v ~/pearlnote/mongodb_backup/pearlnote_install_data:/root/initdata --link=mongodb --entrypoint="" mongo:4.2 mongorestore -h mongodb -d pearlnote --dir /root/initdata/
-docker rm -f mongodb
-
-# 启动 MongoDB 版本
 docker-compose -f docker-compose.mongodb.yml up -d
 ```
 
-### 配置说明
+### 从源码运行
 
-配置文件 `conf/app.conf` 包含 PostgreSQL 和 MongoDB 两种数据库配置：
+安装 Go、Revel 和对应数据库后执行：
 
-- 默认使用 PostgreSQL（`db.type=postgresql`）
-- 如需使用 MongoDB，修改 `db.type=mongodb` 并取消注释 MongoDB 配置部分
+```bash
+revel run github.com/pearlnote/pearlnote
+```
 
-自定义配置：
-1. 修改 `conf/app.conf` 中的数据库类型和连接参数
-2. 修改 `app.secret` 为你自己的值（安全必需）
-3. PostgreSQL 部署使用 `docker-compose -f docker-compose.postgres.yml`
-4. MongoDB 部署使用 `docker-compose -f docker-compose.mongodb.yml`
+默认访问地址为：<http://localhost:9000>
 
-### 访问 珠玑笔记
+首次部署前必须修改 `conf/app.conf` 中的 `app.secret`，并根据实际环境设置数据库账号、密码、监听地址和站点 URL。
 
-部署完成后，访问 `http://localhost:9000` 即可使用 珠玑笔记。
+## 文档
 
-欢迎加入我们!
+- [快速开始](docs/QUICK_START.md)
+- [部署指南](docs/DEPLOYMENT.md)
+- [MongoDB ↔ PostgreSQL 数据迁移指南](docs/MIGRATION_GUIDE.md)
+- [数据库抽象概览](docs/DATABASE_ABSTRACTION_README.md)
+- [数据库抽象完整指南](docs/DATABASE_ABSTRACTION_GUIDE.md)
 
-## 联系&加入我们
-* Email: pearlnote@pearlnote.com
-* [珠玑笔记 社区](http://bbs.pearlnote.com)
-* [QQ群](http://pearlnote.pearlnote.com/post/Pearlnote-groups)
-* [珠玑笔记 Google Group](https://groups.google.com/forum/#!forum/pearlnote)
+## API 与客户端兼容性
+
+Pearlnote 保留了 Leanote 原有 HTTP API 路径、参数和响应字段。旧版 Leanote Electron 客户端可以在登录界面选择自建服务并填写 Pearlnote 服务端地址进行连接。
+
+旧客户端默认地址仍可能指向 `leanote.com`，因此连接私有部署时必须明确填写服务器地址。
+
+## 测试
+
+运行全部 Go 测试：
+
+```bash
+go test ./...
+```
+
+数据库集成测试和双向迁移测试所需的环境变量及命令，请参阅[数据库抽象完整指南](docs/DATABASE_ABSTRACTION_GUIDE.md)。
+
+## 相关项目
+
+- [Leanote 原项目](https://github.com/leanote/leanote)
+- [Leanote Desktop 原项目](https://github.com/leanote/desktop-app)
+
+## 参与贡献
+
+欢迎通过 Issue 和 Pull Request 报告问题、提出建议或贡献代码。提交涉及数据库结构、迁移逻辑或 API 的修改时，请同时补充相应测试，并确保 MongoDB、PostgreSQL 和旧客户端兼容性不受影响。

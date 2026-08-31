@@ -24,7 +24,16 @@ PostgreSQL 适配器支持当前业务使用的 BSON 条件和更新操作，包
 
 DDL 位于 `database/schema.sql`，表和列与 `app/info` 中的持久化模型保持一致。`docker-compose.postgres.yml` 会在新的 PostgreSQL 数据目录中自动执行该文件。
 
-已有 PostgreSQL 数据库升级时，应先备份，再显式执行经过审核的 schema migration；容器初始化脚本只对空数据目录生效。
+容器初始化脚本只对空数据目录执行完整 Schema。已有数据库由服务启动时的版本迁移机制增量升级；升级前仍必须备份。
+
+## 数据库版本迁移
+
+当前应用及数据库版本为 `1.0.0`，集中定义在 `app/version/version.go`。启动时会依次执行 `app/db/migrations.go` 中尚未应用的迁移，并把结果写入：
+
+- MongoDB：`pearlnote_schema_migrations` 集合；
+- PostgreSQL：`pearlnote_schema_migrations` 表。
+
+无版本记录的旧 Leanote MongoDB 会被识别为基线数据库，在不修改业务数据的情况下登记 `1.0.0`。数据库存在比应用更新的迁移记录时，应用会拒绝启动。
 
 ## 数据迁移
 

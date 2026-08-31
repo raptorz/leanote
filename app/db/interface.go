@@ -39,6 +39,8 @@ type Database interface {
 	Count(collection interface{}, query interface{}) int
 	Distinct(collection interface{}, q bson.M, field string, result interface{})
 	DropIndex(collection interface{}, fields ...string) error
+	AppliedMigrations() ([]string, error)
+	RecordMigration(version string) error
 
 	GetType() string
 }
