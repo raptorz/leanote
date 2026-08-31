@@ -2,8 +2,8 @@ package tests
 
 import (
 	"testing"
-	//	. "github.com/leanote/leanote/app/lea"
-	"github.com/leanote/leanote/app/service"
+	//	. "github.com/pearlnote/pearlnote/app/lea"
+	"github.com/pearlnote/pearlnote/app/service"
 	//	"gopkg.in/mgo.v2"
 	//	"fmt"
 )
@@ -11,7 +11,7 @@ import (
 // 测试登录
 func TestSendMail(t *testing.T) {
 	requireMongoIntegration(t)
-	ok, err := service.EmailS.SendEmail("life@leanote.com", "你好", "你好吗")
+	ok, err := service.EmailS.SendEmail("life@pearlnote.com", "你好", "你好吗")
 	t.Log(ok)
 	t.Log(err)
 }

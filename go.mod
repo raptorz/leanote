@@ -1,4 +1,4 @@
-module github.com/leanote/leanote
+module github.com/pearlnote/pearlnote
 
 go 1.15
 

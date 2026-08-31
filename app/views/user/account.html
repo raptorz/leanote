@@ -251,15 +251,15 @@ $(".reSendActiveEmail").click(function() {
 	showDialog("reSendActiveEmailDialog", {title: getMsg("sendVerifiedEmail"), postShow: function() {
 		ajaxGet("/user/reSendActiveEmail", {}, function(ret) {
 			if (typeof ret == "object" && ret.Ok) {
-				$("#leanoteDialog .text").html(getMsg("sendSuccess"))
-				$("#leanoteDialog .viewEmailBtn").removeClass("disabled");
-				$("#leanoteDialog .viewEmailBtn").click(function() {
+				$("#pearlnoteDialog .text").html(getMsg("sendSuccess"))
+				$("#pearlnoteDialog .viewEmailBtn").removeClass("disabled");
+				$("#pearlnoteDialog .viewEmailBtn").click(function() {
 					hideDialog();
 					var url = getEmailLoginAddress(UserInfo.Email);
 					window.open(url, "_blank");
 				});
 			} else {
-				$("#leanoteDialog .text").html(getMsg("sendFailed"))
+				$("#pearlnoteDialog .text").html(getMsg("sendFailed"))
 			}
 		});
 	}});

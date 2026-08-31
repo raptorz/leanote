@@ -74,7 +74,7 @@ $(function() {
 	// 还原
 	$(".restore-btn").click(function() {
 		var createdTime = $(this).data("id");
-		art.confirm("Are you sure? <br />Note. Leanote will do the following steps: <br />1)Backup the current database first. <br />2) And then delete the database. <br />3) Restore database from the selected version.", function() {
+		art.confirm("Are you sure? <br />Note. Pearlnote will do the following steps: <br />1)Backup the current database first. <br />2) And then delete the database. <br />3) Restore database from the selected version.", function() {
 			ajaxGet("/adminData/restore", {createdTime: createdTime}, function(ret) {
 				if(ret.Ok) {
 					art.tips("Success");

@@ -2,8 +2,8 @@ package tests
 
 import (
 	"testing"
-	//	. "github.com/leanote/leanote/app/lea"
-	//	"github.com/leanote/leanote/app/service"
+	//	. "github.com/pearlnote/pearlnote/app/lea"
+	//	"github.com/pearlnote/pearlnote/app/service"
 	//	"gopkg.in/mgo.v2"
 	//	"fmt"
 )

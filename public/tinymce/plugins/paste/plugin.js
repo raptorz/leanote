@@ -292,7 +292,7 @@ define("tinymce/pasteplugin/Clipboard", [
 						// 之前用insertRawContent()有问题, ace paste下, TODO
 						// editor.insertContent(text);
 					} else {
-						// life 这里得到图片img, 复制到leanote下
+						// life 这里得到图片img, 复制到pearlnote下
 						if(!self.copyImage) {
 							editor.insertContent(html);
 						} else {
@@ -308,7 +308,7 @@ define("tinymce/pasteplugin/Clipboard", [
 									// 是否是外链
 									if(src.indexOf(urlPrefix) == -1) {
 										time++;
-										var id = "__LEANOTE_IMAGE_" + time;
+										var id = "__PEARLNOTE_IMAGE_" + time;
 										$img.attr("id", id);
 										if(needCopyImages[src]) {
 											needCopyImages[src].push(id);
@@ -498,7 +498,7 @@ define("tinymce/pasteplugin/Clipboard", [
 			}
 		});
 		
-		// 当url改变时, 得到图片的大小 copy from leanote_image
+		// 当url改变时, 得到图片的大小 copy from pearlnote_image
 		function getImageSize(url, callback) {
 			var img = document.createElement('img');
 		
@@ -580,7 +580,7 @@ define("tinymce/pasteplugin/Clipboard", [
 					var dom = editor.dom;
 					var d = {};						
 					d.id = '__mcenew';
-					d.src = "http://leanote.com/images/loading-24.gif"; // 写死了
+					d.src = "http://pearlnote.com/images/loading-24.gif"; // 写死了
 					editor.insertContent(dom.createHTML('img', d));
 					var imgElm = dom.get('__mcenew');
 				    $.ajax({url: "/file/pasteImage", contentType:false, processData:false , data: c, type: "POST"}

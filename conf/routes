@@ -7,7 +7,7 @@
 # Home is My Blog
 Get 	/											Index.Default
 GET     /note   	                                Note.Index
-# leanote home
+# pearlnote home
 GET     /index   	                                Index.Index
 
 GET     /login                                     	Auth.Login

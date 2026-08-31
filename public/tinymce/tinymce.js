@@ -29721,7 +29721,7 @@ define("tinymce/Editor", [
 				frameBorder: '0',
 				allowTransparency: "true",
 				// life
-				title: self.editorManager.translate("Leanote Editor"),
+				title: self.editorManager.translate("Pearlnote Editor"),
 				style: {
 					width: '100%',
 					height: h,
@@ -37227,7 +37227,7 @@ define("tinymce/ui/ListBox", [
 
 		/**
 		 * disable/enable 某一list的item
-		 * leanote ace life ace
+		 * pearlnote ace life ace
 		 * value = convert, state = true | false
 		 */
 		diableValue: function(value, state) {

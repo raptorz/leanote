@@ -26,7 +26,7 @@ tinymce.PluginManager.add('leaui_mind', function(editor, url) {
 
 		function GetTheHtml(){
 			var lang = editor.settings.language;
-			var u = '//leanote.com/public/libs/mind/edit.html';
+			var u = '//pearlnote.com/public/libs/mind/edit.html';
 			// u = 'http://localhost:9000/public/libs/mind/edit.html';
 			var html = '<iframe id="leauiIfr" src="'+ u + '?' + new Date().getTime() + '&lang=' + lang + '" frameborder="0"></iframe>';
 			return html;
@@ -103,7 +103,7 @@ tinymce.PluginManager.add('leaui_mind', function(editor, url) {
 								var imgElm;
 								// 先显示loading...
 								d.id = '__mcenew' + i;
-								d.src = "http://leanote.com/images/loading-24.gif";
+								d.src = "http://pearlnote.com/images/loading-24.gif";
 								imgElm = dom.createHTML('img', d);
 								editor.insertContent(imgElm);
 								imgElm = dom.get(d.id);

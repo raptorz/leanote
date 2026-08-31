@@ -9,10 +9,16 @@ import (
 )
 
 func TestRoundTripMigration(t *testing.T) {
-	mongoURL := os.Getenv("LEANOTE_INTEGRATION_MONGO_URL")
-	postgresURL := os.Getenv("LEANOTE_INTEGRATION_POSTGRES_URL")
+	mongoURL := os.Getenv("PEARLNOTE_INTEGRATION_MONGO_URL")
+	postgresURL := os.Getenv("PEARLNOTE_INTEGRATION_POSTGRES_URL")
+	if mongoURL == "" {
+		mongoURL = os.Getenv("LEANOTE_INTEGRATION_MONGO_URL")
+	}
+	if postgresURL == "" {
+		postgresURL = os.Getenv("LEANOTE_INTEGRATION_POSTGRES_URL")
+	}
 	if mongoURL == "" || postgresURL == "" {
-		t.Skip("set LEANOTE_INTEGRATION_MONGO_URL and LEANOTE_INTEGRATION_POSTGRES_URL")
+		t.Skip("set PEARLNOTE_INTEGRATION_MONGO_URL and PEARLNOTE_INTEGRATION_POSTGRES_URL")
 	}
 	m, err := connect(mongoURL, postgresURL, false)
 	if err != nil {

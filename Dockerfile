@@ -18,7 +18,7 @@ COPY . .
 
 # Build the application directly using go build
 # The main entry point is in app/cmd
-RUN CGO_ENABLED=0 GOOS=linux go build -o /leanote -ldflags="-s -w" github.com/leanote/leanote/app/cmd
+RUN CGO_ENABLED=0 GOOS=linux go build -o /pearlnote -ldflags="-s -w" github.com/pearlnote/pearlnote/app/cmd
 
 # Stage 2: Runtime image
 FROM alpine:3.22
@@ -28,20 +28,20 @@ LABEL maintainer="raptor<raptor.zh@gmail.com>"
 # Install ca-certificates for HTTPS connections and timezone data
 RUN apk --no-cache add ca-certificates tzdata
 
-WORKDIR /opt/leanote
+WORKDIR /opt/pearlnote
 
 # Copy the binary from builder
-COPY --from=builder /leanote /opt/leanote/leanote
+COPY --from=builder /pearlnote /opt/pearlnote/pearlnote
 
 # Copy necessary runtime files
-COPY conf/ /opt/leanote/conf/
-COPY messages/ /opt/leanote/messages/
-COPY public/ /opt/leanote/public/
-COPY app/views/ /opt/leanote/app/views/
+COPY conf/ /opt/pearlnote/conf/
+COPY messages/ /opt/pearlnote/messages/
+COPY public/ /opt/pearlnote/public/
+COPY app/views/ /opt/pearlnote/app/views/
 
 EXPOSE 9000
 
 # Set working directory to where the app needs to run
-WORKDIR /opt/leanote
+WORKDIR /opt/pearlnote
 
-CMD ["/opt/leanote/leanote", "run", "github.com/leanote/leanote", "-importPath", "github.com/leanote/leanote"]
+CMD ["/opt/pearlnote/pearlnote", "run", "github.com/pearlnote/pearlnote", "-importPath", "github.com/pearlnote/pearlnote"]

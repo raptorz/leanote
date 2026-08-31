@@ -3,15 +3,15 @@ package api
 import (
 	"github.com/revel/revel"
 	//	"encoding/json"
-	"github.com/leanote/leanote/app/info"
-	. "github.com/leanote/leanote/app/lea"
+	"github.com/pearlnote/pearlnote/app/info"
+	. "github.com/pearlnote/pearlnote/app/lea"
 	"gopkg.in/mgo.v2/bson"
 	"os"
 	"os/exec"
 	// "strings"
-	"time"
 	"regexp"
-	//	"github.com/leanote/leanote/app/types"
+	"time"
+	//	"github.com/pearlnote/pearlnote/app/types"
 	//	"io/ioutil"
 	//	"fmt"
 	//	"bytes"
@@ -32,7 +32,7 @@ type ApiNote struct {
     "NoteId": "55195fa199c37b79be000005",
     "NotebookId": "55195fa199c37b79be000002",
     "UserId": "55195fa199c37b79be000001",
-    "Title": "Leanote语法Leanote语法Leanote语法Leanote语法Leanote语法",
+    "Title": "Pearlnote语法Pearlnote语法Pearlnote语法Pearlnote语法Pearlnote语法",
     "Desc": "",
     "Tags": null,
     "Abstract": "",
@@ -152,8 +152,8 @@ func (c ApiNote) GetNoteAndContent(noteId string) revel.Result {
 }
 
 // content里的image, attach链接是
-// https://leanote.com/api/file/getImage?fileId=xx
-// https://leanote.com/api/file/getAttach?fileId=xx
+// https://pearlnote.com/api/file/getImage?fileId=xx
+// https://pearlnote.com/api/file/getAttach?fileId=xx
 // 将fileId=映射成ServerFileId, 这里的fileId可能是本地的FileId
 func (c ApiNote) fixPostNotecontent(noteOrContent *info.ApiNote) {
 	if noteOrContent.Content == "" {
@@ -167,23 +167,23 @@ func (c ApiNote) fixPostNotecontent(noteOrContent *info.ApiNote) {
 				LogJ(file)
 				if !file.IsAttach {
 					// <img src="https://"
-					// ![](http://demo.leanote.top/api/file/getImage?fileId=5863219465b68e4fd5000001)
-					reg, _ := regexp.Compile(`https*://[^/]*?/api/file/getImage\?fileId=`+file.LocalFileId)
+					// ![](http://demo.pearlnote.top/api/file/getImage?fileId=5863219465b68e4fd5000001)
+					reg, _ := regexp.Compile(`https*://[^/]*?/api/file/getImage\?fileId=` + file.LocalFileId)
 					// Log(reg)
-					noteOrContent.Content = reg.ReplaceAllString(noteOrContent.Content, `/api/file/getImage?fileId=`+file.FileId)  
+					noteOrContent.Content = reg.ReplaceAllString(noteOrContent.Content, `/api/file/getImage?fileId=`+file.FileId)
 
 					// // "http://a.com/api/file/getImage?fileId=localId" => /api/file/getImage?fileId=serverId
-					// noteOrContent.Content = strings.Replace(noteOrContent.Content, 
-					// 	baseUrl + "/api/file/getImage?fileId="+file.LocalFileId, 
+					// noteOrContent.Content = strings.Replace(noteOrContent.Content,
+					// 	baseUrl + "/api/file/getImage?fileId="+file.LocalFileId,
 					// 	"/api/file/getImage?fileId="+file.FileId, -1)
 				} else {
-					reg, _ := regexp.Compile(`https*://[^/]*?/api/file/getAttach\?fileId=`+file.LocalFileId)
+					reg, _ := regexp.Compile(`https*://[^/]*?/api/file/getAttach\?fileId=` + file.LocalFileId)
 					// Log(reg)
-					noteOrContent.Content = reg.ReplaceAllString(noteOrContent.Content, `/api/file/getAttach?fileId=`+file.FileId)  
+					noteOrContent.Content = reg.ReplaceAllString(noteOrContent.Content, `/api/file/getAttach?fileId=`+file.FileId)
 					/*
-					noteOrContent.Content = strings.Replace(noteOrContent.Content, 
-						baseUrl + "/api/file/getAttach?fileId="+file.LocalFileId, 
-						"/api/file/getAttach?fileId="+file.FileId, -1)
+						noteOrContent.Content = strings.Replace(noteOrContent.Content,
+							baseUrl + "/api/file/getAttach?fileId="+file.LocalFileId,
+							"/api/file/getAttach?fileId="+file.FileId, -1)
 					*/
 				}
 			}
@@ -599,7 +599,11 @@ func (c ApiNote) ExportPdf(noteId string) revel.Result {
 	filename := guid + ".pdf"
 	path := dir + "/" + filename
 
-	appKey, _ := revel.Config.String("app.secretLeanote")
+	appKey, _ := revel.Config.String("app.secretPearlnote")
+	if appKey == "" {
+		// Keep existing deployments compatible with the pre-rename setting.
+		appKey, _ = revel.Config.String("app.secretLeanote")
+	}
 	if appKey == "" {
 		appKey, _ = revel.Config.String("app.secret")
 	}

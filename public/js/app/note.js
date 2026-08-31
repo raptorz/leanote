@@ -2061,7 +2061,7 @@ var Attach = {
 		// foreach 循环之
 		/*
 		<li class="clearfix">
-			<div class="attach-title">leanote官abcefedafadfadfadfadfad方文档.doc</div>
+			<div class="attach-title">pearlnote官abcefedafadfadfadfadfad方文档.doc</div>
 			<div class="attach-process">
 				<button class="btn btn-sm btn-warning">Delete</button>
 				<button class="btn btn-sm btn-deafult">Download</button>

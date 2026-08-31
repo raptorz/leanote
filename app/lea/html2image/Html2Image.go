@@ -2,8 +2,8 @@ package html2image
 
 /*
 import (
-	"github.com/leanote/leanote/app/lea"
-	"github.com/leanote/leanote/app/lea/netutil"
+	"github.com/pearlnote/pearlnote/app/lea"
+	"github.com/pearlnote/pearlnote/app/lea/netutil"
 	"bufio"
 	"code.google.com/p/draw2d/draw2d"
 //	"fmt"
@@ -381,26 +381,26 @@ func (this *Html2Image) SetBottom(username, url string) {
 
     // 左侧写字
     this.NewP()
-    this.InsertText("本文来自 " + username + " 的leanote笔记", true, "  ")
+    this.InsertText("本文来自 " + username + " 的pearlnote笔记", true, "  ")
     this.NewBr()
     this.InsertText("个人博客: ", false, "  ")
     siteUrl, _ := revel.Config.String("site.url")
     if siteUrl == "" {
-    	siteUrl = "http://leanote.com"
+        siteUrl = "http://pearlnote.com"
     }
     this.InsertA(siteUrl + "/blog/" + username, false)
 
 	this.setLogo()
 //    this.painWidth = this.width - 100
 //    this.NewP()
-//    this.InsertText("leanote, 不一样的笔记.", false, "  ")
+//    this.InsertText("pearlnote, 不一样的笔记.", false, "  ")
 //    this.NewBr()
 //    this.InsertText("在这里你可以管理自己的知识", false, "  ")
 //    this.NewBr()
 //    this.InsertText("将知识分享给好友, 与好友一起协作知识", false, "  ")
 //    this.NewBr()
 //    this.InsertText("并且还可以将笔记设为博客公开", false, "  ")
-//    this.InsertText(". 赶紧加入吧! leanote.com", false, "")
+//    this.InsertText(". 赶紧加入吧! pearlnote.com", false, "")
 //
     // Logo
 }
@@ -431,15 +431,15 @@ func (this *Html2Image) setImage(path string, x, y float64) {
     this.gc.Translate(-x, -y)
 }
 
-// 画leanote logo
+// 画pearlnote logo
 func (this *Html2Image) setLogo() {
 	// 右上角的logo
-	path := revel.BasePath + "/public/images/leanote/logo-20-a-6.png"
+	path := revel.BasePath + "/public/images/pearlnote/logo-20-a-6.png"
 	println(path)
 	this.setImage(path, 320, 10)
 
 	// 右下角设置Logo
-//	path = revel.BasePath + "/public/images/leanote/logo-60-a-6.png"
+//	path = revel.BasePath + "/public/images/pearlnote/logo-60-a-6.png"
 //	this.setImage(path, 320, this.y - 75)
 }
 

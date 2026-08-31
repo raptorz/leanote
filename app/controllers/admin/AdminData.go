@@ -3,8 +3,8 @@ package admin
 import (
 	"archive/tar"
 	"compress/gzip"
-	"github.com/leanote/leanote/app/info"
-	. "github.com/leanote/leanote/app/lea"
+	"github.com/pearlnote/pearlnote/app/info"
+	. "github.com/pearlnote/pearlnote/app/lea"
 	"github.com/revel/revel"
 	"io"
 	"os"

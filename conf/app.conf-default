@@ -8,7 +8,7 @@ package.folders = conf, public, messages, mongodb_backup, app/views
 
 
 #------------------------
-# leanote config
+# pearlnote config
 #------------------------
 http.addr=0.0.0.0 # listen on all ip addresses
 http.port=9000
@@ -24,26 +24,26 @@ db.type=postgresql
 # PostgreSQL configuration (recommended, default)
 db.host=127.0.0.1
 db.port=5432
-db.dbname=leanote
-db.username=leanote
-db.password=leanote
+db.dbname=pearlnote
+db.username=pearlnote
+db.password=pearlnote
 # PostgreSQL URL format (alternative to host/port configuration):
 # db.url=postgresql://user:password@host:port/dbname?sslmode=disable
-# db.url=postgresql://leanote:leanote@127.0.0.1:5432/leanote?sslmode=disable
+# db.url=postgresql://pearlnote:pearlnote@127.0.0.1:5432/pearlnote?sslmode=disable
 # or parameter format:
-# db.url=host=127.0.0.1 port=5432 user=leanote password=leanote dbname=leanote sslmode=disable
+# db.url=host=127.0.0.1 port=5432 user=pearlnote password=pearlnote dbname=pearlnote sslmode=disable
 
 # MongoDB configuration (traditional deployment)
 # To use MongoDB, change db.type to mongodb above and uncomment following:
 # db.host=127.0.0.1
 # db.port=27017
-# db.dbname=leanote
+# db.dbname=pearlnote
 # db.username=
 # db.password=
 # MongoDB URL format (alternative to host/port configuration):
 # db.url=mongodb://myuser:mypass@localhost:40001,otherhost:40001/mydb
-# db.url=mongodb://root:root123@localhost:27017/leanote
-# db.urlEnv=${MONGODB_URL} # set url from env. eg. mongodb://root:root123@localhost:27017/leanote
+# db.url=mongodb://root:root123@localhost:27017/pearlnote
+# db.urlEnv=${MONGODB_URL} # set url from env. eg. mongodb://root:root123@localhost:27017/pearlnote
 
 # You Must Change It !! About Security!!
 app.secret=V85ZzBeTnzpsHyjQX4zukbQ8qqtju9y2aDM55VWxAH9Qop19poekx3xkcDVvrD0y 
@@ -52,10 +52,10 @@ app.secret=V85ZzBeTnzpsHyjQX4zukbQ8qqtju9y2aDM55VWxAH9Qop19poekx3xkcDVvrD0y
 # revel config
 # for dev
 #--------------------------------
-app.name=leanote
+app.name=pearlnote
 http.ssl=false
 cookie.httponly=false
-cookie.prefix=LEANOTE
+cookie.prefix=PEARLNOTE
 cookie.domain= # for share cookie with sub-domain
 cookie.secure=false
 format.date=2006-01-02

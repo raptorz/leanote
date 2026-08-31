@@ -131,8 +131,8 @@ type ShareNotebooksByUser struct {
 //----------------------------------
 
 // 唯一: userId-ToUserId-NoteId
-// use leanote
-// db.leanote.share_notes.ensureIndex({"UserId":1,"ToUserId":1, "NoteId": 1},{"unique":true})
+// use pearlnote
+// db.pearlnote.share_notes.ensureIndex({"UserId":1,"ToUserId":1, "NoteId": 1},{"unique":true})
 type ShareNote struct {
 	ShareNoteId bson.ObjectId `bson:"_id,omitempty"` // 必须要设置bson:"_id" 不然mgo不会认为是主键
 	UserId      bson.ObjectId `bson:"UserId"`
@@ -147,7 +147,7 @@ type ShareNote struct {
 // 谁共享给了谁note
 // 共享了note, notebook都要加!
 // 唯一: UserId-ToUserId
-// db.leanote.has_share_notes.ensureIndex({"UserId":1,"ToUserId":1},{"unique":true})
+// db.pearlnote.has_share_notes.ensureIndex({"UserId":1,"ToUserId":1},{"unique":true})
 type HasShareNote struct {
 	HasShareNotebookId bson.ObjectId `bson:"_id,omitempty"` // 必须要设置bson:"_id" 不然mgo不会认为是主键
 	UserId             bson.ObjectId `bson:"UserId"`

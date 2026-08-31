@@ -1,9 +1,9 @@
 package api
 
 import (
-	"github.com/leanote/leanote/app/info"
-	"github.com/leanote/leanote/app/service"
-	//		. "github.com/leanote/leanote/app/lea"
+	"github.com/pearlnote/pearlnote/app/info"
+	"github.com/pearlnote/pearlnote/app/service"
+	//		. "github.com/pearlnote/pearlnote/app/lea"
 	"github.com/revel/revel"
 	"strings"
 )
@@ -30,7 +30,7 @@ var sessionService *service.SessionService
 
 var pageSize = 1000
 var defaultSortField = "UpdatedTime"
-var leanoteUserId = "admin" // 不能更改
+var pearlnoteUserId = "admin" // 不能更改
 
 // 状态
 const (

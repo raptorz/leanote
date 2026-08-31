@@ -29721,7 +29721,7 @@ define("tinymce/Editor", [
 				frameBorder: '0',
 				allowTransparency: "true",
 				// life
-				title: self.editorManager.translate("Leanote Editor"),
+				title: self.editorManager.translate("Pearlnote Editor"),
 				style: {
 					width: '100%',
 					height: h,
@@ -37227,7 +37227,7 @@ define("tinymce/ui/ListBox", [
 
 		/**
 		 * disable/enable 某一list的item
-		 * leanote ace life ace
+		 * pearlnote ace life ace
 		 * value = convert, state = true | false
 		 */
 		diableValue: function(value, state) {
@@ -38596,7 +38596,7 @@ expose(["tinymce/dom/EventUtils","tinymce/dom/Sizzle","tinymce/Env","tinymce/uti
  */
 
 /*global tinymce:true */
-tinymce.ThemeManager.add('leanote', function(editor) {
+tinymce.ThemeManager.add('pearlnote', function(editor) {
 	var self = this, settings = editor.settings, Factory = tinymce.ui.Factory, each = tinymce.each, DOM = tinymce.DOM;
 
 	// Default menus
@@ -38676,7 +38676,7 @@ tinymce.ThemeManager.add('leanote', function(editor) {
 					
 					// life 4/25
 					// 在pre时都disabled
-					if(itemName != "leanote_code") {// } && itemName != "formatselect") {
+					if(itemName != "pearlnote_code") {// } && itemName != "formatselect") {
 						item.settings.disabledStateSelector = "pre";
 						selection.selectorChanged(item.settings.disabledStateSelector, function(state) {
 							// log(itemName + " " + state);
@@ -41279,7 +41279,7 @@ define("tinymce/pasteplugin/Clipboard", [
 						// 之前用insertRawContent()有问题, ace paste下, TODO
 						// editor.insertContent(text);
 					} else {
-						// life 这里得到图片img, 复制到leanote下
+						// life 这里得到图片img, 复制到pearlnote下
 						if(!self.copyImage) {
 							editor.insertContent(html);
 						} else {
@@ -41295,7 +41295,7 @@ define("tinymce/pasteplugin/Clipboard", [
 									// 是否是外链
 									if(src.indexOf(urlPrefix) == -1) {
 										time++;
-										var id = "__LEANOTE_IMAGE_" + time;
+										var id = "__PEARLNOTE_IMAGE_" + time;
 										$img.attr("id", id);
 										if(needCopyImages[src]) {
 											needCopyImages[src].push(id);
@@ -41485,7 +41485,7 @@ define("tinymce/pasteplugin/Clipboard", [
 			}
 		});
 		
-		// 当url改变时, 得到图片的大小 copy from leanote_image
+		// 当url改变时, 得到图片的大小 copy from pearlnote_image
 		function getImageSize(url, callback) {
 			var img = document.createElement('img');
 		
@@ -41567,7 +41567,7 @@ define("tinymce/pasteplugin/Clipboard", [
 					var dom = editor.dom;
 					var d = {};						
 					d.id = '__mcenew';
-					d.src = "http://leanote.com/images/loading-24.gif"; // 写死了
+					d.src = "http://pearlnote.com/images/loading-24.gif"; // 写死了
 					editor.insertContent(dom.createHTML('img', d));
 					var imgElm = dom.get('__mcenew');
 				    $.ajax({url: "/file/pasteImage", contentType:false, processData:false , data: c, type: "POST"}
@@ -42776,10 +42776,10 @@ expose(["tinymce/pasteplugin/Utils","tinymce/pasteplugin/WordFilter"]);
 	tinymce.PluginManager.add('searchreplace', Plugin);
 })();
 /**
- * leanote nav
+ * pearlnote nav
  * 
  */
-tinymce.PluginManager.add('leanote_nav', function(editor) {
+tinymce.PluginManager.add('pearlnote_nav', function(editor) {
 	var self = this;
 	var preBody = "";
     function genNav() {
@@ -42802,16 +42802,16 @@ tinymce.PluginManager.add('leanote_nav', function(editor) {
 			titles += '<li class="nav-' + tagName + '"><a data-a="' + tagName + '-' + encodeURI(text)+'" onclick="scrollTo(this, \'' + tagName + '\', \'' + text + '\')">' + text + '</a></li>';
 		}
 		titles += "</ul>";
-		$("#leanoteNavContent").html(titles).height("auto"); // auto
+		$("#pearlnoteNavContent").html(titles).height("auto"); // auto
 		if(!hs.length) {
-			$("#leanoteNavContent").html("&nbsp; Nothing...");
+			$("#pearlnoteNavContent").html("&nbsp; Nothing...");
 		}
 		
 		// 这里, resize Height
-		var curH = $("#leanoteNavContent").height();
+		var curH = $("#pearlnoteNavContent").height();
 		var pH = $("#editorContent").height()-29;
 		if(curH > pH) {	
-			$("#leanoteNavContent").height(pH);
+			$("#pearlnoteNavContent").height(pH);
 		}
 	}
 
@@ -42837,12 +42837,12 @@ tinymce.PluginManager.add('leanote_nav', function(editor) {
      	
 	});
 });/**
- * leanote code plugin
+ * pearlnote code plugin
  */
 
-// tinymce.PluginManager.requireLangPack('leanote_code');
+// tinymce.PluginManager.requireLangPack('pearlnote_code');
 
-tinymce.PluginManager.add('leanote_code', function(editor, url) {
+tinymce.PluginManager.add('pearlnote_code', function(editor, url) {
 	var me = this;
 	var ed = editor;
 
@@ -43092,7 +43092,7 @@ tinymce.PluginManager.add('leanote_code', function(editor, url) {
 		};
 	}
 	    
-    editor.addButton('leanote_code', function() {
+    editor.addButton('pearlnote_code', function() {
     	var langs = [
     		"Convert Code:convert",
 			"CSS:css", 
@@ -43135,7 +43135,7 @@ tinymce.PluginManager.add('leanote_code', function(editor, url) {
 		};
 	});
 
-	editor.addButton('leanote_inline_code', {
+	editor.addButton('pearlnote_inline_code', {
 		icon: 'code',
 		tooltip: 'Inline Code',
 		stateSelector: 'code',
@@ -43145,7 +43145,7 @@ tinymce.PluginManager.add('leanote_code', function(editor, url) {
 	});
 
 	if(LeaAce.canAce()) {
-		editor.addButton('leanote_ace_pre', {
+		editor.addButton('pearlnote_ace_pre', {
 			icon: 'ace-pre',
 			tooltip: 'Toggle ace with raw html',
 			active: LeaAce.isAce === false,

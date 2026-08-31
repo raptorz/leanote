@@ -10,12 +10,12 @@ var gulpSequence = require('gulp-sequence');
 
 var fs = require('fs');
 
-var leanoteBase = './';
-var base = leanoteBase + '/public'; // public base
-var noteDev = leanoteBase + '/app/views/note/note-dev.html';
-var noteProBase = leanoteBase + '/app/views/note';
+var pearlnoteBase = './';
+var base = pearlnoteBase + '/public'; // public base
+var noteDev = pearlnoteBase + '/app/views/note/note-dev.html';
+var noteProBase = pearlnoteBase + '/app/views/note';
 
-var messagesPath = leanoteBase + 'messages';
+var messagesPath = pearlnoteBase + 'messages';
 
 // 合并Js, 这些js都是不怎么修改, 且是依赖
 // 840kb, 非常耗时!!
@@ -204,7 +204,7 @@ gulp.task('i18n', function() {
     ls(base + '/member');
     ls(base + '/tinymce');
 
-    ls(leanoteBase + '/app/views');
+    ls(pearlnoteBase + '/app/views');
 
     console.log('parsed');
     var langs = {}; // zh-cn: 1
@@ -250,7 +250,7 @@ gulp.task('i18n', function() {
     function genI18nJsFile(targetFilename, lang, fromFilenames, keys) {
         var msgs = {};
         fromFilenames.forEach(function (name) {
-            var tmpMsgs = getAllMsgs(leanoteBase + '/messages/' + lang + '/' + name + '.conf');
+            var tmpMsgs = getAllMsgs(pearlnoteBase + '/messages/' + lang + '/' + name + '.conf');
             for (var i in tmpMsgs) {
                 msgs[i] = tmpMsgs[i];
             }
@@ -280,7 +280,7 @@ gulp.task('i18n', function() {
     }
 
     function genTinymceLang(lang) {
-        var msgs = getAllMsgs(leanoteBase + 'messages/' + lang + '/tinymce_editor.conf');
+        var msgs = getAllMsgs(pearlnoteBase + 'messages/' + lang + '/tinymce_editor.conf');
         var str = 'tinymce.addI18n("' + lang + '",' + JSON.stringify(msgs) + ');';
         fs.writeFile(base + '/tinymce/langs/' + lang + '.js', str);
     }
@@ -330,7 +330,7 @@ gulp.task('concatAlbumJs', function() {
 
 // tinymce
 // please set the right path on your own env
-var tinymceBase = '/Users/life/leanote/leanote-tools/tinymce_4.1.9_leanote_public';
+var tinymceBase = '/Users/life/pearlnote/pearlnote-tools/tinymce_4.1.9_pearlnote_public';
 gulp.task('tinymce', function() {
     // 先清理
     fs.unlink(tinymceBase + '/js/tinymce/tinymce.dev.js');
@@ -340,7 +340,7 @@ gulp.task('tinymce', function() {
 
     var cp = require('child_process');
 
-    var bundleCmd = 'grunt bundle --themes leanote --plugins autolink,link,leaui_image,leaui_mindmap,lists,hr,paste,searchreplace,leanote_nav,leanote_code,tabfocus,table,directionality,textcolor';
+    var bundleCmd = 'grunt bundle --themes pearlnote --plugins autolink,link,leaui_image,leaui_mindmap,lists,hr,paste,searchreplace,pearlnote_nav,pearlnote_code,tabfocus,table,directionality,textcolor';
     // build
     cp.exec('grunt minify', {cwd: tinymceBase}, function(err, stdout, stderr) {
         console.log('stdout: ' + stdout);

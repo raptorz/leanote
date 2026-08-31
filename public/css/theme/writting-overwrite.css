@@ -544,9 +544,9 @@ a.raw:hover {
   user-select: none;
 }
 @font-face {
-  font-family: 'leanote';
-  src: url('../../fonts/leanote-font3/leanote.eot?-vcf23i');
-  src: url('../../fonts/leanote-font3/leanote.eot?#iefix-vcf23i') format('embedded-opentype'), url('../../fonts/leanote-font3/leanote.ttf?-vcf23i') format('truetype'), url('../../fonts/leanote-font3/leanote.woff?-vcf23i') format('woff'), url('../../fonts/leanote-font3/leanote.svg?-vcf23i#leanote') format('svg');
+  font-family: 'pearlnote';
+  src: url('../../fonts/pearlnote-font3/pearlnote.eot?-vcf23i');
+  src: url('../../fonts/pearlnote-font3/pearlnote.eot?#iefix-vcf23i') format('embedded-opentype'), url('../../fonts/pearlnote-font3/pearlnote.ttf?-vcf23i') format('truetype'), url('../../fonts/pearlnote-font3/pearlnote.woff?-vcf23i') format('woff'), url('../../fonts/pearlnote-font3/pearlnote.svg?-vcf23i#pearlnote') format('svg');
   font-weight: normal;
   font-style: normal;
 }
@@ -554,7 +554,7 @@ a.raw:hover {
 .mce-i-mind,
 .mce-i-ace-pre,
 .lea-icon {
-  font-family: 'leanote' !important;
+  font-family: 'pearlnote' !important;
   speak: none;
   font-style: normal;
   font-weight: normal;
@@ -573,17 +573,23 @@ a.raw:hover {
   content: "\e603";
 }
 #logo:before {
-  content: "\e901";
+  content: "Pearlnote";
+  font-family: "Open Sans", "Microsoft YaHei", sans-serif !important;
+  font-weight: 600;
   line-height: 1;
   margin-top: 5px;
   display: inline-block;
   vertical-align: top;
 }
 #logo.icon-only:before {
-  content: "\e902";
+  content: "P";
+  font-family: "Open Sans", "Microsoft YaHei", sans-serif !important;
+  font-weight: 600;
 }
 .lang-zh-cn #logo:before {
-  content: "\e900";
+  content: "珠玑笔记";
+    font-family: "Open Sans", "Microsoft YaHei", sans-serif !important;
+    font-weight: 600;
 }
 /**
  * 头部
@@ -612,7 +618,7 @@ a.raw:hover {
   padding: 0 5px;
   padding-left: 3px;
 }
-#leanoteMsg {
+#pearlnoteMsg {
   line-height: 40px;
   margin-top: 10px;
   margin-left: 10px;
@@ -907,8 +913,8 @@ a:hover {
   padding: 0;
   display: none;
 }
-/* leanote nav */
-.leanoteNav {
+/* pearlnote nav */
+.pearlnoteNav {
   position: absolute;
   right: 0px;
   border: 1px solid #ccc;
@@ -918,57 +924,57 @@ a:hover {
   z-index: 11;
   margin-top: 4px;
 }
-.leanoteNav h1 {
+.pearlnoteNav h1 {
   margin: 0;
   font-size: 16px;
   padding: 3px;
   cursor: pointer;
 }
-.leanoteNav i {
+.pearlnoteNav i {
   padding: 3px;
 }
-.leanoteNav span {
+.pearlnoteNav span {
   display: none;
 }
-.leanoteNav .leanoteNavContent {
+.pearlnoteNav .pearlnoteNavContent {
   display: none;
   overflow: auto;
 }
-.leanoteNav.unfolder {
+.pearlnoteNav.unfolder {
   min-width: 200px;
   max-width: 300px;
   opacity: 0.8;
 }
-.leanoteNav.unfolder h1 {
+.pearlnoteNav.unfolder h1 {
   border-bottom: 1px dashed #ebeff2;
 }
-.leanoteNav.unfolder span {
+.pearlnoteNav.unfolder span {
   display: inline;
 }
-.leanoteNav.unfolder .leanoteNavContent {
+.pearlnoteNav.unfolder .pearlnoteNavContent {
   display: block;
   min-height: 30px;
 }
-.leanoteNav ul {
+.pearlnoteNav ul {
   margin: 0;
   padding-left: 23px;
 }
-.leanoteNav ul li {
+.pearlnoteNav ul li {
   list-style-type: disc;
 }
-.leanoteNav ul li a:hover {
+.pearlnoteNav ul li a:hover {
   color: #0fb264;
 }
-.leanoteNav ul .nav-h2 {
+.pearlnoteNav ul .nav-h2 {
   margin-left: 20px;
 }
-.leanoteNav ul .nav-h3 {
+.pearlnoteNav ul .nav-h3 {
   margin-left: 30px;
 }
-.leanoteNav ul .nav-h4 {
+.pearlnoteNav ul .nav-h4 {
   margin-left: 40px;
 }
-.leanoteNav ul .nav-h5 {
+.pearlnoteNav ul .nav-h5 {
   margin-left: 50px;
 }
 .scrollTo-a {
@@ -1129,17 +1135,17 @@ a:hover {
 #editorContent .ace_scrollbar-v {
   overflow-y: hidden;
 }
-#editorContent .leanote-image-container {
+#editorContent .pearlnote-image-container {
   display: inline-block;
   width: 100px;
 }
-#editorContent .leanote-image-container .loader {
+#editorContent .pearlnote-image-container .loader {
   display: inline-block;
   vertical-align: top;
   margin-right: 3px;
   margin-top: 5px;
 }
-#editorContent .leanote-image-container .progress {
+#editorContent .pearlnote-image-container .progress {
   display: inline-block;
   margin: 0;
   width: 80px;
@@ -3174,8 +3180,8 @@ a.raw:hover {
 .label i:hover {
   opacity: 1;
 }
-/* leanote nav */
-.leanoteNav {
+/* pearlnote nav */
+.pearlnoteNav {
   position: absolute;
   right: 5px;
   border: 1px solid #ccc;
@@ -3185,63 +3191,63 @@ a.raw:hover {
   z-index: 11;
   margin-right: 2px;
 }
-.leanoteNav h1 {
+.pearlnoteNav h1 {
   margin: 0;
   font-size: 18px;
   padding: 3px;
   cursor: pointer;
 }
-.leanoteNav i {
+.pearlnoteNav i {
   padding: 3px;
 }
-.leanoteNav span {
+.pearlnoteNav span {
   display: none;
 }
-.leanoteNav .leanoteNavContent {
+.pearlnoteNav .pearlnoteNavContent {
   display: none;
   overflow: auto;
 }
-.leanoteNav.unfolder {
+.pearlnoteNav.unfolder {
   min-width: 200px;
   max-width: 300px;
   opacity: 0.8;
 }
-.leanoteNav.unfolder h1 {
+.pearlnoteNav.unfolder h1 {
   border-bottom: 1px dashed #ebeff2;
 }
-.leanoteNav.unfolder span {
+.pearlnoteNav.unfolder span {
   display: inline;
 }
-.leanoteNav.unfolder .leanoteNavContent {
+.pearlnoteNav.unfolder .pearlnoteNavContent {
   display: block;
   min-height: 30px;
 }
-.leanoteNav ul {
+.pearlnoteNav ul {
   margin: 0;
   padding-left: 23px;
 }
-.leanoteNav ul li {
+.pearlnoteNav ul li {
   list-style-type: disc;
 }
-.leanoteNav ul li a:hover {
+.pearlnoteNav ul li a:hover {
   color: #0fb264;
 }
-.leanoteNav ul .nav-h2 {
+.pearlnoteNav ul .nav-h2 {
   margin-left: 20px;
 }
-.leanoteNav ul .nav-h3 {
+.pearlnoteNav ul .nav-h3 {
   margin-left: 30px;
 }
-.leanoteNav ul .nav-h4 {
+.pearlnoteNav ul .nav-h4 {
   margin-left: 40px;
 }
-.leanoteNav ul .nav-h5 {
+.pearlnoteNav ul .nav-h5 {
   margin-left: 50px;
 }
 .scrollTo-a {
   cursor: pointer !important;
 }
-#mdEditor .leanoteNav {
+#mdEditor .pearlnoteNav {
   top: 10px;
   right: 0px;
 }
@@ -3503,7 +3509,7 @@ body {
   z-index: 333;
   color: #ccc;
 }
-#header #leanoteMsg {
+#header #pearlnoteMsg {
   position: absolute;
   width: 700px;
   left: 0;
@@ -3671,7 +3677,7 @@ body {
 #noteItemList .item-active:hover .item-title {
   color: #000;
 }
-#leanoteNav {
+#pearlnoteNav {
   background-color: #fbfcf7;
   opacity: 0.3;
 }
@@ -3732,7 +3738,7 @@ body {
   display: none;
 }
 @media screen and (max-width: 800px) {
-  #leanoteMsg {
+  #pearlnoteMsg {
     display: none;
   }
   #noteItemList,

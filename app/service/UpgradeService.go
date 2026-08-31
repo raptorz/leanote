@@ -1,9 +1,9 @@
 package service
 
 import (
-	"github.com/leanote/leanote/app/db"
-	"github.com/leanote/leanote/app/info"
-	. "github.com/leanote/leanote/app/lea"
+	"github.com/pearlnote/pearlnote/app/db"
+	"github.com/pearlnote/pearlnote/app/info"
+	. "github.com/pearlnote/pearlnote/app/lea"
 	"gopkg.in/mgo.v2/bson"
 	"time"
 )
@@ -37,7 +37,7 @@ func (this *UpgradeService) UpgradeBlog() bool {
 */
 func (this *UpgradeService) UpgradeBetaToBeta2(userId string) (ok bool, msg string) {
 	if configService.GetGlobalStringConfig("UpgradeBetaToBeta2") != "" {
-		return false, "Leanote have been upgraded"
+		return false, "Pearlnote have been upgraded"
 	}
 
 	// 1. aboutMe -> page
@@ -155,7 +155,7 @@ func (this *UpgradeService) setNoteUsn() {
 // 升级为Api, beta.4
 func (this *UpgradeService) Api(userId string) (ok bool, msg string) {
 	if configService.GetGlobalStringConfig("UpgradeBetaToBeta4") != "" {
-		return false, "Leanote have been upgraded"
+		return false, "Pearlnote have been upgraded"
 	}
 
 	// user

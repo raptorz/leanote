@@ -489,7 +489,7 @@ function initEditor() {
 	// 初始化编辑器
 	tinymce.init({
 		inline: true,
-		theme: 'leanote',
+		theme: 'pearlnote',
 		valid_children: "+pre[div|#text|p|span|textarea|i|b|strong]", // ace
 		/*
 		protect: [
@@ -545,10 +545,10 @@ function initEditor() {
 		language: LEA.locale, // 语言
 		plugins : [
 				"autolink link leaui_image leaui_mindmap lists hr", "paste",
-				"searchreplace leanote_nav leanote_code tabfocus",
+				"searchreplace pearlnote_nav pearlnote_code tabfocus",
 				"table textcolor" ], // nonbreaking directionality charmap
-		toolbar1 : "formatselect | forecolor backcolor | bold italic underline strikethrough | leaui_image leaui_mindmap | leanote_code leanote_inline_code | bullist numlist | alignleft aligncenter alignright alignjustify",
-		toolbar2 : "outdent indent blockquote | link unlink | table | hr removeformat | subscript superscript | searchreplace | pastetext | leanote_ace_pre | fontselect fontsizeselect",
+		toolbar1 : "formatselect | forecolor backcolor | bold italic underline strikethrough | leaui_image leaui_mindmap | pearlnote_code pearlnote_inline_code | bullist numlist | alignleft aligncenter alignright alignjustify",
+		toolbar2 : "outdent indent blockquote | link unlink | table | hr removeformat | subscript superscript | searchreplace | pastetext | pearlnote_ace_pre | fontselect fontsizeselect",
 
 		// 使用tab键: http://www.tinymce.com/wiki.php/Plugin3x:nonbreaking
 		// http://stackoverflow.com/questions/13543220/tiny-mce-how-to-allow-people-to-indent
@@ -627,8 +627,8 @@ function scrollTo(self, tagName, text) {
 	
 	// 找到是第几个
 	// 在nav是第几个
-	var navs = $('#leanoteNavContent [data-a="' + tagName + '-' + encodeURI(text) + '"]');
-//	alert('#leanoteNavContent [data-a="' + tagName + '-' + encodeURI(text) + '"]')
+	var navs = $('#pearlnoteNavContent [data-a="' + tagName + '-' + encodeURI(text) + '"]');
+//	alert('#pearlnoteNavContent [data-a="' + tagName + '-' + encodeURI(text) + '"]')
 	var len = navs.size();
 	for(var i = 0; i < len; ++i) {
 		if(navs[i] == self) {
@@ -704,12 +704,12 @@ function hideMask () {
 	});
 	
 	// 导航隐藏与显示
-	$(".leanoteNav h1").on("click", function(e) {
-		var $leanoteNav = $(this).closest('.leanoteNav');
-		if (!$leanoteNav.hasClass("unfolder")) {
-			$leanoteNav.addClass("unfolder");
+	$(".pearlnoteNav h1").on("click", function(e) {
+		var $pearlnoteNav = $(this).closest('.pearlnoteNav');
+		if (!$pearlnoteNav.hasClass("unfolder")) {
+			$pearlnoteNav.addClass("unfolder");
 		} else {
-			$leanoteNav.removeClass("unfolder");
+			$pearlnoteNav.removeClass("unfolder");
 		}
 	});
 	
@@ -746,7 +746,7 @@ function hideMask () {
 	});
 
 	// 禁止双击选中文字
-	$("#notebook, #newMyNote, #myProfile, #topNav, #notesAndSort", "#leanoteNavTrigger").bind("selectstart", function(e) {
+	$("#notebook, #newMyNote, #myProfile, #topNav, #notesAndSort", "#pearlnoteNavTrigger").bind("selectstart", function(e) {
 		e.preventDefault();
 		return false;
 	});
@@ -1011,7 +1011,7 @@ LeaAce = {
 	},
 	getAceId: function () {
 		this.aceId++;
-		return "leanote_ace_" + (new Date()).getTime() + "_" + this._aceId;
+		return "pearlnote_ace_" + (new Date()).getTime() + "_" + this._aceId;
 	},
 	initAce: function(id, val, force) {
 		var me = this;
@@ -1457,8 +1457,8 @@ LeaAce = {
 	}
 };
 
-function initLeanoteIfrPlugin () {
-	// 如果在iframe下, 很可能是嵌入了leanote
+function initPearlnoteIfrPlugin () {
+	// 如果在iframe下, 很可能是嵌入了pearlnote
 	if (self != window.parent) {
 		LEA.topInfo = {};
 		// 收到消息
@@ -1469,7 +1469,7 @@ function initLeanoteIfrPlugin () {
 			LEA.topInfo.got = true;
 		}, false);
 		if (window.parent.postMessage) {
-			window.parent.postMessage('leanote', '*');
+			window.parent.postMessage('pearlnote', '*');
 		}
 	}
 }
@@ -1517,7 +1517,7 @@ function getTopInfoSrc (callback) {
 // note.html调用
 // 实始化页面
 function initPage() {
-	initLeanoteIfrPlugin();
+	initPearlnoteIfrPlugin();
 	if (LEA.topInfo) {
 		getTopInfoSrc(function (src) {
 			if (src) {

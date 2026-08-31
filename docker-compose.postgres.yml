@@ -6,22 +6,22 @@ services:
     container_name: postgres
     restart: always
     environment:
-      POSTGRES_USER: leanote
-      POSTGRES_PASSWORD: leanote
-      POSTGRES_DB: leanote
+      POSTGRES_USER: pearlnote
+      POSTGRES_PASSWORD: pearlnote
+      POSTGRES_DB: pearlnote
     ports:
       - 127.0.0.1:5432:5432
     volumes:
       - ~/postgres_data:/var/lib/postgresql/data
-      - ./database/schema.sql:/docker-entrypoint-initdb.d/001-leanote-schema.sql:ro
+      - ./database/schema.sql:/docker-entrypoint-initdb.d/001-pearlnote-schema.sql:ro
 
-  leanote:
-    image: leanote:v2.7.0
-    container_name: leanote
+  pearlnote:
+    image: pearlnote:v2.7.0
+    container_name: pearlnote
     restart: always
     depends_on:
       - postgres
     ports:
       - 127.0.0.1:9000:9000
     volumes:
-      - ~/leanote/conf/app.conf:/opt/leanote/conf/app.conf
+      - ~/pearlnote/conf/app.conf:/opt/pearlnote/conf/app.conf

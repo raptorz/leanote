@@ -25,9 +25,9 @@ brew services start postgresql    # macOS
 
 ```bash
 sudo -u postgres psql << EOF
-CREATE USER leanote WITH PASSWORD 'leanote123';
-CREATE DATABASE leanote OWNER leanote;
-GRANT ALL PRIVILEGES ON DATABASE leanote TO leanote;
+CREATE USER pearlnote WITH PASSWORD 'pearlnote123';
+CREATE DATABASE pearlnote OWNER pearlnote;
+GRANT ALL PRIVILEGES ON DATABASE pearlnote TO pearlnote;
 \q
 EOF
 ```
@@ -35,7 +35,7 @@ EOF
 ### 步骤 3: 创建表结构
 
 ```bash
-psql -U leanote -d leanote -f database/schema.sql
+psql -U pearlnote -d pearlnote -f database/schema.sql
 ```
 
 ### 步骤 4: 配置应用
@@ -45,9 +45,9 @@ psql -U leanote -d leanote -f database/schema.sql
 ```ini
 db.host=127.0.0.1
 db.port=5432
-db.dbname=leanote
-db.username=leanote
-db.password=leanote123
+db.dbname=pearlnote
+db.username=pearlnote
+db.password=pearlnote123
 ```
 
 ### 步骤 5: 更新代码（可选）
@@ -63,10 +63,10 @@ db.password=leanote123
 
 ```bash
 # 开发模式
-revel run github.com/leanote/leanote
+revel run github.com/pearlnote/pearlnote
 
 # 或使用 PostgreSQL 模式
- revel run github.com/leanote/leanote --db=postgres
+ revel run github.com/pearlnote/pearlnote --db=postgres
 ```
 
 ### 步骤 7: 访问应用
@@ -85,8 +85,8 @@ mongod --dbpath /path/to/mongodb/data
 
 ```bash
 go run ./tools/migration -direction mongo_to_pg \
-  -mongo-url 'mongodb://127.0.0.1:27017/leanote' \
-  -postgres-url 'host=127.0.0.1 port=5432 user=leanote password=leanote dbname=leanote sslmode=disable'
+  -mongo-url 'mongodb://127.0.0.1:27017/pearlnote' \
+  -postgres-url 'host=127.0.0.1 port=5432 user=pearlnote password=pearlnote dbname=pearlnote sslmode=disable'
 ```
 
 迁移脚本会自动：
@@ -98,7 +98,7 @@ go run ./tools/migration -direction mongo_to_pg \
 ### 3. 验证迁移
 
 ```bash
-psql -U leanote -d leanote << EOF
+psql -U pearlnote -d pearlnote << EOF
 SELECT 'Users' as table_name, COUNT(*) as count FROM users
 UNION ALL
 SELECT 'Notebooks', COUNT(*) FROM notebooks
@@ -117,7 +117,7 @@ EOF
 4. 检查数据库是否有新用户
 
 ```bash
-psql -U leanote -d leanote -c "SELECT username, email, created_time FROM users ORDER BY created_time DESC LIMIT 1;"
+psql -U pearlnote -d pearlnote -c "SELECT username, email, created_time FROM users ORDER BY created_time DESC LIMIT 1;"
 ```
 
 ### 2. 测试笔记创建
@@ -127,20 +127,20 @@ psql -U leanote -d leanote -c "SELECT username, email, created_time FROM users O
 3. 检查数据库
 
 ```bash
-psql -U leanote -d leanote -c "SELECT title, created_time FROM notes ORDER BY created_time DESC LIMIT 1;"
+psql -U pearlnote -d pearlnote -c "SELECT title, created_time FROM notes ORDER BY created_time DESC LIMIT 1;"
 ```
 
 ### 3. 测试 CRUD 操作
 
 ```bash
 # 查看所有用户
-psql -U leanote -d leanote -c "SELECT username, email FROM users LIMIT 10;"
+psql -U pearlnote -d pearlnote -c "SELECT username, email FROM users LIMIT 10;"
 
 # 更新用户信息
-psql -U leanote -d leanote -c "UPDATE users SET logo = 'new_logo.png' WHERE username = 'testuser';"
+psql -U pearlnote -d pearlnote -c "UPDATE users SET logo = 'new_logo.png' WHERE username = 'testuser';"
 
 # 删除测试数据
-psql -U leanote -d leanote -c "DELETE FROM users WHERE username = 'testuser';"
+psql -U pearlnote -d pearlnote -c "DELETE FROM users WHERE username = 'testuser';"
 ```
 
 ## 常见问题快速解决
@@ -160,7 +160,7 @@ sudo systemctl start postgresql
 ```bash
 # 重置密码
 sudo -u postgres psql
-ALTER USER leanote WITH PASSWORD 'new_password';
+ALTER USER pearlnote WITH PASSWORD 'new_password';
 \q
 
 # 更新配置文件中的密码
@@ -171,9 +171,9 @@ ALTER USER leanote WITH PASSWORD 'new_password';
 ```bash
 # 授予权限
 sudo -u postgres psql
-GRANT ALL PRIVILEGES ON DATABASE leanote TO leanote;
-GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO leanote;
-GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO leanote;
+GRANT ALL PRIVILEGES ON DATABASE pearlnote TO pearlnote;
+GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO pearlnote;
+GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO pearlnote;
 \q
 ```
 
@@ -205,20 +205,20 @@ GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO leanote;
 
 ```bash
 # 数据库操作
-psql -U leanote -d leanote                           # 连接数据库
-psql -U leanote -d leanote -f database/schema.sql      # 导入 schema
-pg_dump -U leanote -d leanote > backup.sql            # 备份
-psql -U leanote -d leanote < backup.sql               # 恢复
+psql -U pearlnote -d pearlnote                           # 连接数据库
+psql -U pearlnote -d pearlnote -f database/schema.sql      # 导入 schema
+pg_dump -U pearlnote -d pearlnote > backup.sql            # 备份
+psql -U pearlnote -d pearlnote < backup.sql               # 恢复
 
 # 应用操作
 go mod download                                        # 下载依赖
-revel run github.com/leanote/leanote                  # 运行应用
-revel build github.com/leanote/leanote leanote         # 编译应用
+revel run github.com/pearlnote/pearlnote                  # 运行应用
+revel build github.com/pearlnote/pearlnote pearlnote         # 编译应用
 
 # 迁移操作
 go run ./tools/migration -direction mongo_to_pg       # MongoDB → PostgreSQL
 go run ./tools/migration -direction pg_to_mongo       # PostgreSQL → MongoDB
 
 # 监控操作
-psql -U leanote -d leanote -c "SELECT count(*) FROM pg_stat_activity WHERE datname = 'leanote';"  # 查看连接数
+psql -U pearlnote -d pearlnote -c "SELECT count(*) FROM pg_stat_activity WHERE datname = 'pearlnote';"  # 查看连接数
 ```

@@ -15,7 +15,7 @@ require.config({
     	'objectId': 'js/object_id-min',
     	'ZeroClipboard': 'js/ZeroClipboard/ZeroClipboard-min',
     	'bootstrap': 'js/bootstrap-min',
-    	'leanote': 'js/main',
+		'pearlnote': 'js/main',
     	
     	// ajax upload image/attach
     	'editor_drop_paste': 'js/app/editor_drop_paste-min',
@@ -53,8 +53,8 @@ require.config({
 });
 
 /*
-// leanote, 这里使用requireJs很慢, 不用
-define('leanote', ['tinymce', 'page'], function(){
+// pearlnote, 这里使用requireJs很慢, 不用
+define('pearlnote', ['tinymce', 'page'], function(){
 });
 
 require(['jquery.slimscroll', 'contextmenu', 'jquery.cookie', 

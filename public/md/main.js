@@ -9590,7 +9590,7 @@ define('settings',[
 		fontSizeRatio: 1,
 		maxWidthRatio: 1,
 		cursorFocusRatio: 0.5,
-		defaultContent: "Leanote",
+		defaultContent: "Pearlnote",
 		extensionSettings: {}
 	};
 	return settings;
@@ -25050,17 +25050,17 @@ define('extensions/toc',[
                 elt.innerHTML = htmlToc;
             });
 
-            $("#leanoteNavContentMd").height("auto"); // auto
+            $("#pearlnoteNavContentMd").height("auto"); // auto
             try {
                 if(!$(htmlToc).text()) {
-                    $("#leanoteNavContentMd").html("&nbsp; &nbsp; Nothing...");
+                    $("#pearlnoteNavContentMd").html("&nbsp; &nbsp; Nothing...");
                 }
             } catch(e) {}
             // 这里, resize Height
-            var curH = $("#leanoteNavContentMd").height();
+            var curH = $("#pearlnoteNavContentMd").height();
             var pH = $("#mdEditor").height()-100;
             if(curH > pH) {
-                $("#leanoteNavContentMd").height(pH);
+                $("#pearlnoteNavContentMd").height(pH);
             }
         });
     };
@@ -34012,7 +34012,7 @@ define('core',[
 		$(".action-insert-image").click(function() {
 			// 得到图片链接或图片
 			/*
-			https://github.com/leanote/leanote/issues/171
+			https://github.com/pearlnote/pearlnote/issues/171
 			同遇到了网页编辑markdown时不能添加图片的问题。
 			可以上传图片，但是按下“插入图片”按钮之后，编辑器中没有加入![...](...)
 			我的控制台有这样的错误： TypeError: document.mdImageManager is undefined
@@ -34042,7 +34042,7 @@ define('core',[
 
 		// 弹框显示markdown语法
 		$('#wmd-help-button').click(function() {
-	        window.open("http://leanote.com/blog/post/531b263bdfeb2c0ea9000002");
+	        window.open("http://pearlnote.com/blog/post/531b263bdfeb2c0ea9000002");
 		});
 
 		// Load images

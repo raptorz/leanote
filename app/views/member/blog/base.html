@@ -12,7 +12,7 @@
 					<div class="form-group">
 						<label for="title" >{{msg . "blogName"}}</label>
 						<input type="text" class="form-control" id="Title" name="Title"
-								placeholder="eg: leanote's blog"
+								placeholder="eg: pearlnote's blog"
 								value="{{if .userBlog.Title}}{{.userBlog.Title}}{{else}}{{.userInfo.Email}} 's blog{{end}}">
 					</div>
 
@@ -40,7 +40,7 @@
 						<label for="subTitle">{{msg . "blogDesc"}}</label>
 						<input type="text" class="form-control" id="SubTitle"
 								name="SubTitle" value="{{.userBlog.SubTitle}}"
-								placeholder="eg: leanote, Not Just A Notebook">
+								placeholder="eg: pearlnote, Not Just A Notebook">
 					</div>
 
 					<div class="form-group">

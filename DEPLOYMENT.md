@@ -31,9 +31,9 @@ brew install postgresql
 sudo -u postgres psql
 
 # 创建数据库和用户
-CREATE USER leanote WITH PASSWORD 'your_secure_password';
-CREATE DATABASE leanote OWNER leanote;
-GRANT ALL PRIVILEGES ON DATABASE leanote TO leanote;
+CREATE USER pearlnote WITH PASSWORD 'your_secure_password';
+CREATE DATABASE pearlnote OWNER pearlnote;
+GRANT ALL PRIVILEGES ON DATABASE pearlnote TO pearlnote;
 \q
 ```
 
@@ -41,10 +41,10 @@ GRANT ALL PRIVILEGES ON DATABASE leanote TO leanote;
 
 ```bash
 # 导入 schema
-psql -U leanote -d leanote -f database/schema.sql
+psql -U pearlnote -d pearlnote -f database/schema.sql
 
 # 验证表是否创建成功
-psql -U leanote -d leanote -c "\dt"
+psql -U pearlnote -d pearlnote -c "\dt"
 ```
 
 ### 4. 配置应用
@@ -55,12 +55,12 @@ psql -U leanote -d leanote -c "\dt"
 # 数据库配置
 db.host=127.0.0.1
 db.port=5432
-db.dbname=leanote
-db.username=leanote
+db.dbname=pearlnote
+db.username=pearlnote
 db.password=your_secure_password
 
 # 或使用连接字符串
-db.url=host=127.0.0.1 port=5432 user=leanote password=your_secure_password dbname=leanote sslmode=disable
+db.url=host=127.0.0.1 port=5432 user=pearlnote password=your_secure_password dbname=pearlnote sslmode=disable
 ```
 
 ## 数据迁移（从 MongoDB）
@@ -84,7 +84,7 @@ brew install mongodb-community
 mongod --dbpath /path/to/mongodb/data
 
 # 备份数据
-mongodump --host localhost --port 27017 --db leanote --out mongodb_backup
+mongodump --host localhost --port 27017 --db pearlnote --out mongodb_backup
 ```
 
 ### 3. 运行迁移脚本
@@ -95,8 +95,8 @@ go build -o migrate ./tools/migration
 
 # 运行迁移（确保 MongoDB 和 PostgreSQL 都在运行）
 ./migrate -direction mongo_to_pg \
-  -mongo-url 'mongodb://127.0.0.1:27017/leanote' \
-  -postgres-url 'host=127.0.0.1 port=5432 user=leanote password=leanote dbname=leanote sslmode=disable'
+  -mongo-url 'mongodb://127.0.0.1:27017/pearlnote' \
+  -postgres-url 'host=127.0.0.1 port=5432 user=pearlnote password=pearlnote dbname=pearlnote sslmode=disable'
 
 # 或者直接运行
 go run ./tools/migration -direction mongo_to_pg
@@ -106,7 +106,7 @@ go run ./tools/migration -direction mongo_to_pg
 
 ```bash
 # 连接到 PostgreSQL
-psql -U leanote -d leanote
+psql -U pearlnote -d pearlnote
 
 # 检查数据
 SELECT COUNT(*) FROM users;
@@ -134,30 +134,30 @@ go mod tidy
 
 ```go
 // 将原来的 MongoDB 初始化改为 PostgreSQL
-// db.Init(revel.Config.StringDefault("db.url", ""), revel.Config.StringDefault("db.dbname", "leanote"))
+// db.Init(revel.Config.StringDefault("db.url", ""), revel.Config.StringDefault("db.dbname", "pearlnote"))
 
 // 改为
-db.InitPG(revel.Config.StringDefault("db.url", ""), revel.Config.StringDefault("db.dbname", "leanote"))
+db.InitPG(revel.Config.StringDefault("db.url", ""), revel.Config.StringDefault("db.dbname", "pearlnote"))
 ```
 
 ### 3. 编译应用
 
 ```bash
 # 开发模式
-revel run github.com/leanote/leanote
+revel run github.com/pearlnote/pearlnote
 
 # 生产模式编译
-revel build github.com/leanote/leanote leanote
+revel build github.com/pearlnote/pearlnote pearlnote
 ```
 
 ### 4. 运行应用
 
 ```bash
 # 开发环境
-revel run github.com/leanote/leanote
+revel run github.com/pearlnote/pearlnote
 
 # 生产环境
-./leanote/run.sh
+./pearlnote/run.sh
 ```
 
 ## 验证部署
@@ -183,10 +183,10 @@ grep "database" logs/app.log
 
 ```bash
 # 查看当前连接
-psql -U leanote -d leanote -c "SELECT count(*) FROM pg_stat_activity WHERE datname = 'leanote';"
+psql -U pearlnote -d pearlnote -c "SELECT count(*) FROM pg_stat_activity WHERE datname = 'pearlnote';"
 
 # 查看慢查询
-psql -U leanote -d leanote -c "SELECT * FROM pg_stat_statements ORDER BY total_time DESC LIMIT 10;"
+psql -U pearlnote -d pearlnote -c "SELECT * FROM pg_stat_statements ORDER BY total_time DESC LIMIT 10;"
 ```
 
 ## 性能优化
@@ -241,24 +241,24 @@ CREATE INDEX idx_note_contents_updated_time ON note_contents(updated_time DESC);
 
 ```bash
 # 完整备份
-pg_dump -U leanote -d leanote > backup_$(date +%Y%m%d_%H%M%S).sql
+pg_dump -U pearlnote -d pearlnote > backup_$(date +%Y%m%d_%H%M%S).sql
 
 # 仅备份数据
-pg_dump -U leanote -d leanote --data-only > data_backup.sql
+pg_dump -U pearlnote -d pearlnote --data-only > data_backup.sql
 
 # 仅备份结构
-pg_dump -U leanote -d leanote --schema-only > schema_backup.sql
+pg_dump -U pearlnote -d pearlnote --schema-only > schema_backup.sql
 ```
 
 ### 恢复
 
 ```bash
 # 恢复完整备份
-psql -U leanote -d leanote < backup_20240116_120000.sql
+psql -U pearlnote -d pearlnote < backup_20240116_120000.sql
 
 # 恢复到新数据库
-createdb -U leanote leanote_new
-psql -U leanote -d leanote_new < backup_20240116_120000.sql
+createdb -U pearlnote pearlnote_new
+psql -U pearlnote -d pearlnote_new < backup_20240116_120000.sql
 ```
 
 ## 监控和日志
@@ -318,7 +318,7 @@ Error: password authentication failed
 ```bash
 # 重置密码
 sudo -u postgres psql
-ALTER USER leanote WITH PASSWORD 'new_password';
+ALTER USER pearlnote WITH PASSWORD 'new_password';
 \q
 
 # 更新 conf/app.conf
@@ -357,7 +357,7 @@ ANALYZE notes;
 mongo --host localhost --port 27017 --eval "db.version()"
 
 # 检查 PostgreSQL 连接
-psql -U leanote -d leanote -c "SELECT version();"
+psql -U pearlnote -d pearlnote -c "SELECT version();"
 
 # 查看迁移日志
 ./migrate 2>&1 | tee migration.log

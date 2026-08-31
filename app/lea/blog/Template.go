@@ -1,7 +1,7 @@
 package blog
 
 import (
-	. "github.com/leanote/leanote/app/lea"
+	. "github.com/pearlnote/pearlnote/app/lea"
 	"github.com/revel/revel"
 	"html/template"
 	"io/ioutil"
@@ -16,7 +16,7 @@ import (
 )
 
 //--------------------
-// leanote 自定义主题
+// pearlnote 自定义主题
 // 不使用revel的模板机制
 // By life
 //--------------------

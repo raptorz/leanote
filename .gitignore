@@ -6,7 +6,7 @@ routes/
 pkg
 bin2
 bin/i18n
-bin/leanote*
+bin/pearlnote*
 bin/release
 bin/test.sh
 bin/tmp
@@ -23,6 +23,6 @@ files/
 .idea
 *.iml
 target/
-package/leanote.tar.gz
-package/leanote/
-leanote.log
+package/pearlnote.tar.gz
+package/pearlnote/
+pearlnote.log

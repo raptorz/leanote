@@ -4,9 +4,9 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="keywords" content="leanote,leanote.com,蚂蚁笔记">
-<meta name="description" content="Leanote,蚂蚁笔记, {{msg $ "moto"}}">
-<meta name="author" content="leanote,蚂蚁笔记">
+<meta name="keywords" content="pearlnote,pearlnote.com,珠玑笔记">
+<meta name="description" content="Pearlnote,珠玑笔记, {{msg $ "moto"}}">
+<meta name="author" content="pearlnote,珠玑笔记">
 <title>{{.title}}</title>
 
 <link href="/css/bootstrap.css" rel="stylesheet">
@@ -30,7 +30,7 @@ function log(o) {
 			<span class="icon-bar"></span>
 			</button>
 			<a class="navbar-brand" href="/index" id="logo">
-				<img src="/images/logo/leanote_black.png" class="hide" title="leanote, {{msg $ "moto"}}"/>
+				<span class="sr-only">Pearlnote 珠玑笔记</span>
 			</a>
 		</div>
 		
@@ -48,16 +48,16 @@ function log(o) {
 			<ul class="nav navbar-nav navbar-left">
 				<li><a href="/index#" data-target="body" class="smooth-scroll">{{msg . "home"}}</a></li>
 				<li style="position: relative; margin-right: 3px;">
-					<a href="http://bbs.leanote.com" target="_blank" class="">{{msg . "discussion"}}</a>
+					<a href="http://bbs.pearlnote.com" target="_blank" class="">{{msg . "discussion"}}</a>
 				</li>
 
-				<li><a id="leanoteBlog" href="http://lea.leanote.com" target="_blank" title="Leanote explore, leanote blog platform" class="">{{leaMsg . "Leanote Explore"}}</a></li>
-				<li><a id="leanoteApp" href="http://app.leanote.com" target="_blank" title="Leanote App" class="">{{msg . "desktopApp"}}</a></li>
+				<li><a id="pearlnoteBlog" href="http://lea.pearlnote.com" target="_blank" title="Pearlnote explore, pearlnote blog platform" class="">{{leaMsg . "Pearlnote Explore"}}</a></li>
+				<li><a id="pearlnoteApp" href="http://app.pearlnote.com" target="_blank" title="Pearlnote App" class="">{{msg . "desktopApp"}}</a></li>
 				<li>
-					<a href="http://leanote.org#donate" target="_blank" class="">{{msg . "donate"}}</a>
+					<a href="http://pearlnote.org#donate" target="_blank" class="">{{msg . "donate"}}</a>
 				</li>
 
-				<li><a href="http://leanote.org" target="_blank" title="leanote.org" class="">leanote.org</a></li>
+				<li><a href="http://pearlnote.org" target="_blank" title="pearlnote.org" class="">pearlnote.org</a></li>
 
 				{{if .userInfo.Email}}
 				<li id="loginBtns">
@@ -76,7 +76,7 @@ function log(o) {
 		<div class="pull-left">
 			<h1>
 				<a href="/index">
-					<img src="/images/logo/leanote_black.png" id="" style="height: 50px" title="leanote, {{msg $ "moto"}}"/>
+					Pearlnote 珠玑笔记
 				</a>
 			</h1>
 		</div>
@@ -98,10 +98,10 @@ function log(o) {
 			<li><a href="#" target="body" class="smooth-scroll">{{msg . "home"}}</a></li>
 			<li><a href="#download" target="#download" class="smooth-scroll">{{msg . "download"}}</a> </li>
 			<li><a href="#donate" target="#donate" class="smooth-scroll">{{msg . "donate"}}</a> </li>
-			<li><a id="leanoteBlog" href="{{.leaUrl}}/index" target="_blank" title="lea++, leanote博客平台" class="">lea++</a></li>
+			<li><a id="pearlnoteBlog" href="{{.leaUrl}}/index" target="_blank" title="lea++, pearlnote博客平台" class="">lea++</a></li>
 			
 			<li style="position: relative; margin-right: 3px;">
-				<a href="http://bbs.leanote.com" target="_blank" class="">{{msg . "discussion"}}</a>
+				<a href="http://bbs.pearlnote.com" target="_blank" class="">{{msg . "discussion"}}</a>
 				<div style="position: absolute;
 					width: 8px;
 					height: 8px;

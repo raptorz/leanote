@@ -1,4 +1,4 @@
-// leanote blog share & comment
+// pearlnote blog share & comment
 var C = {
 	info: null,
 	noteId: noteId,

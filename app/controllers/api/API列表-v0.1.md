@@ -66,8 +66,8 @@ Method: GET
 	"Ok":true,
 	"Token":"5500830738f41138e90003232",
 	"UserId":"52d26b4e99c37b609a000001",
-	"Email":"leanote@leanote.com",
-	"Username":"leanote"
+	"Email":"pearlnote@pearlnote.com",
+	"Username":"pearlnote"
 }
 ```
 
@@ -247,19 +247,19 @@ Method: POST
 ** 关于笔记中的图片/附件**
 客户端应该添加一个"图片/附件表"来存元数据, 图片应该要缓存到本地, 附件可在需要的时候再调用相应api获取.
 
-Content中的数据, 图片,附件在Leanote的链接是, 所以, 不管你在本地的笔记中是以什么形式来保存图片,附件的链接的,请addNote和updateNote时务必将链接修改成leanote服务器上的链接.
-http://leanote.com/api/file/getImage?fileId=xx
+Content中的数据, 图片,附件在Pearlnote的链接是, 所以, 不管你在本地的笔记中是以什么形式来保存图片,附件的链接的,请addNote和updateNote时务必将链接修改成pearlnote服务器上的链接.
+http://pearlnote.com/api/file/getImage?fileId=xx
 单个附件: 
-http://leanote.com/api/file/getAttach?fileId=xx 
+http://pearlnote.com/api/file/getAttach?fileId=xx
 所有附件:
-http://leanote.com/api/file/getAllAttachs?noteId=xxx 
+http://pearlnote.com/api/file/getAllAttachs?noteId=xxx
 
 **注意:**
 addNote时必须要把Files, 和相关的图片/附件一起传到服务器中
 其中Files(文件的元数据)和其它字段以POST方式传出, 而真正数据则以http的multipart传入, 每个文件的name为"FileDatas[LocalFileId]"
 
-图片在笔记内的链接必须为: http://leanote.com/api/file/getImage?fileId=LocalFileId或FileId
-附件如果插入到了笔记内容内, 其链接必须为: http://leanote.com/api/file/getAttach?fileId=LocalFileId或FileId
+图片在笔记内的链接必须为: http://pearlnote.com/api/file/getImage?fileId=LocalFileId或FileId
+附件如果插入到了笔记内容内, 其链接必须为: http://pearlnote.com/api/file/getAttach?fileId=LocalFileId或FileId
 其中, fileId为文件在本地的LocalFileId或服务器上的FileId
 
 服务器端会生成FileId传给Client. Client在本地必须要建立LocalFileId与FileId的关联.
@@ -268,7 +268,7 @@ addNote时必须要把Files, 和相关的图片/附件一起传到服务器中
 
 同样适用于 updateNote
 
-http://leanote.com 不绝对, 因为用户可以自建服务, 所以在开发时需要可配置
+http://pearlnote.com 不绝对, 因为用户可以自建服务, 所以在开发时需要可配置
 
 ### /note/updateNote 更新笔记
 

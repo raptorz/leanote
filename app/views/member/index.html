@@ -1,5 +1,5 @@
 {{template "member/top.html" .}}
-	<div class="m-b-md"> <h3 class="m-b-none">{{.userInfo.Username}}, {{msg . "welcomeToLeanote"}}.</h3></div>
+	<div class="m-b-md"> <h3 class="m-b-none">{{.userInfo.Username}}, {{msg . "welcomeToPearlnote"}}.</h3></div>
 	
 	<section class="panel panel-default"> 
 		<div class="row m-l-none m-r-none bg-light lter"> 
@@ -29,7 +29,7 @@
 	<!-- 最新动态 -->
 	<section class="panel panel-default">
 		<h4 class="font-thin padder">
-			{{msg . "leanoteEvents"}}
+			{{msg . "pearlnoteEvents"}}
 		</h4>
 		<ul class="list-group" id="eventsList"></ul>
 	</section>
@@ -37,7 +37,7 @@
 	<!--
 	<section class="panel panel-default">
 		<form>
-			<textarea class="form-control no-border" rows="3" placeholder="Suggestions to leanote"></textarea>
+			<textarea class="form-control no-border" rows="3" placeholder="Suggestions to pearlnote"></textarea>
 		</form>
 		<footer class="panel-footer bg-light lter">
 			<button class="btn btn-info pull-right btn-sm">
@@ -51,10 +51,10 @@
 {{template "member/footer.html" .}}
 <script>
 $(function() {
-	// leanote动态
-	var url = "https://leanote.com/blog/listCateLatest/5446753cfacfaa4f56000000";
+	// pearlnote动态
+	var url = "https://pearlnote.com/blog/listCateLatest/5446753cfacfaa4f56000000";
 	function renderItem(item) {
-		return '<li class="list-group-item"><p><a target="_blank" href="http://leanote.com/blog/post/' + item.NoteId + '">' + item.Title + '</a></p><small class="block text-muted"><i class="fa fa-clock-o"></i> ' + goNowToDatetime(item.PublicTime) + '</small></li>';
+		return '<li class="list-group-item"><p><a target="_blank" href="http://pearlnote.com/blog/post/' + item.NoteId + '">' + item.Title + '</a></p><small class="block text-muted"><i class="fa fa-clock-o"></i> ' + goNowToDatetime(item.PublicTime) + '</small></li>';
 	}
 	$.ajax({ 
         dataType: "jsonp",//跨域访问 dataType 必须是jsonp 类型。  

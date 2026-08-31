@@ -1,10 +1,10 @@
 package admin
 
 import (
-	. "github.com/leanote/leanote/app/lea"
+	. "github.com/pearlnote/pearlnote/app/lea"
 	"github.com/revel/revel"
 	//	"time"
-	"github.com/leanote/leanote/app/info"
+	"github.com/pearlnote/pearlnote/app/info"
 )
 
 // admin 首页

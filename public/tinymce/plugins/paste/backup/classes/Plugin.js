@@ -54,7 +54,7 @@ define("tinymce/pasteplugin/Plugin", [
 				this.active(true);
 				if (!userIsInformed2) {
 					editor.windowManager.alert(
-						"When copy other site's images (not in leanote) into editor, it will copy the image into your album."
+						"When copy other site's images (not in pearlnote) into editor, it will copy the image into your album."
 					);
 					userIsInformed2 = true;
 				}

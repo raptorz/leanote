@@ -53,7 +53,7 @@ function getShareUrl() {
 	return location.href;
 }
 function getShareTitle(title) {
-	return encodeURI(title + " (from https://leanote.com)");
+	return encodeURI(title + " (from https://pearlnote.com)");
 }
 function shareSinaWeibo(noteId, title, pic) {
 	var url = "http://service.weibo.com/share/share.php?title=" + getShareTitle(title) + "&url=" + getShareUrl(noteId);
@@ -329,7 +329,7 @@ function needLogin() {
 		try {
 			var modal = BootstrapDialog.show({
 		        title: "Please sign in first",
-		        message: '<div class="needLogin" style="border:none"><a href="' + loginUrl + '">Sign in</a> to to leave a comment.<br />No Leanote account? <a href="' + registerUrl +'">Sign up now</a>',
+		        message: '<div class="needLogin" style="border:none"><a href="' + loginUrl + '">Sign in</a> to to leave a comment.<br />No Pearlnote account? <a href="' + registerUrl +'">Sign up now</a>',
 		        nl2br: false
 		   });
 	   } catch(e) {}
@@ -363,8 +363,8 @@ function incReadNum(noteId) {
 function getCurHostUrl() {
 	return "//" + location.host;
 }
-function getLeanoteUrl() {
-	return siteUrl || "http://leanote.com";
+function getPearlnoteUrl() {
+	return siteUrl || "http://pearlnote.com";
 }
 // 得到博客统计信息
 function getPostStat(noteId, callback) {
@@ -372,32 +372,32 @@ function getPostStat(noteId, callback) {
 }
 // 得到赞
 function getLikes(noteId, callback) {
-	ajaxGetP(getLeanoteUrl() + "/blog/getLikes", {noteId: noteId}, callback);
+	ajaxGetP(getPearlnoteUrl() + "/blog/getLikes", {noteId: noteId}, callback);
 }
 // 得到赞和评论
 function getLikesAndComments(noteId, callback) {
-	ajaxGetP(getLeanoteUrl() + "/blog/getLikesAndComments", {noteId: noteId}, callback);
+	ajaxGetP(getPearlnoteUrl() + "/blog/getLikesAndComments", {noteId: noteId}, callback);
 }
 // 得到评论
 function getComments(noteId, page, callback) {
-	ajaxGetP(getLeanoteUrl() + "/blog/getComments", {noteId: noteId, page: page}, callback);
+	ajaxGetP(getPearlnoteUrl() + "/blog/getComments", {noteId: noteId, page: page}, callback);
 }
 // 点赞
 function likePost(noteId, callback) {
-	ajaxPostP(getLeanoteUrl() + "/blog/likePost", {noteId: noteId}, callback)
+	ajaxPostP(getPearlnoteUrl() + "/blog/likePost", {noteId: noteId}, callback)
 }
 // 提交评论
 function commentPost(noteId, commentId, content, callback) {
 	var data = {noteId: self.noteId, toCommentId: commentId, content: content};
-	ajaxPostP(getLeanoteUrl() + "/blog/commentPost", data, callback);
+	ajaxPostP(getPearlnoteUrl() + "/blog/commentPost", data, callback);
 }
 // 删除评论
 function deleteComment(noteId, commentId, callback) {
-	ajaxPostP(getLeanoteUrl() + "/blog/deleteComment", {noteId: noteId, commentId: commentId}, callback);
+	ajaxPostP(getPearlnoteUrl() + "/blog/deleteComment", {noteId: noteId, commentId: commentId}, callback);
 }
 // 点赞评论
 function likeComment(commentId, callback) {
-	ajaxPostP(getLeanoteUrl() + "/blog/likeComment", {commentId: commentId}, callback);
+	ajaxPostP(getPearlnoteUrl() + "/blog/likeComment", {commentId: commentId}, callback);
 }
 
 // 分享与评论结束

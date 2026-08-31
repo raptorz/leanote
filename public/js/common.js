@@ -1,4 +1,4 @@
-// leanote 通用方法
+// pearlnote 通用方法
 
 //--------------
 // 命名空间
@@ -358,11 +358,11 @@ function switchEditor(isMarkdown) {
 		$("#mdEditor").css("z-index", 1).hide();
 		
 		// 刚开始没有
-		$("#leanoteNav").show();
+		$("#pearlnoteNav").show();
 	} else {
 		$("#mdEditor").css("z-index", 3).show();
 		
-		$("#leanoteNav").hide();
+		$("#pearlnoteNav").hide();
 	}
 }
 
@@ -413,7 +413,7 @@ function setEditorContent(content, isMarkdown, preview, callback) {
 		} else {
 			// 还要清空preview
 			if(MarkdownEditor) {
-				$("#wmd-preview").html(previewToken + "<div style='text-align:center; padding: 10px 0;'><img src='http://leanote.com/images/loading-24.gif' /> 正在转换...</div>");
+				$("#wmd-preview").html(previewToken + "<div style='text-align:center; padding: 10px 0;'><img src='http://pearlnote.com/images/loading-24.gif' /> 正在转换...</div>");
 				MarkdownEditor.refreshPreview();
 			} else {
 				// 等下再设置
@@ -556,19 +556,19 @@ function enableEditor() {
 // dialog
 //-----------
 function showDialog(id, options) {
-	$("#leanoteDialog #modalTitle").html(options.title);
-	$("#leanoteDialog .modal-body").html($("#" + id + " .modal-body").html());
-	$("#leanoteDialog .modal-footer").html($("#" + id + " .modal-footer").html());
+	$("#pearlnoteDialog #modalTitle").html(options.title);
+	$("#pearlnoteDialog .modal-body").html($("#" + id + " .modal-body").html());
+	$("#pearlnoteDialog .modal-footer").html($("#" + id + " .modal-footer").html());
 	delete options.title;
 	options.show = true;
-	$("#leanoteDialog").modal(options);
+	$("#pearlnoteDialog").modal(options);
 }
 function hideDialog(timeout) {
 	if(!timeout) {
 		timeout = 0;
 	}
 	setTimeout(function() {
-		$("#leanoteDialog").modal('hide');
+		$("#pearlnoteDialog").modal('hide');
 	}, timeout);
 }
 
@@ -599,16 +599,16 @@ function showDialogRemote(url, data) {
 	for(var i in data) {
 		url += i + "=" + data[i] + "&";
 	}
-	$("#leanoteDialogRemote").modal({remote: url});
+	$("#pearlnoteDialogRemote").modal({remote: url});
 }
 
 function hideDialogRemote(timeout) {
 	if(timeout) {
 		setTimeout(function() {
-			$("#leanoteDialogRemote").modal('hide');
+			$("#pearlnoteDialogRemote").modal('hide');
 		}, timeout);
 	} else {
-		$("#leanoteDialogRemote").modal('hide');
+		$("#pearlnoteDialogRemote").modal('hide');
 	}
 }
 //---------------
@@ -784,7 +784,7 @@ function hideAlert(id, timeout) {
 }
 
 //-------------------
-// for leanote ajax
+// for pearlnote ajax
 
 // post
 // return {Ok, Msg, Data}
@@ -803,7 +803,7 @@ function post(url, param, func, btnId) {
 				func(ret);
 			}
 		} else {
-			alert("leanote出现了错误!");
+			alert("pearlnote出现了错误!");
 		}
 	});
 }
@@ -864,7 +864,7 @@ function logout() {
 	Note.curChangedSaveIt(true);
 	LEA.isLogout = true;
 
-	setCookie("LEANOTE_SESSION", '', -1);
+	setCookie("PEARLNOTE_SESSION", '', -1);
 	location.href = UrlPrefix + "/logout?id=1";
 }
 

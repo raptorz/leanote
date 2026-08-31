@@ -1,1 +1,1 @@
-The leanote util package
+The pearlnote util package

@@ -3,16 +3,16 @@ package app
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/leanote/leanote/app/controllers"
-	"github.com/leanote/leanote/app/controllers/admin"
-	"github.com/leanote/leanote/app/controllers/api"
-	"github.com/leanote/leanote/app/controllers/member"
-	"github.com/leanote/leanote/app/db"
-	. "github.com/leanote/leanote/app/lea"
-	_ "github.com/leanote/leanote/app/lea/binder"
-	"github.com/leanote/leanote/app/lea/i18n"
-	"github.com/leanote/leanote/app/lea/route"
-	"github.com/leanote/leanote/app/service"
+	"github.com/pearlnote/pearlnote/app/controllers"
+	"github.com/pearlnote/pearlnote/app/controllers/admin"
+	"github.com/pearlnote/pearlnote/app/controllers/api"
+	"github.com/pearlnote/pearlnote/app/controllers/member"
+	"github.com/pearlnote/pearlnote/app/db"
+	. "github.com/pearlnote/pearlnote/app/lea"
+	_ "github.com/pearlnote/pearlnote/app/lea/binder"
+	"github.com/pearlnote/pearlnote/app/lea/i18n"
+	"github.com/pearlnote/pearlnote/app/lea/route"
+	"github.com/pearlnote/pearlnote/app/service"
 	"github.com/revel/revel"
 	"html/template"
 	"math"
@@ -36,13 +36,13 @@ func init() {
 
 		// 使用SessionFilter标准版从cookie中得到sessionID, 然后通过MssessionFilter从Memcache中得到
 		// session, 之后MSessionFilter将session只存sessionID然后返回给SessionFilter返回到web
-		// session.SessionFilter,         // leanote session
-		// session.MSessionFilter,         // leanote memcache session
+		// session.SessionFilter,         // pearlnote session
+		// session.MSessionFilter,         // pearlnote memcache session
 
 		revel.FlashFilter,      // Restore and write the flash cookie.
 		revel.ValidationFilter, // Restore kept validation errors and save new ones from cookie.
 		// revel.I18nFilter,        // Resolve the requested language
-		i18n.I18nFilter,         // Resolve the requested language by leanote
+		i18n.I18nFilter,         // Resolve the requested language by pearlnote
 		revel.InterceptorFilter, // Run interceptors around the action.
 		revel.CompressFilter,    // Compress the result.
 		revel.ActionInvoker,     // Invoke the action.
@@ -209,7 +209,7 @@ func init() {
 		tagStr := ""
 		lenTags := len(tags)
 
-		tagPostUrl := "http://lea.leanote.com/"
+		tagPostUrl := "http://lea.pearlnote.com/"
 		if typeStr == "recommend" {
 			tagPostUrl += "?tag="
 		} else if typeStr == "latest" {

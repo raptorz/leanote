@@ -17,15 +17,15 @@
 
 */
 {
-    "Name": "Leanote nav fixed",
+    "Name": "Pearlnote nav fixed",
     "Version": "1.0",
-    "Author": "leanote.com",
-    "AuthorUrl": "http://leanote.com",
+    "Author": "pearlnote.com",
+    "AuthorUrl": "http://pearlnote.com",
     "FriendLinks": [
-        {"Title": "My Note", "Url": "http://leanote.com/note"},
-        {"Title": "Leanote Home", "Url": "http://leanote.com"},
-        {"Title": "Leanote Comunity", "Url": "https://groups.google.com/forum/?fromgroups#!forum/leanote"},
-        {"Title": "lea++", "Url": "http://lea.leanote.com"},
-        {"Title": "Leanote Github", "Url": "https://github.com/leanote/leanote"}
+        {"Title": "My Note", "Url": "http://pearlnote.com/note"},
+        {"Title": "Pearlnote Home", "Url": "http://pearlnote.com"},
+        {"Title": "Pearlnote Comunity", "Url": "https://groups.google.com/forum/?fromgroups#!forum/pearlnote"},
+        {"Title": "lea++", "Url": "http://lea.pearlnote.com"},
+        {"Title": "Pearlnote Github", "Url": "https://github.com/pearlnote/pearlnote"}
     ]
 }

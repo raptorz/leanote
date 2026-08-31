@@ -2,12 +2,12 @@ package service
 
 import (
 	"gopkg.in/mgo.v2/bson"
-	//	"github.com/leanote/leanote/app/db"
-	"github.com/leanote/leanote/app/info"
+	//	"github.com/pearlnote/pearlnote/app/db"
+	"github.com/pearlnote/pearlnote/app/info"
 	//	"github.com/revel/revel"
 	"errors"
 	"fmt"
-	. "github.com/leanote/leanote/app/lea"
+	. "github.com/pearlnote/pearlnote/app/lea"
 	"strconv"
 	"strings"
 )
@@ -31,14 +31,14 @@ func (this *AuthService) Login(emailOrUsername, pwd string) (info.User, error) {
 
 // 注册
 /*
-注册 leanote@leanote.com userId = "5368c1aa99c37b029d000001"
+注册 pearlnote@pearlnote.com userId = "5368c1aa99c37b029d000001"
 添加 在博客上添加一篇欢迎note, note1 5368c1b919807a6f95000000
 
 将nk1(只读), nk2(可写) 分享给该用户
 将note1 复制到用户的生活nk上
 */
 // 1. 添加用户
-// 2. 将leanote共享给我
+// 2. 将pearlnote共享给我
 // [ok]
 func (this *AuthService) Register(email, pwd, fromUserId string) (bool, string) {
 	// 用户是否已存在
@@ -71,7 +71,7 @@ func (this *AuthService) register(user info.User) (bool, string) {
 			notebookService.AddNotebook(notebook)
 		}
 
-		// 添加leanote -> 该用户的共享
+		// 添加pearlnote -> 该用户的共享
 		registerSharedUserId := configService.GetGlobalStringConfig("registerSharedUserId")
 		if registerSharedUserId != "" {
 			registerSharedNotebooks := configService.GetGlobalArrMapConfig("registerSharedNotebooks")
@@ -105,7 +105,7 @@ func (this *AuthService) register(user info.User) (bool, string) {
 		// 添加一条userBlog
 		blogService.UpdateUserBlog(info.UserBlog{UserId: user.UserId,
 			Title:      user.Username + " 's Blog",
-			SubTitle:   "Love Leanote!",
+			SubTitle:   "Love Pearlnote!",
 			AboutMe:    "Hello, I am (^_^)",
 			CanComment: true,
 		})

@@ -9,7 +9,7 @@ import (
 // 发送邮件
 var host = "smtp.ym.163.com"
 var port = "25"
-var username = "noreply@leanote.com"
+var username = "noreply@pearlnote.com"
 var password = "---"
 
 func InitEmail() {
@@ -27,7 +27,7 @@ var bodyTpl = `
 			<div>
 				<div>
 					<div style="float:left; height: 40px;">
-						<a href="http://leanote.com" style="font-size: 24px">leanote</a>
+						<a href="http://pearlnote.com" style="font-size: 24px">pearlnote</a>
 					</div>
 					<div style="float:left; height:40px; line-height:40px;">
 						&nbsp;&nbsp;| &nbsp;<span style="font-size:14px">$title</span>
@@ -40,18 +40,18 @@ var bodyTpl = `
 				$body
 			</div>
 
-			<div id="leanoteFooter" style="margin-top: 30px; border-top: 1px solid #ccc">
+			<div id="pearlnoteFooter" style="margin-top: 30px; border-top: 1px solid #ccc">
 				<style>
-					#leanoteFooter {
+					#pearlnoteFooter {
 						color: #666;
 						font-size: 12px;
 					}
-					#leanoteFooter a {
+					#pearlnoteFooter a {
 						color: #666;
 						font-size: 12px;
 					}
 				</style>
-				<a href="http://leanote.com">leanote</a>, your own cloud note!
+				<a href="http://pearlnote.com">pearlnote</a>, your own cloud note!
 			</div>
 		</div>
 	</body>
@@ -84,7 +84,7 @@ func SendEmailOld(to, subject, body string) bool {
 	return true
 }
 
-func SendToLeanoteOld(subject, title, body string) {
-	to := "leanote@leanote.com"
+func SendToPearlnoteOld(subject, title, body string) {
+	to := "pearlnote@pearlnote.com"
 	SendEmailOld(to, subject, body)
 }

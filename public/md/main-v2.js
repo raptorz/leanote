@@ -12826,17 +12826,17 @@ define('extensions/toc',[
                 elt.innerHTML = htmlToc;
             });
 
-            $("#leanoteNavContentMd").height("auto"); // auto
+            $("#pearlnoteNavContentMd").height("auto"); // auto
             try {
                 if(!$(htmlToc).text()) {
-                    $("#leanoteNavContentMd").html("&nbsp; &nbsp; Nothing...");
+                    $("#pearlnoteNavContentMd").html("&nbsp; &nbsp; Nothing...");
                 }
             } catch(e) {}
             // 这里, resize Height
-            var curH = $("#leanoteNavContentMd").height();
+            var curH = $("#pearlnoteNavContentMd").height();
             var pH = $("#mdEditor").height()-100;
             if(curH > pH) {
-                $("#leanoteNavContentMd").height(pH);
+                $("#pearlnoteNavContentMd").height(pH);
             }
         });
     };
@@ -13302,7 +13302,7 @@ define('extensions/htmlSanitizer',[
 	 */
 
 	// var aHrefSanitizationWhitelist = /^\s*(https?|ftp|mailto|tel|file):/,
-		// imgSrcSanitizationWhitelist = /^\s*(https?|ftp|file|leanote):|data:image\//;
+		// imgSrcSanitizationWhitelist = /^\s*(https?|ftp|file|pearlnote):|data:image\//;
 	/*
 	var urlResolve = (function() {
 		var urlParsingNode = document.createElement("a");
@@ -17622,7 +17622,7 @@ define('core',[
         $(".action-insert-image").click(function() {
             // 得到图片链接或图片
             /*
-            https://github.com/leanote/leanote/issues/171
+            https://github.com/pearlnote/pearlnote/issues/171
             同遇到了网页编辑markdown时不能添加图片的问题。
             可以上传图片，但是按下“插入图片”按钮之后，编辑器中没有加入![...](...)
             我的控制台有这样的错误： TypeError: document.mdImageManager is undefined
@@ -17651,7 +17651,7 @@ define('core',[
 
         // 弹框显示markdown语法
         $('#wmd-button-bar').on('click', '#wmd-help-button', function() {
-            window.open("http://leanote.leanote.com/post/Leanote-Markdown-Manual");
+            window.open("http://pearlnote.pearlnote.com/post/Pearlnote-Markdown-Manual");
         });
     });
 

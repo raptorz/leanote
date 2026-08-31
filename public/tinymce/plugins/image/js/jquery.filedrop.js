@@ -102,7 +102,7 @@
 		// 得到ext
 		var pos = filename.lastIndexOf(".");
 		var seconds = (new Date()).getTime();
-		var filename2 = "leanote_" + seconds;
+		var filename2 = "pearlnote_" + seconds;
 		if(pos != -1) {
 			var ext = filename.substr(pos)
 			filename2 += ext;

@@ -3,10 +3,10 @@ package service
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/leanote/leanote/app/db"
-	"github.com/leanote/leanote/app/info"
-	. "github.com/leanote/leanote/app/lea"
-	"github.com/leanote/leanote/app/lea/archive"
+	"github.com/pearlnote/pearlnote/app/db"
+	"github.com/pearlnote/pearlnote/app/info"
+	. "github.com/pearlnote/pearlnote/app/lea"
+	"github.com/pearlnote/pearlnote/app/lea/archive"
 	"github.com/revel/revel"
 	"gopkg.in/mgo.v2/bson"
 	"html/template"
@@ -59,27 +59,27 @@ func (this *ThemeService) getDefaultTheme(style string) info.Theme {
 		return info.Theme{
 			IsDefault: true,
 			Path:      "public/blog/themes/elegant",
-			Name:      "leanote elegant",
-			Author:    "leanote",
-			AuthorUrl: "http://leanote.com",
+			Name:      "pearlnote elegant",
+			Author:    "pearlnote",
+			AuthorUrl: "http://pearlnote.com",
 			Version:   "1.0",
 		}
 	} else if style == fixedStyle {
 		return info.Theme{
 			IsDefault: true,
 			Path:      "public/blog/themes/nav_fixed",
-			Name:      "leanote nav fixed",
-			Author:    "leanote",
-			AuthorUrl: "http://leanote.com",
+			Name:      "pearlnote nav fixed",
+			Author:    "pearlnote",
+			AuthorUrl: "http://pearlnote.com",
 			Version:   "1.0",
 		}
 	} else { // blog default
 		return info.Theme{
 			IsDefault: true,
 			Path:      "public/blog/themes/default",
-			Name:      "leanote default",
-			Author:    "leanote",
-			AuthorUrl: "http://leanote.com",
+			Name:      "pearlnote default",
+			Author:    "pearlnote",
+			AuthorUrl: "http://pearlnote.com",
 			Version:   "1.0",
 		}
 	}

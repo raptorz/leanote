@@ -38,7 +38,7 @@
 	<!-- 最新动态 -->
 	<section class="panel panel-default">
 		<h4 class="font-thin padder">
-			Leanote Events
+			Pearlnote Events
 		</h4>
 		<ul class="list-group" id="eventsList"></ul>
 	</section>
@@ -46,7 +46,7 @@
 	<!--
 	<section class="panel panel-default">
 		<form>
-			<textarea class="form-control no-border" rows="3" placeholder="Suggestions to leanote"></textarea>
+			<textarea class="form-control no-border" rows="3" placeholder="Suggestions to pearlnote"></textarea>
 		</form>
 		<footer class="panel-footer bg-light lter">
 			<button class="btn btn-info pull-right btn-sm">
@@ -60,10 +60,10 @@
 {{template "admin/footer.html" .}}
 <script>
 $(function() {
-	// leanote动态
-	var url = "http://leanote.com/blog/listCateLatest/5446753cfacfaa4f56000000";
+	// pearlnote动态
+	var url = "http://pearlnote.com/blog/listCateLatest/5446753cfacfaa4f56000000";
 	function renderItem(item) {
-		return '<li class="list-group-item"><p><a target="_blank" href="http://leanote.com/blog/view/' + item.NoteId + '">' + item.Title + '</a></p><small class="block text-muted"><i class="fa fa-clock-o"></i> ' + goNowToDatetime(item.PublicTime) + '</small></li>';
+		return '<li class="list-group-item"><p><a target="_blank" href="http://pearlnote.com/blog/view/' + item.NoteId + '">' + item.Title + '</a></p><small class="block text-muted"><i class="fa fa-clock-o"></i> ' + goNowToDatetime(item.PublicTime) + '</small></li>';
 	}
 	$.ajax({ 
         dataType: "jsonp",//跨域访问 dataType 必须是jsonp 类型。  

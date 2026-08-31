@@ -1,4 +1,4 @@
-# Leanote 数据库抽象
+# Pearlnote 数据库抽象
 
 数据库后端由 `db.type` 选择，可配置为 `mongodb` 或 `postgresql`。业务 service 不直接使用 `mgo.Collection`，统一通过 `app/db` 的 CRUD、条件查询、排序、分页和投影接口访问数据库。
 
@@ -48,14 +48,14 @@ go test ./...
 PostgreSQL CRUD 集成测试：
 
 ```bash
-LEANOTE_INTEGRATION_POSTGRES_URL='host=127.0.0.1 port=5432 user=leanote password=leanote dbname=leanote sslmode=disable' \
+PEARLNOTE_INTEGRATION_POSTGRES_URL='host=127.0.0.1 port=5432 user=pearlnote password=pearlnote dbname=pearlnote sslmode=disable' \
   go test ./app/db -run TestPostgresCRUDContract -v
 ```
 
 双向迁移往返测试：
 
 ```bash
-LEANOTE_INTEGRATION_MONGO_URL='mongodb://127.0.0.1:27017/leanote' \
-LEANOTE_INTEGRATION_POSTGRES_URL='host=127.0.0.1 port=5432 user=leanote password=leanote dbname=leanote sslmode=disable' \
+PEARLNOTE_INTEGRATION_MONGO_URL='mongodb://127.0.0.1:27017/pearlnote' \
+PEARLNOTE_INTEGRATION_POSTGRES_URL='host=127.0.0.1 port=5432 user=pearlnote password=pearlnote dbname=pearlnote sslmode=disable' \
   go test ./tools/migration -run TestRoundTripMigration -v
 ```

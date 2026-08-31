@@ -59,7 +59,7 @@ function getShareUrl(noteId) {
 	return viewUrl + "/" + noteId;
 }
 function getShareTitle(title) {
-	return encodeURI(title + " (来自leanote.com)");
+	return encodeURI(title + " (来自pearlnote.com)");
 }
 function shareSinaWeibo(noteId, title, pic) {
 	var url = "http://service.weibo.com/share/share.php?title=" + getShareTitle(title) + "&url=" + getShareUrl(noteId);

@@ -469,7 +469,7 @@ $(function() {
 	
 	//------------------
 	// 添加共享
-	$("#leanoteDialogRemote").on("click", ".change-perm", function() {
+	$("#pearlnoteDialogRemote").on("click", ".change-perm", function() {
 		var self = this;
 		var perm = $(this).attr("perm");
 		var noteOrNotebookId = $(this).attr("noteOrNotebookId");
@@ -496,7 +496,7 @@ $(function() {
 		});
 	});
 	
-	$("#leanoteDialogRemote").on("click", ".delete-share", function() {
+	$("#pearlnoteDialogRemote").on("click", ".delete-share", function() {
 		var self = this;
 		var noteOrNotebookId = $(this).attr("noteOrNotebookId");
 		var toUserId = $(this).attr("toUserId");
@@ -519,7 +519,7 @@ $(function() {
 	
 	// 添加共享
 	var seq = 1;
-	$("#leanoteDialogRemote").on("click", "#addShareNotebookBtn", function() {
+	$("#pearlnoteDialogRemote").on("click", "#addShareNotebookBtn", function() {
 		seq++;
 		var tpl = '<tr id="tr' + seq + '"><td>#</td><td><input id="friendsEmail" type="text" class="form-control" style="width: 200px" placeholder="' + getMsg('friendEmail') + '"/></td>';
 		tpl += '<td><label for="readPerm' + seq + '"><input type="radio" name="perm' + seq + '" checked="checked" value="0" id="readPerm' + seq + '"> ' + getMsg('readOnly') + '</label>';

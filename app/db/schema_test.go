@@ -6,7 +6,7 @@ import (
 	"regexp"
 	"testing"
 
-	"github.com/leanote/leanote/app/info"
+	"github.com/pearlnote/pearlnote/app/info"
 )
 
 func TestPostgresSchemaMatchesPersistedModels(t *testing.T) {

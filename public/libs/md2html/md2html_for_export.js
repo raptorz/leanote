@@ -4,12 +4,12 @@
 	<script src="md2html.js"></script>
 	<script>
 		md2Html(document.getElementById('md').value, $('#content'));
-		md2Html('hello, **leanote**', document.getElementById('content2'), function allRendered(html) {
+		md2Html('hello, **pearlnote**', document.getElementById('content2'), function allRendered(html) {
 			alert(html);
 		});
 	</script>
  * 
- * @author leanote.com
+ * @author pearlnote.com
  * @date 2015/04/11
  */
 

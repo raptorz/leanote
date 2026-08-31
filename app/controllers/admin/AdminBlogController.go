@@ -2,8 +2,8 @@ package admin
 
 import (
 	"github.com/revel/revel"
-	//	. "github.com/leanote/leanote/app/lea"
-	"github.com/leanote/leanote/app/info"
+	//	. "github.com/pearlnote/pearlnote/app/lea"
+	"github.com/pearlnote/pearlnote/app/info"
 )
 
 // admin 首页

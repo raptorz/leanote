@@ -11,7 +11,7 @@ define('note_info', [], function() {
             '<th>' +  getMsg('Post Url') + '</th>',
             '<td>',
                 '<div class="post-url-wrap">',
-                        '<span class="post-url-base">http://blog.leanote.com/life/post/</span><span><span class="post-url-text">life-life-life-a-leanote</span>',
+                        '<span class="post-url-base">http://blog.pearlnote.com/life/post/</span><span><span class="post-url-text">life-life-life-a-pearlnote</span>',
                         '<input type="text" class="form-control">',
                         '</span>',
                         ' <a class="post-url-pencil" title="' + getMsg('update') + '"><i class="fa fa-pencil"></i></a>',

@@ -1,6 +1,6 @@
 # API设计
 
-By life (life@leanote.com)
+By life (life@pearlnote.com)
 
 ## api url
 

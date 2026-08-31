@@ -10,13 +10,13 @@ services:
     volumes:
       - ~/mongo_data:/data
 
-  leanote:
-    image: leanote:v2.7.0
-    container_name: leanote
+  pearlnote:
+    image: pearlnote:v2.7.0
+    container_name: pearlnote
     restart: always
     depends_on:
       - mongodb
     ports:
       - 127.0.0.1:9000:9000
     volumes:
-      - ~/leanote/conf/app.conf:/opt/leanote/conf/app.conf
+      - ~/pearlnote/conf/app.conf:/opt/pearlnote/conf/app.conf

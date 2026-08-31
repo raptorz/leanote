@@ -18,7 +18,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/leanote/leanote/app/cmd/parser2"
+	"github.com/pearlnote/pearlnote/app/cmd/parser2"
 	"github.com/revel/cmd/model"
 	"github.com/revel/cmd/parser"
 	_ "github.com/revel/cmd/parser"

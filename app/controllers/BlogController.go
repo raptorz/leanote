@@ -5,11 +5,11 @@ import (
 	"strings"
 	//	"encoding/json"
 	"fmt"
-	"github.com/leanote/leanote/app/info"
-	// . "github.com/leanote/leanote/app/lea"
-	"github.com/leanote/leanote/app/lea/blog"
+	"github.com/pearlnote/pearlnote/app/info"
+	// . "github.com/pearlnote/pearlnote/app/lea"
+	"github.com/pearlnote/pearlnote/app/lea/blog"
 	"gopkg.in/mgo.v2/bson"
-	//	"github.com/leanote/leanote/app/types"
+	//	"github.com/pearlnote/pearlnote/app/types"
 	//	"io/ioutil"
 	//	"math"
 	//	"os"
@@ -74,7 +74,7 @@ func (c Blog) e404(themePath string) revel.Result {
 }
 
 // 二级域名或自定义域名
-// life.leanote.com
+// life.pearlnote.com
 // lealife.com
 func (c Blog) domain() (ok bool, userBlog info.UserBlog) {
 	host := c.Request.Host // a.cc.com:9000
@@ -114,16 +114,16 @@ func (c Blog) setPreviewUrl() {
 	theme := themeService.GetTheme(userId, themeId)
 
 	// siteUrl := configService.GetSiteUrl()
-	blogUrl := "/preview" // blog.leanote.com
+	blogUrl := "/preview" // blog.pearlnote.com
 
 	indexUrl = blogUrl + "/" + userIdOrEmail
 	cateUrl = blogUrl + "/cate/" + userIdOrEmail // /notebookId
 
 	postUrl = blogUrl + "/post/" + userIdOrEmail        // /xxxxx
-	searchUrl = blogUrl + "/search/" + userIdOrEmail    // blog.leanote.com/search/userId
-	singleUrl = blogUrl + "/single/" + userIdOrEmail    // blog.leanote.com/single/singleId
-	archiveUrl = blogUrl + "/archives/" + userIdOrEmail // blog.leanote.com/archive/userId
-	tagsUrl = blogUrl + "/tags/" + userIdOrEmail        // blog.leanote.com/archive/userId
+	searchUrl = blogUrl + "/search/" + userIdOrEmail    // blog.pearlnote.com/search/userId
+	singleUrl = blogUrl + "/single/" + userIdOrEmail    // blog.pearlnote.com/single/singleId
+	archiveUrl = blogUrl + "/archives/" + userIdOrEmail // blog.pearlnote.com/archive/userId
+	tagsUrl = blogUrl + "/tags/" + userIdOrEmail        // blog.pearlnote.com/archive/userId
 
 	c.ViewArgs["indexUrl"] = indexUrl
 	c.ViewArgs["cateUrl"] = cateUrl
@@ -142,11 +142,11 @@ func (c Blog) setPreviewUrl() {
 
 // 各种地址设置
 func (c Blog) setUrl(userBlog info.UserBlog, userInfo info.User) {
-	// 主页 http://leanote.com/blog/life or http://blog.leanote.com/life or http:// xxxx.leanote.com or aa.com
+	// 主页 http://pearlnote.com/blog/life or http://blog.pearlnote.com/life or http:// xxxx.pearlnote.com or aa.com
 	// host := c.Request.Request.Host
 	// var staticUrl = configService.GetUserUrl(strings.Split(host, ":")[0])
-	// staticUrl == host, 为保证同源!!! 只有host, http://leanote.com, http://blog/leanote.com
-	// life.leanote.com, lealife.com
+	// staticUrl == host, 为保证同源!!! 只有host, http://pearlnote.com, http://blog/pearlnote.com
+	// life.pearlnote.com, lealife.com
 	siteUrl := configService.GetSiteUrl()
 	blogUrls := blogService.GetBlogUrls(&userBlog, &userInfo)
 	// 分类
@@ -294,7 +294,7 @@ func (c Blog) setBlog(userBlog info.UserBlog, userInfo info.User) {
 		"SubTitle":    userBlog.SubTitle,
 		"Logo":        userBlog.Logo,
 		"OpenComment": userBlog.CanComment,
-		"CommentType": userBlog.CommentType, // leanote, or disqus
+		"CommentType": userBlog.CommentType, // pearlnote, or disqus
 		"DisqusId":    userBlog.DisqusId,
 		"ThemeId":     userBlog.ThemeId,
 		"SubDomain":   userBlog.SubDomain,
@@ -367,7 +367,7 @@ func (c Blog) E(userIdOrEmail, tag string) revel.Result {
 	if userId != "" {
 		userInfo = userService.GetUserInfoByAny(userId)
 	} else {
-		// blog.leanote.com/userid/tag
+		// blog.pearlnote.com/userid/tag
 		userInfo = userService.GetUserInfoByAny(userIdOrEmail)
 	}
 	userId = userInfo.UserId.Hex()
@@ -394,7 +394,7 @@ func (c Blog) Tags(userIdOrEmail string) (re revel.Result) {
 	if userId != "" {
 		userInfo = userService.GetUserInfoByAny(userId)
 	} else {
-		// blog.leanote.com/userid/tag
+		// blog.pearlnote.com/userid/tag
 		userInfo = userService.GetUserInfoByAny(userIdOrEmail)
 	}
 	userId = userInfo.UserId.Hex()
@@ -429,7 +429,7 @@ func (c Blog) Tag(userIdOrEmail, tag string) (re revel.Result) {
 	if userId != "" {
 		userInfo = userService.GetUserInfoByAny(userId)
 	} else {
-		// blog.leanote.com/userid/tag
+		// blog.pearlnote.com/userid/tag
 		userInfo = userService.GetUserInfoByAny(userIdOrEmail)
 	}
 	userId = userInfo.UserId.Hex()

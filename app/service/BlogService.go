@@ -1,9 +1,9 @@
 package service
 
 import (
-	"github.com/leanote/leanote/app/db"
-	"github.com/leanote/leanote/app/info"
-	. "github.com/leanote/leanote/app/lea"
+	"github.com/pearlnote/pearlnote/app/db"
+	"github.com/pearlnote/pearlnote/app/info"
+	. "github.com/pearlnote/pearlnote/app/lea"
 	"gopkg.in/mgo.v2/bson"
 	//	"time"
 	//	"sort"
@@ -430,7 +430,7 @@ func (this *BlogService) ListAllBlogs(userId, tag string, keywords string, isRec
 	skipNum, sortFieldR := parsePageAndSort(page, pageSize, sorterField, isAsc)
 
 	// 不是trash的
-	query := bson.M{"IsTrash": false, "IsDeleted": false, "IsBlog": true, "Title": bson.M{"$ne": "欢迎来到leanote!"}}
+	query := bson.M{"IsTrash": false, "IsDeleted": false, "IsBlog": true, "Title": bson.M{"$ne": "欢迎来到pearlnote!"}}
 	if tag != "" {
 		query["Tags"] = bson.M{"$in": []string{tag}}
 	}
@@ -1122,7 +1122,7 @@ func (this *BlogService) GetBlogUrls(userBlog *info.UserBlog, userInfo *info.Use
 			archiveUrl = indexUrl + "/archives"
 			tagsUrl = indexUrl + "/tags"
 			tagPostsUrl = indexUrl + "/tag"
-		} else if userBlog.SubDomain != "" { // demo.leanote.com
+		} else if userBlog.SubDomain != "" { // demo.pearlnote.com
 			indexUrl = configService.GetUserSubUrl(userBlog.SubDomain)
 			cateUrl = indexUrl + "/cate"     // /xxxxx
 			postUrl = indexUrl + "/post"     // /xxxxx
@@ -1134,7 +1134,7 @@ func (this *BlogService) GetBlogUrls(userBlog *info.UserBlog, userInfo *info.Use
 		} else {
 	*/
 	// ok
-	blogUrl := configService.GetBlogUrl() // blog.leanote.com
+	blogUrl := configService.GetBlogUrl() // blog.pearlnote.com
 	userIdOrEmail := ""
 	if userInfo.Username != "" {
 		userIdOrEmail = userInfo.Username
@@ -1146,11 +1146,11 @@ func (this *BlogService) GetBlogUrls(userBlog *info.UserBlog, userInfo *info.Use
 	indexUrl = blogUrl + "/" + userIdOrEmail
 	cateUrl = blogUrl + "/cate/" + userIdOrEmail        // /username/notebookId
 	postUrl = blogUrl + "/post/" + userIdOrEmail        // /username/xxxxx
-	searchUrl = blogUrl + "/search/" + userIdOrEmail    // blog.leanote.com/search/username
-	singleUrl = blogUrl + "/single/" + userIdOrEmail    // blog.leanote.com/single/username/singleId
-	archiveUrl = blogUrl + "/archives/" + userIdOrEmail // blog.leanote.com/archive/username
+	searchUrl = blogUrl + "/search/" + userIdOrEmail    // blog.pearlnote.com/search/username
+	singleUrl = blogUrl + "/single/" + userIdOrEmail    // blog.pearlnote.com/single/username/singleId
+	archiveUrl = blogUrl + "/archives/" + userIdOrEmail // blog.pearlnote.com/archive/username
 	tagsUrl = blogUrl + "/tags/" + userIdOrEmail
-	tagPostsUrl = blogUrl + "/tag/" + userIdOrEmail // blog.leanote.com/archive/username
+	tagPostsUrl = blogUrl + "/tag/" + userIdOrEmail // blog.pearlnote.com/archive/username
 	// }
 
 	return info.BlogUrls{

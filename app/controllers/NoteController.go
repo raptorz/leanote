@@ -3,16 +3,16 @@ package controllers
 import (
 	"github.com/revel/revel"
 	//	"encoding/json"
-	"github.com/leanote/leanote/app/info"
-	. "github.com/leanote/leanote/app/lea"
+	"github.com/pearlnote/pearlnote/app/info"
+	. "github.com/pearlnote/pearlnote/app/lea"
 	"gopkg.in/mgo.v2/bson"
 	"os"
 	"os/exec"
 	"regexp"
+	"runtime"
 	"strings"
 	"time"
-	"runtime"
-	//	"github.com/leanote/leanote/app/types"
+	//	"github.com/pearlnote/pearlnote/app/types"
 	//	"io/ioutil"
 	"fmt"
 	//	"bytes"
@@ -188,7 +188,7 @@ func (c Note) UpdateNoteOrContent(noteOrContent info.NoteOrContent) revel.Result
 			NoteId:     bson.ObjectIdHex(noteOrContent.NoteId),
 			NotebookId: bson.ObjectIdHex(noteOrContent.NotebookId),
 			Title:      noteOrContent.Title,
-			Src: noteOrContent.Src, // 来源
+			Src:        noteOrContent.Src, // 来源
 			Tags:       strings.Split(noteOrContent.Tags, ","),
 			Desc:       noteOrContent.Desc,
 			ImgSrc:     noteOrContent.ImgSrc,
@@ -240,7 +240,7 @@ func (c Note) UpdateNoteOrContent(noteOrContent info.NoteOrContent) revel.Result
 	if c.Has("Content") {
 		//		noteService.UpdateNoteContent(noteOrContent.UserId, c.GetUserId(),
 		//			noteOrContent.NoteId, noteOrContent.Content, noteOrContent.Abstract)
-		// contentOk, contentMsg, afterContentUsn = 
+		// contentOk, contentMsg, afterContentUsn =
 		noteService.UpdateNoteContent(c.GetUserId(),
 			noteOrContent.NoteId, noteOrContent.Content, noteOrContent.Abstract,
 			needUpdateNote, -1, time.Now())
@@ -310,7 +310,7 @@ func (c Note) CopySharedNote(noteIds []string, notebookId, fromUserId string) re
 	return c.RenderJSON(re)
 }
 
-//------------
+// ------------
 // search
 // 通过title搜索
 func (c Note) SearchNote(key string) revel.Result {
@@ -356,7 +356,7 @@ func (c Note) ToPdf(noteId, appKey string) revel.Result {
 	regImage, _ := regexp.Compile(`<img .*?(src=('|")` + siteUrlPattern + `/(file/outputImage|api/file/getImage)\?fileId=([a-z0-9A-Z]{24})("|'))`)
 
 	findsImage := regImage.FindAllStringSubmatch(contentStr, -1) // 查找所有的
-	//	[<img src="http://leanote.com/api/getImage?fileId=3354672e8d38f411286b000069" alt="" width="692" height="302" data-mce-src="http://leanote.com/file/outputImage?fileId=54672e8d38f411286b000069" src="http://leanote.com/file/outputImage?fileId=54672e8d38f411286b000069" " file/outputImage 54672e8d38f411286b000069 "]
+	//	[<img src="http://pearlnote.com/api/getImage?fileId=3354672e8d38f411286b000069" alt="" width="692" height="302" data-mce-src="http://pearlnote.com/file/outputImage?fileId=54672e8d38f411286b000069" src="http://pearlnote.com/file/outputImage?fileId=54672e8d38f411286b000069" " file/outputImage 54672e8d38f411286b000069 "]
 	for _, eachFind := range findsImage {
 		if len(eachFind) == 6 {
 			fileId := eachFind[4]
@@ -367,7 +367,7 @@ func (c Note) ToPdf(noteId, appKey string) revel.Result {
 			}
 
 			// 1
-			// src="http://leanote.com/file/outputImage?fileId=54672e8d38f411286b000069"
+			// src="http://pearlnote.com/file/outputImage?fileId=54672e8d38f411286b000069"
 			allFixed := strings.Replace(eachFind[0], eachFind[1], "src=\""+fileBase64+"\"", -1)
 			contentStr = strings.Replace(contentStr, eachFind[0], allFixed, -1)
 		}
@@ -388,7 +388,7 @@ func (c Note) ToPdf(noteId, appKey string) revel.Result {
 				}
 
 				// 1
-				// src="http://leanote.com/file/outputImage?fileId=54672e8d38f411286b000069"
+				// src="http://pearlnote.com/file/outputImage?fileId=54672e8d38f411286b000069"
 				allFixed := "![](" + fileBase64 + ")"
 				contentStr = strings.Replace(contentStr, eachFind[0], allFixed, -1)
 			}
@@ -438,8 +438,12 @@ func (c Note) ExportPdf(noteId string) revel.Result {
 	filename := guid + ".pdf"
 	path := dir + "/" + filename
 
-	// leanote.com的secret
-	appKey, _ := revel.Config.String("app.secretLeanote")
+	// pearlnote.com的secret
+	appKey, _ := revel.Config.String("app.secretPearlnote")
+	if appKey == "" {
+		// Keep existing deployments compatible with the pre-rename setting.
+		appKey, _ = revel.Config.String("app.secretLeanote")
+	}
 	if appKey == "" {
 		appKey, _ = revel.Config.String("app.secret")
 	}

@@ -1,4 +1,4 @@
-// Command migration copies Leanote data between MongoDB and PostgreSQL.
+// Command migration copies Pearlnote data between MongoDB and PostgreSQL.
 // Both databases use the same 24-character ObjectId values, so relationships
 // survive a round trip without an external ID mapping table.
 package main
@@ -45,8 +45,8 @@ type migrator struct {
 
 func main() {
 	direction := flag.String("direction", "", "mongo_to_pg or pg_to_mongo")
-	mongoURL := flag.String("mongo-url", "mongodb://127.0.0.1:27017/leanote", "MongoDB URL")
-	postgresURL := flag.String("postgres-url", "host=127.0.0.1 port=5432 user=leanote password=leanote dbname=leanote sslmode=disable", "PostgreSQL DSN")
+	mongoURL := flag.String("mongo-url", "mongodb://127.0.0.1:27017/pearlnote", "MongoDB URL")
+	postgresURL := flag.String("postgres-url", "host=127.0.0.1 port=5432 user=pearlnote password=pearlnote dbname=pearlnote sslmode=disable", "PostgreSQL DSN")
 	schema := flag.String("schema", "database/schema.sql", "schema applied before mongo_to_pg; empty disables it")
 	dryRun := flag.Bool("dry-run", false, "read and validate without writing")
 	validate := flag.Bool("validate", true, "compare collection/table counts after copying")
@@ -176,6 +176,35 @@ func (m *migrator) upsertPostgres(table string, row map[string]interface{}) erro
 		keys = append(keys, key)
 	}
 	sort.Strings(keys)
+
+	// Update by MongoDB _id first. A retried migration can otherwise hit a
+	// secondary unique constraint before PostgreSQL applies ON CONFLICT (id).
+	updateAssignments := make([]string, 0, len(keys)-1)
+	updateValues := make([]interface{}, 0, len(keys))
+	for _, key := range keys {
+		if key == "id" {
+			continue
+		}
+		updateValues = append(updateValues, row[key])
+		updateAssignments = append(updateAssignments,
+			fmt.Sprintf("%s = $%d", pq.QuoteIdentifier(key), len(updateValues)))
+	}
+	updateValues = append(updateValues, row["id"])
+	assignment := pq.QuoteIdentifier("id") + " = " + pq.QuoteIdentifier("id")
+	if len(updateAssignments) > 0 {
+		assignment = strings.Join(updateAssignments, ", ")
+	}
+	result, err := m.postgres.Exec(fmt.Sprintf("UPDATE %s SET %s WHERE id = $%d",
+		pq.QuoteIdentifier(table), assignment, len(updateValues)), updateValues...)
+	if err != nil {
+		return err
+	}
+	if affected, err := result.RowsAffected(); err != nil {
+		return err
+	} else if affected > 0 {
+		return nil
+	}
+
 	columns := make([]string, len(keys))
 	placeholders := make([]string, len(keys))
 	values := make([]interface{}, len(keys))
@@ -195,7 +224,7 @@ func (m *migrator) upsertPostgres(table string, row map[string]interface{}) erro
 	}
 	query := fmt.Sprintf("INSERT INTO %s (%s) VALUES (%s) ON CONFLICT (id) %s",
 		pq.QuoteIdentifier(table), strings.Join(columns, ", "), strings.Join(placeholders, ", "), conflict)
-	_, err := m.postgres.Exec(query, values...)
+	_, err = m.postgres.Exec(query, values...)
 	return err
 }
 

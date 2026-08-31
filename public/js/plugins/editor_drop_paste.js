@@ -15,7 +15,7 @@ define('editor_drop_paste', ['fileupload'], function() {
 	// 粘贴图片的进度控制
 	function Process(editor) {
 		var id = '__mcenew' + (new Date()).getTime();
-		var str = '<div contenteditable="false" id="' + id + '" class="leanote-image-container">' + 
+		var str = '<div contenteditable="false" id="' + id + '" class="pearlnote-image-container">' +
 			'<img class="loader" src="/images/ajax-loader.gif">' + 
 				'<div class="progress">' + 
 					'<div class="progress-bar progress-bar-success progress-bar-striped" role="progressbar" aria-valuenow="2" aria-valuemin="0" aria-valuemax="100" style="width: 0%;">' + 
