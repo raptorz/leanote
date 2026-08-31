@@ -16,7 +16,8 @@ services:
       - ./database/schema.sql:/docker-entrypoint-initdb.d/001-pearlnote-schema.sql:ro
 
   pearlnote:
-    image: pearlnote:v2.7.0
+    build: .
+    image: pearlnote:1.0.0
     container_name: pearlnote
     restart: always
     depends_on:

@@ -123,6 +123,7 @@ revel run github.com/pearlnote/pearlnote
 - [MongoDB ↔ PostgreSQL 数据迁移指南](docs/MIGRATION_GUIDE.md)
 - [数据库抽象概览](docs/DATABASE_ABSTRACTION_README.md)
 - [数据库抽象完整指南](docs/DATABASE_ABSTRACTION_GUIDE.md)
+- [自动化构建与发布](docs/RELEASE.md)
 
 ## API 与客户端兼容性
 
@@ -139,6 +140,12 @@ go test ./...
 ```
 
 数据库集成测试和双向迁移测试所需的环境变量及命令，请参阅[数据库抽象完整指南](docs/DATABASE_ABSTRACTION_GUIDE.md)。
+
+## 自动化构建与发布
+
+每次 push 和 Pull Request 都会自动执行全部 Go 测试、生成并编译真正的 Revel 服务端入口，同时验证 Docker 镜像可以构建。
+
+推送与 `app/version/version.go` 一致的正式 SemVer 标签（例如 `v1.0.0`）时，GitHub Actions 会自动创建 GitHub Release，并附带 Linux amd64／arm64、Windows amd64、macOS amd64／arm64 发布包及 SHA-256 校验文件。详细操作见[自动化构建与发布](docs/RELEASE.md)。
 
 ## 相关项目
 

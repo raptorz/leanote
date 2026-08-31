@@ -3,5 +3,13 @@
 .dockerignore
 *.md
 tmp/
+app/tmp/
+app/routes/
 *.log
 *.swp
+desktop-app/
+.agents/
+.codex/
+.github/
+docs/
+mongodb_backup/

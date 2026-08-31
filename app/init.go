@@ -13,6 +13,7 @@ import (
 	"github.com/pearlnote/pearlnote/app/lea/i18n"
 	"github.com/pearlnote/pearlnote/app/lea/route"
 	"github.com/pearlnote/pearlnote/app/service"
+	_ "github.com/revel/modules/static"
 	"github.com/revel/revel"
 	"html/template"
 	"math"

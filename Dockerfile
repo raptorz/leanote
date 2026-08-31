@@ -16,9 +16,14 @@ RUN go mod download
 # Copy source code
 COPY . .
 
-# Build the application directly using go build
-# The main entry point is in app/cmd
-RUN CGO_ENABLED=0 GOOS=linux go build -o /pearlnote -ldflags="-s -w" github.com/pearlnote/pearlnote/app/cmd
+# Generate the Revel application entrypoint, then build the server rather than
+# the Revel command-line helper in app/cmd.
+RUN go run ./app/cmd build . /tmp/pearlnote-revel-build prod && \
+    CGO_ENABLED=0 GOOS=linux go build -trimpath -o /pearlnote -ldflags="-s -w" ./app/tmp
+
+RUN REVEL_DIR="$(go list -m -f '{{.Dir}}' github.com/revel/revel)" && \
+    mkdir -p /runtime/github.com/revel/revel && \
+    cp -R "$REVEL_DIR/conf" "$REVEL_DIR/templates" /runtime/github.com/revel/revel/
 
 # Stage 2: Runtime image
 FROM alpine:3.22
@@ -32,16 +37,19 @@ WORKDIR /opt/pearlnote
 
 # Copy the binary from builder
 COPY --from=builder /pearlnote /opt/pearlnote/pearlnote
+COPY --from=builder /runtime /opt/pearlnote/runtime
 
 # Copy necessary runtime files
 COPY conf/ /opt/pearlnote/conf/
 COPY messages/ /opt/pearlnote/messages/
 COPY public/ /opt/pearlnote/public/
 COPY app/views/ /opt/pearlnote/app/views/
+RUN mkdir -p /opt/pearlnote/runtime/github.com/pearlnote && \
+    ln -s /opt/pearlnote /opt/pearlnote/runtime/github.com/pearlnote/pearlnote
 
 EXPOSE 9000
 
 # Set working directory to where the app needs to run
 WORKDIR /opt/pearlnote
 
-CMD ["/opt/pearlnote/pearlnote", "run", "github.com/pearlnote/pearlnote", "-importPath", "github.com/pearlnote/pearlnote"]
+CMD ["/opt/pearlnote/pearlnote", "-importPath", "github.com/pearlnote/pearlnote", "-srcPath", "/opt/pearlnote/runtime", "-runMode", "prod"]

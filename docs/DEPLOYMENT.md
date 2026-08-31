@@ -2,7 +2,7 @@
 
 ## 环境要求
 
-- Go 1.15+
+- Go 1.22+
 - PostgreSQL 12+
 - MongoDB (仅用于数据迁移)
 
