@@ -37,15 +37,22 @@ GRANT ALL PRIVILEGES ON DATABASE pearlnote TO pearlnote;
 \q
 ```
 
-### 3. 创建数据库表结构
+### 3. 初始化数据库
 
 ```bash
-# 导入 schema
+# 创建表结构
 psql -U pearlnote -d pearlnote -f database/schema.sql
+
+# 导入安装初始数据
+psql -U pearlnote -d pearlnote -f database/seed.sql
 
 # 验证表是否创建成功
 psql -U pearlnote -d pearlnote -c "\dt"
 ```
+
+`database/seed.sql` 由仓库内置 Leanote/Pearlnote MongoDB 安装数据转换生成，但安装时只依赖 PostgreSQL。它包含管理员、演示用户、全局配置、示例笔记和主题等数据，不包含历史 session、token、邮件日志、建议和举报记录。
+
+初始管理员账号为 `admin`，密码为 `abc123`。首次登录后必须立即修改密码。SQL 中的插入均使用 `ON CONFLICT DO NOTHING`，可以重复执行；不过正式环境仍应只对空数据库进行首次初始化。
 
 ### 4. 配置应用
 
@@ -79,7 +86,9 @@ mongo pearlnote --eval \
 
 升级流程：停止写入并备份数据库及附件文件，更新应用，然后启动服务。服务会在接受业务请求前执行未应用迁移；数据库版本高于应用版本时会拒绝启动。
 
-## 数据迁移（从 MongoDB）
+## 数据迁移（从真实 MongoDB）
+
+新安装不需要 MongoDB。本节仅用于把已有 Leanote/Pearlnote MongoDB 业务库迁移到 PostgreSQL。
 
 ### 1. 安装 MongoDB
 
@@ -144,19 +153,7 @@ go mod download
 go mod tidy
 ```
 
-### 2. 更新初始化代码
-
-编辑 `app/service/init.go`:
-
-```go
-// 将原来的 MongoDB 初始化改为 PostgreSQL
-// db.Init(revel.Config.StringDefault("db.url", ""), revel.Config.StringDefault("db.dbname", "pearlnote"))
-
-// 改为
-db.InitPG(revel.Config.StringDefault("db.url", ""), revel.Config.StringDefault("db.dbname", "pearlnote"))
-```
-
-### 3. 编译应用
+### 2. 编译应用
 
 ```bash
 # 开发模式
@@ -166,7 +163,7 @@ revel run github.com/pearlnote/pearlnote
 revel build github.com/pearlnote/pearlnote pearlnote
 ```
 
-### 4. 运行应用
+### 3. 运行应用
 
 ```bash
 # 开发环境

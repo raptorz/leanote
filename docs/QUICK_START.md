@@ -1,11 +1,11 @@
 # 快速开始指南
 
-## 5 分钟快速迁移
+## 5 分钟快速安装
 
 ### 前提条件
 - 已安装 Go 1.22+
 - 已安装 PostgreSQL 12+
-- 已安装 MongoDB（仅用于数据迁移）
+- 新安装不需要 MongoDB；迁移已有 Leanote 数据时才需要 MongoDB
 
 ### 步骤 1: 安装 PostgreSQL
 
@@ -32,11 +32,14 @@ GRANT ALL PRIVILEGES ON DATABASE pearlnote TO pearlnote;
 EOF
 ```
 
-### 步骤 3: 创建表结构
+### 步骤 3: 初始化数据库
 
 ```bash
 psql -U pearlnote -d pearlnote -f database/schema.sql
+psql -U pearlnote -d pearlnote -f database/seed.sql
 ```
+
+`seed.sql` 包含 PostgreSQL 安装所需的管理员、配置和示例数据。初始管理员为 `admin`／`abc123`，首次登录后必须立即修改密码。
 
 ### 步骤 4: 配置应用
 
@@ -64,7 +67,11 @@ revel run github.com/pearlnote/pearlnote
 
 打开浏览器访问: http://localhost:9000
 
+使用 `admin`／`abc123` 登录并立即修改密码。纯 PostgreSQL 安装不需要先启动或恢复 MongoDB。
+
 ## 从 MongoDB 迁移数据
+
+以下步骤只适用于迁移真实使用中的 Leanote/Pearlnote MongoDB；全新安装请使用上面的 `schema.sql` + `seed.sql`。
 
 ### 1. 确保 MongoDB 运行
 
@@ -181,6 +188,7 @@ GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO pearlnote;
 ## 文件位置
 
 - **数据库 Schema**: `database/schema.sql`
+- **PostgreSQL 初始数据**: `database/seed.sql`
 - **数据库连接**: `app/db/`
 - **Service 层**: `app/service/`
 - **迁移工具**: `tools/migration/`
@@ -198,6 +206,7 @@ GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO pearlnote;
 # 数据库操作
 psql -U pearlnote -d pearlnote                           # 连接数据库
 psql -U pearlnote -d pearlnote -f database/schema.sql      # 导入 schema
+psql -U pearlnote -d pearlnote -f database/seed.sql        # 导入初始数据
 pg_dump -U pearlnote -d pearlnote > backup.sql            # 备份
 psql -U pearlnote -d pearlnote < backup.sql               # 恢复
 

@@ -98,6 +98,8 @@ go run ./tools/migration \
 docker-compose -f docker-compose.postgres.yml up -d
 ```
 
+空 PostgreSQL 数据卷会依次执行 `database/schema.sql` 和 `database/seed.sql`，不需要 MongoDB 即可完成首次初始化。初始管理员为 `admin`／`abc123`，首次登录后必须立即修改密码。初始化 SQL 只在 PostgreSQL 数据目录为空时执行。
+
 ### Docker + MongoDB
 
 ```bash

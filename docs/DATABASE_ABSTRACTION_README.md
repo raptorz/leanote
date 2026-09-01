@@ -22,7 +22,7 @@ PostgreSQL 适配器支持当前业务使用的 BSON 条件和更新操作，包
 
 ## PostgreSQL schema
 
-DDL 位于 `database/schema.sql`，表和列与 `app/info` 中的持久化模型保持一致。`docker-compose.postgres.yml` 会在新的 PostgreSQL 数据目录中自动执行该文件。
+DDL 位于 `database/schema.sql`，安装初始数据位于 `database/seed.sql`，表和列与 `app/info` 中的持久化模型保持一致。`docker-compose.postgres.yml` 会在新的 PostgreSQL 数据目录中依次执行这两个文件，因此全新 PostgreSQL 安装不依赖 MongoDB。
 
 容器初始化脚本只对空数据目录执行完整 Schema。已有数据库由服务启动时的版本迁移机制增量升级；升级前仍必须备份。
 
