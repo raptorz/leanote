@@ -239,6 +239,7 @@ $("#pwdBtn").click(function(e) {
 	post("/user/updatePwd", {oldPwd: oldPwd, pwd: pwd}, function(e) {
 		if(e.Ok) {
 			showAlert("#pwdMsg", getMsg("updatePasswordSuccess"), "success");
+			setTimeout(function() { window.location = "/login"; }, 800);
 		} else {
 			showAlert("#pwdMsg", e.Msg, "danger");
 		}

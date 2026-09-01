@@ -332,12 +332,13 @@ func (p *PostgresDatabase) updateWithFilter(collection interface{}, query interf
 
 	args := append(setValues, whereArgs...)
 
-	_, err := p.db.Exec(sql, args...)
+	result, err := p.db.Exec(sql, args...)
 	if err != nil {
 		Log("Update error: " + err.Error())
 		return false
 	}
-	return true
+	affected, err := result.RowsAffected()
+	return err == nil && affected > 0
 }
 
 func (p *PostgresDatabase) Upsert(collection interface{}, query interface{}, data interface{}) bool {

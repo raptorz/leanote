@@ -1,10 +1,11 @@
 package admin
 
 import (
+	"github.com/pearlnote/pearlnote/app/info"
 	. "github.com/pearlnote/pearlnote/app/lea"
 	"github.com/revel/revel"
+	"gopkg.in/mgo.v2/bson"
 	//	"time"
-	"github.com/pearlnote/pearlnote/app/info"
 )
 
 // admin 首页
@@ -52,7 +53,13 @@ func (c AdminUser) Register(email, pwd string) revel.Result {
 
 // 修改帐户
 func (c AdminUser) ResetPwd(userId string) revel.Result {
+	if !bson.IsObjectIdHex(userId) {
+		return c.NotFound("user")
+	}
 	userInfo := userService.GetUserInfo(userId)
+	if userInfo.UserId == "" {
+		return c.NotFound("user")
+	}
 	c.ViewArgs["userInfo"] = userInfo
 	return c.RenderTemplate("admin/user/reset_pwd.html")
 }

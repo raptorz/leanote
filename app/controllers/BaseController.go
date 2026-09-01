@@ -61,7 +61,7 @@ func (c BaseController) GetUsername() string {
 
 // 得到用户信息
 func (c BaseController) GetUserInfo() info.User {
-    userId := c.GetUserId()
+	userId := c.GetUserId()
 	if userId != "" {
 		return userService.GetUserInfo(userId)
 	}
@@ -69,7 +69,7 @@ func (c BaseController) GetUserInfo() info.User {
 }
 
 func (c BaseController) GetUserAndBlogUrl() info.UserAndBlogUrl {
-    userId := c.GetUserId()
+	userId := c.GetUserId()
 	if userId != "" {
 		return userService.GetUserAndBlogUrl(userId)
 	}
@@ -86,7 +86,8 @@ func (c BaseController) GetSession(key string) string {
 }
 func (c BaseController) SetSession(userInfo info.User) {
 	if userInfo.UserId.Hex() != "" {
-		c.Session["UserId"] = userInfo.UserId.Hex()
+		userId := userInfo.UserId.Hex()
+		c.Session["UserId"] = userId
 		c.Session["Email"] = userInfo.Email
 		c.Session["Username"] = userInfo.Username
 		c.Session["UsernameRaw"] = userInfo.UsernameRaw
@@ -107,6 +108,10 @@ func (c BaseController) SetSession(userInfo info.User) {
 		} else {
 			c.Session["LeftIsMin"] = "0"
 		}
+
+		// Web sessions share the same server-side registry as API tokens so a
+		// password change can revoke every active login for this user.
+		sessionService.SetUserId(c.Session.ID(), userId)
 	}
 }
 
@@ -114,7 +119,13 @@ func (c BaseController) ClearSession() {
 	delete(c.Session, "UserId")
 	delete(c.Session, "Email")
 	delete(c.Session, "Username")
-	delete(c.Session, "theme")
+	delete(c.Session, "UsernameRaw")
+	delete(c.Session, "Theme")
+	delete(c.Session, "Logo")
+	delete(c.Session, "NotebookWidth")
+	delete(c.Session, "NoteListWidth")
+	delete(c.Session, "Verified")
+	delete(c.Session, "LeftIsMin")
 }
 
 // 修改session
@@ -157,7 +168,7 @@ func (c BaseController) GetTotalPage(page, count int) int {
 	return int(math.Ceil(float64(count) / float64(page)))
 }
 
-//-------------
+// -------------
 func (c BaseController) E404() revel.Result {
 	c.ViewArgs["title"] = "404"
 	return c.NotFound("")
@@ -208,7 +219,7 @@ func (c BaseController) RenderTemplateStr(templatePath string) string {
 	}
 
 	tpl := &revel.RenderTemplateResult{
-		Template:   template,
+		Template: template,
 		ViewArgs: c.ViewArgs, // 把args给它
 	}
 

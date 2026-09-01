@@ -27,6 +27,7 @@ var attachService *service.AttachService
 var configService *service.ConfigService
 var emailService *service.EmailService
 var upgradeService *service.UpgradeService
+var sessionService *service.SessionService
 
 // 拦截器
 // 不需要拦截的url
@@ -83,9 +84,14 @@ func AuthInterceptor(c *revel.Controller) revel.Result {
 
 	// 验证是否已登录
 	// 必须是管理员
-	if username, ok := c.Session["Username"]; ok && username.(string) == configService.GetAdminUsername() {
+	username, usernameOK := c.Session["Username"].(string)
+	userId, userIDOK := c.Session["UserId"].(string)
+	if usernameOK && userIDOK && username == configService.GetAdminUsername() &&
+		sessionService.ValidateUserSession(c.Session.ID(), userId) {
 		return nil // 已登录
 	}
+	delete(c.Session, "UserId")
+	delete(c.Session, "Username")
 
 	// 没有登录, 判断是否是ajax操作
 	if c.Request.Header.Get("X-Requested-With") == "XMLHttpRequest" {
@@ -119,6 +125,7 @@ func InitService() {
 	configService = service.ConfigS
 	emailService = service.EmailS
 	upgradeService = service.UpgradeS
+	sessionService = service.SessionS
 }
 
 func init() {

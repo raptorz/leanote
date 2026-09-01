@@ -54,9 +54,16 @@ func (this *PwdService) UpdatePwd(token, pwd string) (bool, string) {
 
 	// 修改密码之
 	ok = db.UpdateByQField(db.Users, bson.M{"_id": tokenInfo.UserId}, "Pwd", passwd)
+	if !ok {
+		return false, ""
+	}
+
+	// A recovered password is a credential change too: revoke every existing
+	// web session and API token before consuming the recovery token.
+	sessionService.ClearUserSessions(tokenInfo.UserId.Hex())
 
 	// 删除token
 	tokenService.DeleteToken(tokenInfo.UserId.Hex(), info.TokenPwd)
 
-	return ok, ""
+	return true, ""
 }

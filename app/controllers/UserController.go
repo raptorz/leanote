@@ -60,6 +60,9 @@ func (c User) UpdatePwd(oldPwd, pwd string) revel.Result {
 		return c.RenderRe(re)
 	}
 	re.Ok, re.Msg = userService.UpdatePwd(c.GetUserId(), oldPwd, pwd)
+	if re.Ok {
+		c.ClearSession()
+	}
 	return c.RenderRe(re)
 }
 
@@ -132,7 +135,7 @@ func (c User) ActiveEmail(token string) revel.Result {
 	return c.RenderTemplate("user/active_email.html")
 }
 
-//-----------------
+// -----------------
 // 用户偏爱
 func (c User) UpdateColumnWidth(notebookWidth, noteListWidth, mdEditorWidth int) revel.Result {
 	re := info.NewRe()

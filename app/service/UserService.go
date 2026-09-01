@@ -312,7 +312,13 @@ func (this *UserService) UpdateAvatar(userId, avatarPath string) bool {
 // ----------------------
 // 已经登录了的用户修改密码
 func (this *UserService) UpdatePwd(userId, oldPwd, pwd string) (bool, string) {
-	userInfo := this.GetUserInfo(userId)
+	if !bson.IsObjectIdHex(userId) {
+		return false, "userNotExists"
+	}
+	userInfo := this.GetUser(userId)
+	if userInfo.UserId == "" {
+		return false, "userNotExists"
+	}
 	if !ComparePwd(oldPwd, userInfo.Pwd) {
 		return false, "oldPasswordError"
 	}
@@ -323,13 +329,22 @@ func (this *UserService) UpdatePwd(userId, oldPwd, pwd string) (bool, string) {
 	}
 
 	ok := db.UpdateByQField(db.Users, bson.M{"_id": bson.ObjectIdHex(userId)}, "Pwd", passwd)
+	if ok {
+		sessionService.ClearUserSessions(userId)
+	}
 	return ok, ""
 }
 
 // 管理员重置密码
 func (this *UserService) ResetPwd(adminUserId, userId, pwd string) (ok bool, msg string) {
 	if configService.GetAdminUserId() != adminUserId {
-		return
+		return false, "NOTLOGIN"
+	}
+	if !bson.IsObjectIdHex(userId) {
+		return false, "userNotExists"
+	}
+	if user := this.GetUser(userId); user.UserId == "" {
+		return false, "userNotExists"
 	}
 
 	passwd := GenPwd(pwd)
@@ -337,6 +352,9 @@ func (this *UserService) ResetPwd(adminUserId, userId, pwd string) (ok bool, msg
 		return false, "GenerateHash error"
 	}
 	ok = db.UpdateByQField(db.Users, bson.M{"_id": bson.ObjectIdHex(userId)}, "Pwd", passwd)
+	if ok {
+		sessionService.ClearUserSessions(userId)
+	}
 	return
 }
 

@@ -22,6 +22,29 @@ func (this *SessionService) Update(sessionId, key string, value interface{}) boo
 func (this *SessionService) Clear(sessionId string) bool {
 	return db.Delete(db.Sessions, bson.M{"SessionId": sessionId})
 }
+
+// ClearUserSessions invalidates every web session and API token owned by a user.
+func (this *SessionService) ClearUserSessions(userId string) bool {
+	if userId == "" {
+		return false
+	}
+	return db.DeleteAll(db.Sessions, bson.M{"UserId": userId})
+}
+
+// ValidateUserSession verifies a server-side session without creating one for
+// an invalid or expired cookie. Valid sessions are touched to preserve the
+// existing expiry behaviour.
+func (this *SessionService) ValidateUserSession(sessionId, userId string) bool {
+	if sessionId == "" || userId == "" {
+		return false
+	}
+	session := info.Session{}
+	db.GetByQ(db.Sessions, bson.M{"SessionId": sessionId, "UserId": userId}, &session)
+	if session.Id == "" {
+		return false
+	}
+	return this.Update(sessionId, "UpdatedTime", time.Now())
+}
 func (this *SessionService) Get(sessionId string) info.Session {
 	session := info.Session{}
 	db.GetByQ(db.Sessions, bson.M{"SessionId": sessionId}, &session)
@@ -58,7 +81,7 @@ func (this *SessionService) IncrLoginTimes(sessionId string) bool {
 	return this.Update(sessionId, "LoginTimes", session.LoginTimes+1)
 }
 
-//----------
+// ----------
 // 验证码
 func (this *SessionService) GetCaptcha(sessionId string) string {
 	session := this.Get(sessionId)
@@ -73,7 +96,7 @@ func (this *SessionService) SetCaptcha(sessionId, captcha string) bool {
 	return ok
 }
 
-//-----------
+// -----------
 // API
 func (this *SessionService) GetUserId(sessionId string) string {
 	session := this.Get(sessionId)

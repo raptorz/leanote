@@ -95,8 +95,12 @@ func AuthInterceptor(c *revel.Controller) revel.Result {
 	}
 
 	// 验证是否已登录
-	if userId, ok := c.Session["UserId"]; ok && userId != "" {
-		return nil // 已登录
+	if userId, ok := c.Session["UserId"]; ok {
+		if value, valid := userId.(string); valid && sessionService.ValidateUserSession(c.Session.ID(), value) {
+			return nil // 已登录
+		}
+		delete(c.Session, "UserId")
+		delete(c.Session, "Username")
 	}
 
 	// 没有登录, 判断是否是ajax操作

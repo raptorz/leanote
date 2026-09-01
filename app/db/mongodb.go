@@ -452,8 +452,8 @@ func (m *MongoDatabase) UpdateByQField(collection interface{}, q interface{}, fi
 	if coll == nil {
 		return false
 	}
-	_, err := coll.UpdateAll(q, bson.M{"$set": bson.M{field: value}})
-	return Err(err)
+	info, err := coll.UpdateAll(q, bson.M{"$set": bson.M{field: value}})
+	return Err(err) && info != nil && info.Matched > 0
 }
 
 func (m *MongoDatabase) UpdateByQMap(collection interface{}, q interface{}, v interface{}) bool {
@@ -461,8 +461,8 @@ func (m *MongoDatabase) UpdateByQMap(collection interface{}, q interface{}, v in
 	if coll == nil {
 		return false
 	}
-	_, err := coll.UpdateAll(q, bson.M{"$set": v})
-	return Err(err)
+	info, err := coll.UpdateAll(q, bson.M{"$set": v})
+	return Err(err) && info != nil && info.Matched > 0
 }
 
 func (m *MongoDatabase) Count(collection interface{}, query interface{}) int {
