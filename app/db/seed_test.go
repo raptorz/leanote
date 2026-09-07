@@ -18,6 +18,7 @@ func TestPostgresInstallationSeed(t *testing.T) {
 	for _, required := range []string{
 		"INSERT INTO public.users",
 		"'admin@pearlnote.com'",
+		"'999784c7dc1cff8d40deeb2cf7ee2027'",
 		"'demo@pearlnote.com'",
 		"INSERT INTO public.configs",
 		"INSERT INTO public.notebooks",

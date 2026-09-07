@@ -39,7 +39,7 @@ psql -U pearlnote -d pearlnote -f database/schema.sql
 psql -U pearlnote -d pearlnote -f database/seed.sql
 ```
 
-`seed.sql` 包含 PostgreSQL 安装所需的管理员、配置和示例数据。初始管理员为 `admin`／`abc123`，首次登录后必须立即修改密码。
+`seed.sql` 包含 PostgreSQL 安装所需的管理员、配置和示例数据。初始管理员为 `admin`／`pearlnote`，首次登录后必须立即修改密码。
 
 ### 步骤 4: 配置应用
 
@@ -67,7 +67,7 @@ revel run github.com/pearlnote/pearlnote
 
 打开浏览器访问: http://localhost:9000
 
-使用 `admin`／`abc123` 登录并立即修改密码。纯 PostgreSQL 安装不需要先启动或恢复 MongoDB。
+使用 `admin`／`pearlnote` 登录并立即修改密码。纯 PostgreSQL 安装不需要先启动或恢复 MongoDB。
 
 ## 从 MongoDB 迁移数据
 

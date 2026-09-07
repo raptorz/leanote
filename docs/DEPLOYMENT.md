@@ -52,7 +52,7 @@ psql -U pearlnote -d pearlnote -c "\dt"
 
 `database/seed.sql` 由仓库内置 Leanote/Pearlnote MongoDB 安装数据转换生成，但安装时只依赖 PostgreSQL。它包含管理员、演示用户、全局配置、示例笔记和主题等数据，不包含历史 session、token、邮件日志、建议和举报记录。
 
-初始管理员账号为 `admin`，密码为 `abc123`。首次登录后必须立即修改密码。SQL 中的插入均使用 `ON CONFLICT DO NOTHING`，可以重复执行；不过正式环境仍应只对空数据库进行首次初始化。
+初始管理员账号为 `admin`，密码为 `pearlnote`。首次登录后必须立即修改密码。SQL 中的插入均使用 `ON CONFLICT DO NOTHING`，可以重复执行；不过正式环境仍应只对空数据库进行首次初始化。
 
 ### 4. 配置应用
 
