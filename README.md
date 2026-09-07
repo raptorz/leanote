@@ -126,6 +126,8 @@ revel run github.com/pearlnote/pearlnote
 - [数据库抽象概览](docs/DATABASE_ABSTRACTION_README.md)
 - [数据库抽象完整指南](docs/DATABASE_ABSTRACTION_GUIDE.md)
 - [自动化构建与发布](docs/RELEASE.md)
+- [统一 UI 设计](docs/UI.md)
+- [Vue Web UI 重写与部署计划](docs/WEB_UI_MIGRATION_PLAN.md)
 
 ## API 与客户端兼容性
 
