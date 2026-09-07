@@ -26,3 +26,5 @@ target/
 package/pearlnote.tar.gz
 package/pearlnote/
 pearlnote.log
+desktop-app
+mobile-app
