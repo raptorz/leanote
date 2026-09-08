@@ -191,11 +191,6 @@ func (this *FileService) GetFile(userId, fileId string) string {
 
 	noteIds := noteImageService.GetNoteIds(fileId)
 	if noteIds != nil && len(noteIds) > 0 {
-		// 这些笔记是否有public的
-		if db.Has(db.Notes, bson.M{"_id": bson.M{"$in": noteIds}, "IsBlog": true}) {
-			return path
-		}
-
 		// 2014/12/28 修复, 如果是分享给用户组, 那就不行, 这里可以实现
 		for _, noteId := range noteIds {
 			note := noteService.GetNoteById(noteId.Hex())

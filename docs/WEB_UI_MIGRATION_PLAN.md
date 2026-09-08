@@ -1,10 +1,10 @@
 # Vue Web UI 重写与部署计划
 
-状态：待实施。本文件仅制定计划，尚未实施前端重写或删除旧 UI。
+状态：已实施。Vue 已成为默认 Web UI，旧服务端页面与博客主题资源已移除；本文同时保留实施边界和回归验收清单。
 
 ## 目标与边界
 
-依据 [统一 UI 设计](UI.md)，使用 Vue 重写 Pearlnote Web 界面，实现前后端分离。前端构建为 `web/dist`，由现有 Go/Revel 服务端提供静态文件服务。生产环境继续通过原来的域名、端口和路径访问，默认仍为 `http://localhost:9000`，无需额外启动 Node 服务或部署独立前端服务器。
+依据 [统一 UI 设计](UI.md)，使用 Vue 重写 Pearlnote Web 界面，实现前后端分离。前端构建为 `frontend/dist`，由现有 Go/Revel 服务端提供静态文件服务。生产环境继续通过原来的域名、端口和路径访问，默认仍为 `http://localhost:9000`，无需额外启动 Node 服务或部署独立前端服务器。
 
 新界面完成并通过功能验收后，移除被替代的旧 Web 模板、页面脚本、样式和渲染代码。保持原有 HTTP API、Leanote desktop-app 兼容性、MongoDB/PostgreSQL 数据访问及迁移能力。本次实施范围是 Web；desktop-app 用作布局和兼容性参照，不在本次重写客户端。
 
@@ -22,7 +22,7 @@
 
 ## 技术方案
 
-- 前端使用 Vue 3、TypeScript、Vite、Vue Router 和 Pinia，源码集中到 `web/`；实施时选择兼容的依赖版本、固定 Node 版本并提交锁文件。
+- 前端使用 Vue 3、TypeScript、Vite、Vue Router 和 Pinia，源码集中到 `frontend/`；实施时选择兼容的依赖版本、固定 Node 版本并提交锁文件。
 - Vue Router 使用 History 模式，保持 `/login`、`/note`、`/note/:noteId` 等原路径，不改成 hash 地址。
 - API 调用封装在独立服务层，在前端内部转换旧字段和响应格式，不改变服务端旧接口契约。
 - 编辑器封装统一适配层，覆盖富文本、Markdown、附件、图片、历史版本和保存状态。正式选型前用真实旧内容验证往返保存、代码块、表格、链接及扩展语法，不能因编辑器更换丢失内容。
@@ -32,7 +32,7 @@
 建议目录：
 
 ```text
-web/
+frontend/
   src/
     api/          # 请求、错误处理与旧接口适配
     components/   # 通用组件和编辑器适配

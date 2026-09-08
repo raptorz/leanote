@@ -63,15 +63,17 @@ func (this *AttachService) updateNoteAttachNum(noteId bson.ObjectId, addNum int)
 // list attachs
 func (this *AttachService) ListAttachs(noteId, userId string) []info.Attach {
 	attachs := []info.Attach{}
-
-	// 判断是否有权限为笔记添加附件, userId为空时表示是分享笔记的附件
-	if userId != "" && !shareService.HasUpdateNotePerm(noteId, userId) {
+	if userId == "" {
 		return attachs
 	}
 
-	// 笔记是否是自己的
-	note := noteService.GetNoteByIdAndUserId(noteId, userId)
+	// Owners and users with read access may list attachments. Mutating methods
+	// perform their own update-permission checks.
+	note := noteService.GetNoteById(noteId)
 	if note.NoteId == "" {
+		return attachs
+	}
+	if note.UserId.Hex() != userId && !shareService.HasReadPerm(note.UserId.Hex(), userId, noteId) {
 		return attachs
 	}
 
@@ -166,11 +168,6 @@ func (this *AttachService) GetAttach(attachId, userId string) (attach info.Attac
 	note := noteService.GetNoteById(attach.NoteId.Hex())
 
 	// 判断权限
-
-	// 笔记是否是公开的
-	if note.IsBlog {
-		return
-	}
 
 	// 笔记是否是我的
 	if note.UserId.Hex() == userId {

@@ -1,6 +1,6 @@
 # Pearlnote（珠玑笔记）
 
-Pearlnote（珠玑笔记）是一套支持私有部署的开源笔记与知识管理系统，提供笔记本、标签、Markdown、富文本编辑、博客发布、分享与协作等功能。
+Pearlnote（珠玑笔记）是一套支持私有部署的开源笔记与知识管理系统，提供笔记本、标签、Markdown、富文本编辑、分享与协作等功能。Web 端采用 Vue 前后端分离架构；本项目不再提供 Leanote 的公开博客、评论和博客主题功能。
 
 当前版本：`1.0.0`。
 
@@ -25,7 +25,7 @@ Pearlnote 在保留 Leanote 核心功能和客户端兼容性的基础上，主�
 - Markdown 编辑器与富文本编辑器；
 - Vim 和 Emacs 编辑模式；
 - 笔记分享与多人协作；
-- 博客发布与主题定制；
+- Vue Web、桌面客户端兼容访问；
 - PDF 导出；
 - 批量笔记操作；
 - MongoDB 和 PostgreSQL 双数据库后端；
@@ -108,9 +108,11 @@ docker-compose -f docker-compose.mongodb.yml up -d
 
 ### 从源码运行
 
-安装 Go、Revel 和对应数据库后执行：
+安装 Go、Node.js 22 和对应数据库后，先构建 Vue 前端，再启动 Revel：
 
 ```bash
+npm ci --prefix frontend
+npm run build --prefix frontend
 revel run github.com/pearlnote/pearlnote
 ```
 
@@ -147,7 +149,7 @@ go test ./...
 
 ## 自动化构建与发布
 
-每次 push 和 Pull Request 都会自动执行全部 Go 测试、生成并编译真正的 Revel 服务端入口，同时验证 Docker 镜像可以构建。
+每次 push 和 Pull Request 都会自动安装、测试并构建 Vue 前端，执行全部 Go 测试，生成并编译真正的 Revel 服务端入口，同时验证 Docker 镜像可以构建。
 
 推送与 `app/version/version.go` 一致的正式 SemVer 标签（例如 `v1.0.0`）时，GitHub Actions 会自动创建 GitHub Release，并附带 Linux amd64／arm64、Windows amd64、macOS amd64／arm64 发布包及 SHA-256 校验文件。详细操作见[自动化构建与发布](docs/RELEASE.md)。
 

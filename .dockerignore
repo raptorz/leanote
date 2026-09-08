@@ -8,6 +8,7 @@ app/routes/
 *.log
 *.swp
 desktop-app/
+frontend/node_modules/
 .agents/
 .codex/
 .github/

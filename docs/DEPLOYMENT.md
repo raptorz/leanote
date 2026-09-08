@@ -3,6 +3,7 @@
 ## 环境要求
 
 - Go 1.22+
+- Node.js 22（仅源码构建需要；Docker 镜像和发行包运行时不需要）
 - PostgreSQL 12+
 - MongoDB (仅用于数据迁移)
 
@@ -148,6 +149,11 @@ SELECT COUNT(*) FROM notes;
 ```bash
 # 下载依赖
 go mod download
+
+# 安装、测试并构建 Vue Web UI
+npm ci --prefix frontend
+npm test --prefix frontend
+npm run build --prefix frontend
 
 # 如果有新的依赖
 go mod tidy

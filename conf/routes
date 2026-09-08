@@ -5,21 +5,21 @@
 # module:testrunner
 
 # Home is My Blog
-Get 	/											Index.Default
-GET     /note   	                                Note.Index
+GET     /                                      Web.Page
+GET     /note                                  Web.Page
 # pearlnote home
-GET     /index   	                                Index.Index
+GET     /index                                 Web.Page
 
-GET     /login                                     	Auth.Login
+GET     /login                                  Web.Page
 POST     /doLogin                                   Auth.DoLogin
 GET     /logout                                     Auth.Logout
 Get     /demo                                   	Auth.Demo
 
-Get 	 /register									Auth.Register
+GET     /register                              Web.Page
 POST     /doRegister                                Auth.DoRegister
 
-GET 	/findPassword/:token						Auth.FindPassword2
-GET 	/findPassword								Auth.FindPassword
+GET 	/findPassword/:token						Web.Page
+GET 	/findPassword								Web.Page
 POST 	/doFindPassword								Auth.DoFindPassword
 POST	/findPasswordUpdate							Auth.FindPasswordUpdate
 
@@ -42,75 +42,36 @@ POST	/findPasswordUpdate							Auth.FindPasswordUpdate
 * /note/toPdf Note.ToPdf
 * /note/getNoteAndContentBySrc Note.GetNoteAndContentBySrc
 # pjax
-GET     /note/:noteId   	                        Note.Index
+GET     /note/:noteId                            Web.Page
+GET     /member                                  Web.Page
+GET     /member/*path                            Web.Page
+GET     /admin                                   Web.Page
+GET     /admin/*path                             Web.Page
 
-# blog
+# Vue build output
+GET     /assets/*filepath                        Static.Serve("frontend/dist/assets")
+GET     /web/bootstrap                          Web.Bootstrap
+POST    /web/notes                              Web.Notes
+POST    /web/document                           Web.Document
+POST    /web/save                               Web.Save
+POST    /web/restore                            Web.Restore
+GET     /web/groups                             Web.Groups
+POST    /web/shareMembers                       Web.ShareMembers
+POST    /web/adminData                          Web.AdminData
+POST    /web/adminSettings                      Web.AdminSettings
+POST    /web/adminResetPwd                      Web.AdminResetPwd
+POST    /web/adminRegister                      Web.AdminRegister
+POST    /web/emailChange                        Web.EmailChange
+POST    /web/verifyEmail                        Web.VerifyEmail
+GET     /user/activeEmail                       Web.Page
+GET     /user/updateEmail                       Web.Page
+GET     /user/account                           Web.Page
 
-GET		/blog/getLikesAndComments			Blog.GetLikesAndComments
-GET		/blog/getLikes						Blog.GetLikes
-*		/blog/incReadNum					Blog.IncReadNum
-*		/blog/likePost					Blog.LikePost
-*		/blog/likeComment				Blog.LikeComment
-*		/blog/deleteComment				Blog.DeleteComment
-GET		/blog/getComments					Blog.GetComments
-*		/blog/commentPost					Blog.CommentPost
-GET		/blog/getPostStat					Blog.GetPostStat
-
-
-GET		/blog/tags/:userIdOrEmail	Blog.Tags
-GET		/blog/tags	Blog.Tags
-
-GET		/blog/tag/:userIdOrEmail/:tag	Blog.Tag
-GET		/blog/tag/:tag	Blog.Tag
-
-GET		/blog/search/:userIdOrEmail	Blog.Search
-GET		/blog/search	Blog.Search
-
-GET		/blog/archives/:userIdOrEmail	Blog.Archives
-GET		/blog/archives	Blog.Archives
-
-GET		/blog/post/:noteId			Blog.Post
-GET		/blog/post/:userIdOrEmail/:noteId			Blog.Post
-GET		/blog/view/:noteId			Blog.Post
-
-GET		/blog/single/:userIdOrEmail/:singleId			Blog.Single
-GET		/blog/single/:singleId			Blog.Single
-
-GET		/blog/cate/:notebookId		Blog.Cate
-GET		/blog/cate/:userIdOrEmail/:notebookId		Blog.Cate
-
-GET		/blog/listCateLatest/:notebookId	Blog.ListCateLatest
-GET		/blog/:userIdOrEmail		Blog.Index
-GET		/blog						Blog.Index
-GET		/blog/*						Blog.E()
-
-#---------------
-# preview
-GET		/preview/tags/:userIdOrEmail	Preview.Tags
-GET		/preview/tags	Preview.Tags
-
-GET		/preview/tag/:userIdOrEmail/:tag	Preview.Tag
-GET		/preview/tag/:tag	Preview.Tag
-
-GET		/preview/search/:userIdOrEmail	Preview.Search
-GET		/preview/search	Preview.Search
-
-GET		/preview/archives/:userIdOrEmail	Preview.Archives
-GET		/preview/archives	Preview.Archives
-
-GET		/preview/view/:noteId			Preview.Post
-
-GET		/preview/post/:noteId			Preview.Post
-GET		/preview/post/:userIdOrEmail/:noteId			Preview.Post
-
-GET		/preview/single/:userIdOrEmail/:singleId			Preview.Single
-GET		/preview/single/:singleId			Preview.Single
-
-GET		/preview/cate/:notebookId		Preview.Cate
-GET		/preview/cate/:userIdOrEmail/:notebookId		Preview.Cate
-
-GET		/preview/:userIdOrEmail		Preview.Index
-GET		/preview						Preview.Index
+# Removed public publishing features
+GET     /blog                                   Deprecated.Gone
+*       /blog/*path                             Deprecated.Gone
+GET     /preview                                Deprecated.Gone
+*       /preview/*path                          Deprecated.Gone
 
 # Map static resources from the /app/public folder to the /public path
 GET     /favicon.ico                            Static.Serve("public/images/favicon.ico")

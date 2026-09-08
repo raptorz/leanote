@@ -13,6 +13,37 @@ import (
 type NoteService struct {
 }
 
+// UpdateNoteByUsn performs the Web editor's metadata update as a compare-and-
+// swap. This prevents a concurrent desktop client or another server instance
+// from silently overwriting a note after the caller read an older USN.
+func (this *NoteService) UpdateNoteByUsn(updatedUserId, noteId, title string, tags []string, expectedUsn int) (bool, string, int) {
+	note := this.GetNoteById(noteId)
+	if note.NoteId == "" {
+		return false, "notExists", 0
+	}
+	ownerId := note.UserId.Hex()
+	if ownerId != updatedUserId && !shareService.HasUpdatePerm(ownerId, updatedUserId, noteId) {
+		return false, "noAuth", 0
+	}
+	if note.Usn != expectedUsn {
+		return false, "conflict", 0
+	}
+	afterUsn := userService.IncrUsn(ownerId)
+	update := bson.M{
+		"Title": title, "Tags": tags, "UpdatedTime": time.Now(),
+		"UpdatedUserId": bson.ObjectIdHex(updatedUserId), "Usn": afterUsn,
+	}
+	query := bson.M{
+		"_id": note.NoteId, "UserId": note.UserId, "Usn": expectedUsn,
+		"IsDeleted": false,
+	}
+	if !db.UpdateByQMap(db.Notes, query, update) {
+		return false, "conflict", 0
+	}
+	tagService.AddTagsI(ownerId, tags)
+	return true, "", afterUsn
+}
+
 // 通过id, userId得到note
 func (this *NoteService) GetNote(noteId, userId string) (note info.Note) {
 	note = info.Note{}

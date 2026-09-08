@@ -4,6 +4,7 @@
 
 ### 前提条件
 - 已安装 Go 1.22+
+- 从源码运行时安装 Node.js 22；Docker/发行包运行时不需要 Node.js
 - 已安装 PostgreSQL 12+
 - 新安装不需要 MongoDB；迁移已有 Leanote 数据时才需要 MongoDB
 
@@ -57,6 +58,8 @@ db.password=pearlnote123
 
 ```bash
 # 开发模式
+npm ci --prefix frontend
+npm run build --prefix frontend
 revel run github.com/pearlnote/pearlnote
 
 ```
@@ -193,6 +196,8 @@ GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO pearlnote;
 - **Service 层**: `app/service/`
 - **迁移工具**: `tools/migration/`
 - **配置文件**: `conf/app.conf`
+- **Vue 前端源码**: `frontend/`
+- **Vue 构建产物**: `frontend/dist/`
 
 ## 获取帮助
 

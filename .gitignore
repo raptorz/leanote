@@ -20,6 +20,10 @@ app/tmp/main.go
 public/config.codekit
 files/
 /node_modules
+/frontend/node_modules/
+/frontend/dist/
+/frontend/test-results/
+/frontend/playwright-report/
 .idea
 *.iml
 target/

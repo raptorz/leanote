@@ -4,8 +4,8 @@
 
 `.github/workflows/ci.yml` 会在每次 push 和 Pull Request 时执行：
 
-1. 下载 Go 模块依赖；
-2. 运行 `go test ./...`；
+1. 安装前端锁定依赖，运行 Vitest、类型检查和生产构建；
+2. 下载 Go 模块依赖并运行 `go test ./...`；
 3. 生成 Revel 服务端入口并编译；
 4. 构建 Docker 镜像。
 
@@ -23,12 +23,12 @@ git push origin v1.0.0
 标签推送后，`.github/workflows/release.yml` 会：
 
 1. 校验标签格式和代码版本；
-2. 再次执行全部 Go 测试；
+2. 再次执行前端构建测试和全部 Go 测试；
 3. 构建 Linux amd64、Linux arm64、Windows amd64、macOS amd64 和 macOS arm64 发布包；
 4. 生成 `checksums.txt`；
 5. 根据提交记录生成 Release Notes 并创建 GitHub Release。
 
-每个发布包都包含服务端、MongoDB/PostgreSQL 迁移工具、配置、页面资源、数据库 Schema、初始 MongoDB 数据和文档。
+每个发布包都包含服务端、Vue `frontend/dist`、MongoDB/PostgreSQL 迁移工具、配置、页面资源、数据库 Schema、初始数据和文档；运行发布包不需要安装 Node.js。
 
 ## 发布新版本
 

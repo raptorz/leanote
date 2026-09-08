@@ -21,6 +21,10 @@ cleanup() {
 trap cleanup EXIT
 
 cd "$project_root"
+if [[ ! -d frontend/node_modules ]]; then
+  npm ci --prefix frontend
+fi
+npm run build --prefix frontend
 go run ./app/cmd build . "$revel_stage" prod
 
 binary_name=pearlnote
@@ -41,8 +45,10 @@ CGO_ENABLED=0 GOOS="$target_os" GOARCH="$target_arch" \
   go build -trimpath -ldflags="-s -w" \
   -o "$stage_dir/pearlnote/bin/$migration_name" ./tools/migration
 
-cp -R app/views conf messages public mongodb_backup database docs \
+cp -R conf messages public app/views mongodb_backup database docs \
   "$stage_dir/pearlnote/"
+mkdir -p "$stage_dir/pearlnote/frontend"
+cp -R frontend/dist "$stage_dir/pearlnote/frontend/"
 cp README.md "$stage_dir/pearlnote/"
 rm -rf "$stage_dir/pearlnote/public/upload"
 mkdir -p "$stage_dir/pearlnote/public/upload"

@@ -2,7 +2,6 @@ package controllers
 
 import (
 	"github.com/pearlnote/pearlnote/app/info"
-	"github.com/pearlnote/pearlnote/app/lea/blog"
 	"github.com/pearlnote/pearlnote/app/service"
 	//	. "github.com/pearlnote/pearlnote/app/lea"
 	"github.com/revel/revel"
@@ -113,6 +112,34 @@ func AuthInterceptor(c *revel.Controller) revel.Result {
 	return c.Redirect("/login")
 }
 
+var webMutationMethods = map[string]map[string]bool{
+	"Notebook": {"DeleteNotebook": true, "AddNotebook": true, "UpdateNotebookTitle": true, "DragNotebooks": true, "SetNotebook2Blog": true},
+	"Note":     {"UpdateNoteOrContent": true, "DeleteNote": true, "DeleteTrash": true, "MoveNote": true, "CopyNote": true, "CopySharedNote": true, "SetNote2Blog": true},
+	"Share":    {"AddShareNote": true, "AddShareNotebook": true, "UpdateShareNotePerm": true, "UpdateShareNotebookPerm": true, "DeleteShareNote": true, "DeleteShareNotebook": true, "DeleteShareNoteBySharedUser": true, "DeleteShareNotebookBySharedUser": true, "DeleteUserShareNoteAndNotebook": true, "AddShareNoteGroup": true, "DeleteShareNoteGroup": true, "UpdateShareNoteGroupPerm": true, "AddShareNotebookGroup": true, "DeleteShareNotebookGroup": true, "UpdateShareNotebookGroupPerm": true},
+	"User":     {"UpdateUsername": true, "UpdatePwd": true, "UpdateTheme": true, "SendRegisterEmail": true, "ReSendActiveEmail": true, "UpdateColumnWidth": true, "UpdateLeftIsMin": true},
+	"File":     {"UploadBlogLogo": true, "PasteImage": true, "UploadAvatar": true, "UploadImageLeaui": true, "UpdateImageTitle": true, "DeleteImage": true, "CopyImage": true, "CopyHttpImage": true},
+	"Attach":   {"UploadAttach": true, "DeleteAttach": true},
+}
+
+// Legacy Web actions are retained for API compatibility, but browser state
+// changes must be same-origin POST requests. /api controllers are separate and
+// continue to use their token contract.
+func WebMutationInterceptor(c *revel.Controller) revel.Result {
+	methods := webMutationMethods[strings.Title(c.Name)]
+	if methods == nil || !methods[strings.Title(c.MethodName)] {
+		return nil
+	}
+	if c.Request.Method != "POST" {
+		c.Response.Status = 405
+		return c.RenderJSON(info.Re{Ok: false, Msg: "methodNotAllowed"})
+	}
+	if c.Request.Header.Get("X-Requested-With") != "XMLHttpRequest" {
+		c.Response.Status = 403
+		return c.RenderJSON(info.Re{Ok: false, Msg: "invalidRequest"})
+	}
+	return nil
+}
+
 // 最外层init.go调用
 // 获取service, 单例
 func InitService() {
@@ -155,9 +182,11 @@ func init() {
 	revel.InterceptFunc(AuthInterceptor, revel.BEFORE, &Attach{})
 	//	revel.InterceptFunc(AuthInterceptor, revel.BEFORE, &Blog{})
 	revel.InterceptFunc(AuthInterceptor, revel.BEFORE, &NoteContentHistory{})
+	revel.InterceptFunc(WebMutationInterceptor, revel.BEFORE, &Notebook{})
+	revel.InterceptFunc(WebMutationInterceptor, revel.BEFORE, &Note{})
+	revel.InterceptFunc(WebMutationInterceptor, revel.BEFORE, &Share{})
+	revel.InterceptFunc(WebMutationInterceptor, revel.BEFORE, &User{})
+	revel.InterceptFunc(WebMutationInterceptor, revel.BEFORE, &File{})
+	revel.InterceptFunc(WebMutationInterceptor, revel.BEFORE, &Attach{})
 
-	revel.OnAppStart(func() {
-		// 博客初始化模板
-		blog.Init()
-	})
 }

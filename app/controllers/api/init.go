@@ -91,9 +91,12 @@ func AuthInterceptor(c *revel.Controller) revel.Result {
 		// 从session中获取, api/file/getImage, api/file/getAttach, api/file/getAllAttach
 		// 客户端
 		userIdI, _ := c.Session["UserId"]
-        if userIdI != nil {
-            userId = userIdI.(string)
-        }
+		if userIdI != nil {
+			cookieUserId, ok := userIdI.(string)
+			if ok && sessionService.ValidateUserSession(c.Session.ID(), cookieUserId) {
+				userId = cookieUserId
+			}
+		}
 	}
 	c.Session["_userId"] = userId
 

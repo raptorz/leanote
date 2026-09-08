@@ -15,6 +15,13 @@ var staticPrefix = []string{"/public", "/favicon.ico", "/css", "/js", "/images",
 func RouterFilter(c *revel.Controller, fc []revel.Filter) {
 	// 补全controller部分
 	path := c.Request.URL.Path
+	// Public publishing has been retired, including old controller aliases.
+	lowerPath := strings.ToLower(path)
+	if removedWebPath(lowerPath) {
+		c.Response.Status = 410
+		c.Result = c.RenderJSON(map[string]interface{}{"Ok": false, "Msg": "featureRemoved"})
+		return
+	}
 
 	// Figure out the Controller/Action
 	// var route *revel.RouteMatch = revel.MainRouter.Route(c.Request.Request)
@@ -64,7 +71,7 @@ func RouterFilter(c *revel.Controller, fc []revel.Filter) {
 		if strings.HasPrefix(path, "/api") && !strings.HasPrefix(route.ControllerName, "App\\api") {
 			route.ControllerName = "App\\api" + strings.Split(route.ControllerName, "\\")[1]
 			// route.ControllerName = "App\\apifile"
-		} else if strings.HasPrefix(path, "/member") && !strings.HasPrefix(route.ControllerName, "App\\member") {
+		} else if strings.HasPrefix(path, "/member/") && !strings.HasSuffix(strings.ToLower(route.ControllerName), "\\web") && !strings.HasSuffix(strings.ToLower(route.ControllerName), "\\deprecated") && !strings.HasPrefix(route.ControllerName, "App\\member") {
 			// member设置
 			// route.ControllerName = "App\\Member" + route.ControllerName
 			route.ControllerName = "App\\member" + strings.Split(route.ControllerName, "\\")[1]
@@ -97,4 +104,13 @@ func RouterFilter(c *revel.Controller, fc []revel.Filter) {
 	}
 
 	fc[0](c, fc[1:])
+}
+
+func removedWebPath(path string) bool {
+	for _, prefix := range []string{"/blog", "/preview", "/member/blog", "/memberblog", "/admin/blog", "/adminblog"} {
+		if path == prefix || strings.HasPrefix(path, prefix+"/") {
+			return true
+		}
+	}
+	return false
 }

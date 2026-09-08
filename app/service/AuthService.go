@@ -101,16 +101,6 @@ func (this *AuthService) register(user info.User) (bool, string) {
 			}
 		}
 
-		//---------------
-		// 添加一条userBlog
-		blogService.UpdateUserBlog(info.UserBlog{UserId: user.UserId,
-			Title:      user.Username + " 's Blog",
-			SubTitle:   "Love Pearlnote!",
-			AboutMe:    "Hello, I am (^_^)",
-			CanComment: true,
-		})
-		// 添加一个单页面
-		blogService.AddOrUpdateSingle(user.UserId.Hex(), "", "About Me", "Hello, I am (^_^)")
 	}
 
 	return true, ""

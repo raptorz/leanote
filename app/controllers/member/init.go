@@ -103,6 +103,21 @@ func AuthInterceptor(c *revel.Controller) revel.Result {
 	return c.Redirect("/login")
 }
 
+func MutationInterceptor(c *revel.Controller) revel.Result {
+	if c.MethodName == "Index" {
+		return nil
+	}
+	if c.Request.Method != "POST" {
+		c.Response.Status = 405
+		return c.RenderJSON(info.Re{Ok: false, Msg: "methodNotAllowed"})
+	}
+	if c.Request.Header.Get("X-Requested-With") != "XMLHttpRequest" {
+		c.Response.Status = 403
+		return c.RenderJSON(info.Re{Ok: false, Msg: "invalidRequest"})
+	}
+	return nil
+}
+
 // 最外层init.go调用
 // 获取service, 单例
 func InitService() {
@@ -135,6 +150,7 @@ func init() {
 	revel.InterceptFunc(AuthInterceptor, revel.BEFORE, &MemberUser{})
 	revel.InterceptFunc(AuthInterceptor, revel.BEFORE, &MemberBlog{})
 	revel.InterceptFunc(AuthInterceptor, revel.BEFORE, &MemberGroup{})
+	revel.InterceptFunc(MutationInterceptor, revel.BEFORE, &MemberGroup{})
 	revel.OnAppStart(func() {
 	})
 }

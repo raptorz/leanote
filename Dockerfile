@@ -1,4 +1,13 @@
-# Stage 1: Build the application
+# Stage 1: Build the Vue frontend
+FROM node:22-alpine AS frontend-builder
+
+WORKDIR /build/frontend
+COPY frontend/package.json frontend/package-lock.json ./
+RUN npm ci
+COPY frontend/ ./
+RUN npm run build
+
+# Stage 2: Build the Go application
 FROM golang:1.24-alpine AS builder
 
 # Set Go proxy for China
@@ -15,6 +24,7 @@ RUN go mod download
 
 # Copy source code
 COPY . .
+COPY --from=frontend-builder /build/frontend/dist ./frontend/dist
 
 # Generate the Revel application entrypoint, then build the server rather than
 # the Revel command-line helper in app/cmd.
@@ -43,6 +53,7 @@ COPY --from=builder /runtime /opt/pearlnote/runtime
 COPY conf/ /opt/pearlnote/conf/
 COPY messages/ /opt/pearlnote/messages/
 COPY public/ /opt/pearlnote/public/
+COPY --from=frontend-builder /build/frontend/dist/ /opt/pearlnote/frontend/dist/
 COPY app/views/ /opt/pearlnote/app/views/
 RUN mkdir -p /opt/pearlnote/runtime/github.com/pearlnote && \
     ln -s /opt/pearlnote /opt/pearlnote/runtime/github.com/pearlnote/pearlnote
