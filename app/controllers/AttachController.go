@@ -41,6 +41,18 @@ func (c Attach) uploadAttach(noteId string) (re info.Re) {
 		re.Item = fileInfo
 	}()
 
+	if !bson.IsObjectIdHex(noteId) {
+		resultMsg = "noteIdInvalid"
+		return re
+	}
+
+	files, ok := c.Params.Files["file"]
+	if !ok || len(files) == 0 || files[0] == nil || strings.TrimSpace(files[0].Filename) == "" {
+		resultMsg = "fileNotFound"
+		return re
+	}
+	handel := files[0]
+
 	// 判断是否有权限为笔记添加附件
 	if !shareService.HasUpdateNotePerm(noteId, c.GetUserId()) {
 		return re
@@ -57,6 +69,7 @@ func (c Attach) uploadAttach(noteId string) (re info.Re) {
 
 	// data, err := ioutil.ReadAll(file)
 	if data == nil || len(data) == 0 {
+		resultMsg = "fileNotFound"
 		return re
 	}
 	// > 5M?
@@ -78,8 +91,6 @@ func (c Attach) uploadAttach(noteId string) (re info.Re) {
 	if err != nil {
 		return re
 	}
-
-	handel := c.Params.Files["file"][0]
 
 	// 生成新的文件名
 	filename := handel.Filename

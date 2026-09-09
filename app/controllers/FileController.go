@@ -34,9 +34,16 @@ func (c File) UploadBlogLogo() revel.Result {
 // 拖拉上传, pasteImage
 // noteId 是为了判断是否是协作的note, 如果是则需要复制一份到note owner中
 func (c File) PasteImage(noteId string) revel.Result {
+	// Check collaboration permission before accepting/writing the upload.  This
+	// is especially important for shared notes: uploadImage writes to disk.
+	if noteId != "" && (!bson.IsObjectIdHex(noteId) || !shareService.HasUpdateNotePerm(noteId, c.GetUserId())) {
+		re := info.NewRe()
+		re.Msg = "noPermission"
+		return c.RenderJSON(re)
+	}
 	re := c.uploadImage("pasteImage", "")
 
-	if noteId != "" {
+	if noteId != "" && re.Ok {
 		userId := c.GetUserId()
 		note := noteService.GetNoteById(noteId)
 		if note.UserId != "" {
@@ -105,8 +112,18 @@ func (c File) uploadImage(from, albumId string) (re info.Re) {
 
 	var data []byte
 	c.Params.Bind(&data, "file")
-	handel := c.Params.Files["file"][0]
+	files, ok := c.Params.Files["file"]
+	if !ok || len(files) == 0 || files[0] == nil {
+		resultMsg = "fileNotFound"
+		return re
+	}
+	handel := files[0]
+	if strings.TrimSpace(handel.Filename) == "" {
+		resultMsg = "fileNotFound"
+		return re
+	}
 	if data == nil || len(data) == 0 {
+		resultMsg = "fileNotFound"
 		return re
 	}
 
@@ -117,7 +134,6 @@ func (c File) uploadImage(from, albumId string) (re info.Re) {
 	// defer file.Close()
 
 	// data, err := ioutil.ReadAll(file)
-	
 
 	// 生成上传路径
 	newGuid := NewGuid()

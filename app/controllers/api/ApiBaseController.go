@@ -46,17 +46,28 @@ func (c ApiBaseContrller) uploadAttach(name string, noteId string) (ok bool, msg
 	userId := c.getUserId()
 
 	// 判断是否有权限为笔记添加附件
-	// 如果笔记还没有添加是不是会有问题
-	/*
-		if !shareService.HasUpdateNotePerm(noteId, userId) {
-			return
-		}
-	*/
+	// AddNote uploads files before the note document is inserted.  In that
+	// case the caller validates notebook permission; existing notes must still
+	// be checked here to keep this helper safe when used by UpdateNote.
+	if noteService.GetNoteById(noteId).NoteId != "" && !shareService.HasUpdateNotePerm(noteId, userId) {
+		msg = "noPermission"
+		return
+	}
 
 	var data []byte
 	c.Params.Bind(&data, name)
-	handel := c.Params.Files[name][0]
+	files, exists := c.Params.Files[name]
+	if !exists || len(files) == 0 || files[0] == nil {
+		msg = "fileNotFound"
+		return
+	}
+	handel := files[0]
 	if data == nil || len(data) == 0 {
+		msg = "fileNotFound"
+		return
+	}
+	if strings.TrimSpace(handel.Filename) == "" {
+		msg = "fileNotFound"
 		return
 	}
 
@@ -137,8 +148,22 @@ func (c ApiBaseContrller) upload(name string, noteId string, isAttach bool) (ok 
 
 	var data []byte
 	c.Params.Bind(&data, name)
-	handel := c.Params.Files[name][0]
+	files, exists := c.Params.Files[name]
+	if !exists || len(files) == 0 || files[0] == nil {
+		msg = "fileNotFound"
+		return
+	}
+	handel := files[0]
 	if data == nil || len(data) == 0 {
+		msg = "fileNotFound"
+		return
+	}
+	if strings.TrimSpace(handel.Filename) == "" {
+		msg = "fileNotFound"
+		return
+	}
+	if noteService.GetNoteById(noteId).NoteId != "" && !shareService.HasUpdateNotePerm(noteId, c.getUserId()) {
+		msg = "noPermission"
 		return
 	}
 

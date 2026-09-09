@@ -12,7 +12,7 @@ import (
 	//	"fmt"
 	//	"math"
 	"os"
-
+	"strings"
 	//	"path"
 	//	"strconv"
 )
@@ -106,8 +106,18 @@ func (c ApiUser) uploadImage() (ok bool, msg, url string) {
 
 	var data []byte
 	c.Params.Bind(&data, "file")
-	handel := c.Params.Files["file"][0]
+	files, exists := c.Params.Files["file"]
+	if !exists || len(files) == 0 || files[0] == nil {
+		msg = "fileNotFound"
+		return
+	}
+	handel := files[0]
+	if strings.TrimSpace(handel.Filename) == "" {
+		msg = "fileNotFound"
+		return
+	}
 	if data == nil || len(data) == 0 {
+		msg = "fileNotFound"
 		return
 	}
 

@@ -238,6 +238,14 @@ func (c ApiNote) AddNote(noteOrContent info.ApiNote) revel.Result {
 		re.Msg = "notebookIdNotExists"
 		return c.RenderJSON(re)
 	}
+	// Files are uploaded before the new note is inserted, so validate the
+	// target notebook before any upload can write to disk.
+	notebook := notebookService.GetNotebookById(noteOrContent.NotebookId)
+	if notebook.NotebookId == "" || (notebook.UserId.Hex() != c.getUserId() &&
+		!shareService.HasUpdateNotebookPerm(notebook.UserId.Hex(), c.getUserId(), noteOrContent.NotebookId)) {
+		re.Msg = "noPermission"
+		return c.RenderJSON(re)
+	}
 
 	noteId := bson.NewObjectId()
 	// TODO 先上传图片/附件, 如果不成功, 则返回false
