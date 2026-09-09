@@ -52,6 +52,7 @@ GET     /admin/*path                             Web.Page
 GET     /assets/*filepath                        Static.Serve("frontend/dist/assets")
 GET     /web/bootstrap                          Web.Bootstrap
 GET     /api/shared/capabilities                ApiShared.Capabilities
+GET     /api/system/version                     ApiSystem.Version
 POST    /api/shared/snapshots                   ApiShared.CreateSnapshot
 GET     /api/shared/snapshots/:snapshotId/items ApiShared.SnapshotItems
 GET     /api/shared/notes/:noteId/content       ApiShared.NoteContent

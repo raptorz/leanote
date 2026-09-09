@@ -7,7 +7,7 @@ const email=ref(''), pwd=ref(''), captcha=ref(''), error=ref(''), message=ref(''
 const mode=computed(()=>route.path.startsWith('/findPassword')?'reset':route.path==='/register'?'register':'login')
 onMounted(async()=>{ try{const data=await request('/web/bootstrap');openRegister.value=data.OpenRegister;needCaptcha.value=data.NeedCaptcha;isDesktop.value=!!data.Desktop;server.value=data.Host||'';if(data.User)router.replace('/note')}catch(e){error.value=String(e)} })
 async function submit(){busy.value=true;error.value='';message.value='';try{
- if(mode.value==='login'){await request('/doLogin',{email:email.value,pwd:pwd.value,captcha:captcha.value,host:desktopHost()});await router.replace('/note')}
+ if(mode.value==='login'){const result:any=await request('/doLogin',{email:email.value,pwd:pwd.value,captcha:captcha.value,host:desktopHost()});if(result?.Notice){const notices:any={serverMigrationRequired:'当前连接的是旧版 Leanote 服务端，请先迁移到 Pearlnote 服务端。',clientUpgradeRequired:'当前客户端版本过低，请先升级客户端。',serverUpgradeRequired:'当前服务端版本过低，请先升级服务端。'};message.value=notices[result.Notice]||result.Notice;window.alert(message.value)}await router.replace('/note')}
  else if(mode.value==='register'){await request('/doRegister',{email:email.value,pwd:pwd.value,iu:String(route.query.iu||''),host:desktopHost()});await router.replace('/note')}
  else if(route.params.token){await request('/findPasswordUpdate',{token:String(route.params.token),pwd:pwd.value,host:desktopHost()});message.value='密码已修改，请重新登录。'}
  else {await request('/doFindPassword',{email:email.value,host:desktopHost()});message.value='请检查邮箱中的重置密码链接。'}

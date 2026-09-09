@@ -47,6 +47,7 @@ const (
 var commonUrl = map[string]map[string]bool{"ApiAuth": map[string]bool{"Login": true,
 	"Register": true,
 },
+	"ApiSystem": map[string]bool{"Version": true},
 	// 文件的操作也不用登录, userId会从session中获取
 	"ApiFile": map[string]bool{"GetImage": true,
 		"GetAttach":     true,
@@ -124,6 +125,7 @@ func init() {
 	revel.InterceptFunc(AuthInterceptor, revel.BEFORE, &ApiTag{})
 	revel.InterceptFunc(AuthInterceptor, revel.BEFORE, &ApiNotebook{})
 	revel.InterceptFunc(AuthInterceptor, revel.BEFORE, &ApiShared{})
+	revel.InterceptFunc(AuthInterceptor, revel.BEFORE, &ApiSystem{})
 }
 
 // 最外层init.go调用
