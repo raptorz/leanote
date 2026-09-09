@@ -51,6 +51,11 @@ GET     /admin/*path                             Web.Page
 # Vue build output
 GET     /assets/*filepath                        Static.Serve("frontend/dist/assets")
 GET     /web/bootstrap                          Web.Bootstrap
+GET     /api/shared/capabilities                ApiShared.Capabilities
+POST    /api/shared/snapshots                   ApiShared.CreateSnapshot
+GET     /api/shared/snapshots/:snapshotId/items ApiShared.SnapshotItems
+GET     /api/shared/notes/:noteId/content       ApiShared.NoteContent
+GET     /api/shared/notes/:noteId/files/:fileId ApiShared.NoteFile
 POST    /web/notes                              Web.Notes
 POST    /web/document                           Web.Document
 POST    /web/save                               Web.Save

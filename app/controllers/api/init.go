@@ -123,6 +123,7 @@ func init() {
 	revel.InterceptFunc(AuthInterceptor, revel.BEFORE, &ApiNote{})
 	revel.InterceptFunc(AuthInterceptor, revel.BEFORE, &ApiTag{})
 	revel.InterceptFunc(AuthInterceptor, revel.BEFORE, &ApiNotebook{})
+	revel.InterceptFunc(AuthInterceptor, revel.BEFORE, &ApiShared{})
 }
 
 // 最外层init.go调用

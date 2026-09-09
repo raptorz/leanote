@@ -439,6 +439,16 @@ func (this *ShareService) HasUpdateNotebookPerm(userId, updatedUserId, notebookI
 	return false
 }
 
+// HasReadNotebookPerm reports the current effective notebook permission for a
+// user, including direct and group grants. It is used by snapshot generation
+// so a stale candidate relationship never becomes authorization.
+func (this *ShareService) HasReadNotebookPerm(userId, updatedUserId, notebookId string) bool {
+	q := this.getOrQ(updatedUserId)
+	q["UserId"] = bson.ObjectIdHex(userId)
+	q["NotebookId"] = bson.ObjectIdHex(notebookId)
+	return db.Has(db.ShareNotebooks, q)
+}
+
 // 共享note, notebook时使用
 func (this *ShareService) AddHasShareNote(userId, toUserId string) bool {
 	db.Insert(db.HasShareNotes, info.HasShareNote{HasShareNotebookId: bson.NewObjectId(), UserId: bson.ObjectIdHex(userId), ToUserId: bson.ObjectIdHex(toUserId)})
