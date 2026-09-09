@@ -353,7 +353,12 @@ func (c MemberBlog) uploadImage(themeId string) (re info.Re) {
 
 	var data []byte
 	c.Params.Bind(&data, "file")
-	handel := c.Params.Files["file"][0]
+	files, ok := c.Params.Files["file"]
+	if !ok || len(files) == 0 || files[0] == nil || strings.TrimSpace(files[0].Filename) == "" {
+		resultMsg = "文件不存在"
+		return re
+	}
+	handel := files[0]
 	if data == nil || len(data) == 0 {
 		return re
 	}
@@ -407,7 +412,6 @@ func (c MemberBlog) uploadImage(themeId string) (re info.Re) {
 	return re
 }
 
-//
 // 使用主题
 func (c MemberBlog) ActiveTheme(themeId string) revel.Result {
 	re := info.NewRe()
@@ -450,7 +454,12 @@ func (c MemberBlog) ImportTheme() revel.Result {
 
 	var data []byte
 	c.Params.Bind(&data, "file")
-	handel := c.Params.Files["file"][0]
+	files, ok := c.Params.Files["file"]
+	if !ok || len(files) == 0 || files[0] == nil || strings.TrimSpace(files[0].Filename) == "" {
+		re.Msg = "文件不存在"
+		return c.RenderJSON(re)
+	}
+	handel := files[0]
 	if data == nil || len(data) == 0 {
 		return c.RenderJSON(re)
 	}
@@ -517,8 +526,7 @@ func (c MemberBlog) NewTheme() revel.Result {
 	return c.Redirect("/member/blog/updateTheme?isNew=1&themeId=" + themeId)
 }
 
-//-----------
-//
+// -----------
 func (c MemberBlog) SetUserBlogBase(userBlog info.UserBlogBase) revel.Result {
 	re := info.NewRe()
 	re.Ok = blogService.UpdateUserBlogBase(c.GetUserId(), userBlog)
