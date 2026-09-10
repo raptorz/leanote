@@ -69,7 +69,7 @@ async function deleteUser(group: Group, member: GroupUser) {
 
 <template>
   <div class="shell">
-    <Navigation :admin="admin" />
+    <Navigation :admin="admin" :user="user" />
     <main class="settings">
       <h1>账号管理</h1><p class="muted">{{ user.Email }}</p><p v-if="message" role="status" class="message">{{ message }}</p>
       <section class="card"><h2>个人资料</h2><img v-if="user.Logo" :src="user.Logo" class="avatar" alt="当前头像"><label>更换头像<input type="file" accept="image/*" @change="avatar"></label><form @submit.prevent="update('/user/updateUsername', { username })"><label>用户名<input v-model="username" required></label><button>更新用户名</button></form><form @submit.prevent="update('/web/emailChange', { email, pwd: emailPwd })"><label>新邮箱<input v-model="email" type="email" required></label><label>当前密码<input v-model="emailPwd" type="password" required></label><button>发送邮箱验证邮件</button></form><button @click="update('/user/reSendActiveEmail', {})">重新发送当前邮箱验证邮件</button></section>

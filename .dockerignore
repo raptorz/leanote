@@ -11,6 +11,8 @@ desktop-app/
 frontend/node_modules/
 .agents/
 .codex/
+.codegraph
+.omo/
 .github/
 docs/
 mongodb_backup/

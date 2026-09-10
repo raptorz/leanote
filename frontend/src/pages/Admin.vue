@@ -4,6 +4,7 @@ import { request } from '../api'
 import Navigation from '../components/Navigation.vue'
 
 const data = ref<any>({ Users: [], Settings: {} })
+const user = ref<any>({})
 const message = ref(''), keywords = ref(''), page = ref(1)
 const email = ref(''), pwd = ref(''), resetId = ref(''), resetPwd = ref('')
 
@@ -15,11 +16,11 @@ async function action(path: string, params: any) {
   try { await request(path, params); message.value = '操作成功'; await load() }
   catch (error) { message.value = String(error) }
 }
-onMounted(load)
+onMounted(async()=>{try{const bootstrap=await request('/web/bootstrap');user.value=bootstrap.User||{};await load()}catch(error){message.value=String(error)}})
 </script>
 
 <template>
-  <div class="shell"><Navigation admin/><main class="settings">
+  <div class="shell"><Navigation admin :user="user"/><main class="settings">
     <h1>系统管理</h1><p role="status">{{ message }}</p>
     <section class="card"><h2>用户管理</h2>
       <form class="inline" @submit.prevent="page=1;load()"><input v-model="keywords" placeholder="搜索用户"><button>搜索</button></form>

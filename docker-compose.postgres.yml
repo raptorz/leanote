@@ -1,18 +1,18 @@
-version: '3.3'
 services:
 
   postgres:
-    image: postgres:14
+    image: postgres:18-alpine
     container_name: postgres
     restart: always
     environment:
       POSTGRES_USER: pearlnote
       POSTGRES_PASSWORD: pearlnote
       POSTGRES_DB: pearlnote
-    ports:
-      - 127.0.0.1:5432:5432
+    #ports:
+    #  - 127.0.0.1:5432:5432
     volumes:
-      - ~/postgres_data:/var/lib/postgresql/data
+      # PostgreSQL 18 stores PGDATA under 18/docker in this parent directory.
+      - ./tmp/data:/var/lib/postgresql
       - ./database/schema.sql:/docker-entrypoint-initdb.d/001-pearlnote-schema.sql:ro
       - ./database/seed.sql:/docker-entrypoint-initdb.d/002-pearlnote-seed.sql:ro
 
@@ -26,4 +26,9 @@ services:
     ports:
       - 127.0.0.1:9000:9000
     volumes:
-      - ~/pearlnote/conf/app.conf:/opt/pearlnote/conf/app.conf
+      - type: bind
+        source: ./conf/app.conf-docker-postgres
+        target: /opt/pearlnote/conf/app.conf
+        read_only: true
+        bind:
+          create_host_path: false
