@@ -53,6 +53,7 @@ COPY --from=builder /runtime /opt/pearlnote/runtime
 COPY conf/ /opt/pearlnote/conf/
 COPY messages/ /opt/pearlnote/messages/
 COPY public/ /opt/pearlnote/public/
+COPY database/ /opt/pearlnote/database/
 COPY --from=frontend-builder /build/frontend/dist/ /opt/pearlnote/frontend/dist/
 COPY app/views/ /opt/pearlnote/app/views/
 RUN mkdir -p /opt/pearlnote/runtime/github.com/pearlnote && \

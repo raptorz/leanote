@@ -1,426 +1,396 @@
 # 安装和部署指南
 
-## 环境要求
+Pearlnote 支持 PostgreSQL 和 MongoDB。新安装推荐 PostgreSQL；MongoDB 主要用于直接接入现有 Leanote 数据。数据库中的附件记录不包含文件实体，任何迁移都必须同时处理项目根目录下的 `files/`。
 
-- Go 1.22+
-- Node.js 22（仅源码构建需要；Docker 镜像和发行包运行时不需要）
-- PostgreSQL 12+
-- MongoDB (仅用于数据迁移)
+## 部署前准备
 
-## 安装步骤
+1. 备份数据库和 `files/`，迁移期间停止旧服务写入。
+2. 修改 `app.secret`，并设置真实的 `site.url`、数据库密码和 HTTPS。
+3. 确保运行账号对 `files/` 有读写权限。
 
-### 1. 安装 PostgreSQL
+Pearlnote 会在 PostgreSQL 的 `pearlnote_schema_migrations` 表或 MongoDB 的同名集合记录数据库版本。旧 Leanote 数据库没有版本记录时会登记为 `1.0.0`，不会因此重写业务数据。
 
-#### Ubuntu/Debian
-```bash
-sudo apt-get update
-sudo apt-get install postgresql postgresql-contrib
+## 一、使用 Release 包部署
+
+Release 包包含服务端、Web 前端、数据库文件、文档和编译好的迁移工具 `bin/pearlnote-migrate`（Windows 为 `.exe`）。包名为：
+
+```text
+pearlnote-linux-amd64-v<version>.tar.gz
+pearlnote-linux-arm64-v<version>.tar.gz
+pearlnote-darwin-amd64-v<version>.tar.gz
+pearlnote-darwin-arm64-v<version>.tar.gz
+pearlnote-windows-amd64-v<version>.zip
 ```
 
-#### macOS
+### Linux 和 macOS
+
 ```bash
-brew install postgresql
+tar -xzf pearlnote-<os>-<arch>-v<version>.tar.gz
+cd pearlnote
+mkdir -p files public/upload
 ```
 
-#### Windows
-下载并安装 [PostgreSQL for Windows](https://www.postgresql.org/download/windows/)
+macOS 首次运行若被系统拦截，在“系统设置 → 隐私与安全性”中允许该程序。
 
-### 2. 配置 PostgreSQL
+### Windows
 
-```bash
-# 切换到 postgres 用户
-sudo -u postgres psql
+解压 ZIP 后进入 `pearlnote` 目录：
 
-# 创建数据库和用户
-CREATE USER pearlnote WITH PASSWORD 'your_secure_password';
+```bat
+mkdir files
+mkdir public\upload
+```
+
+`run.bat` 首次运行使用 `mklink /J` 创建运行时目录联接。若失败，请以管理员身份运行一次或启用 Windows 开发人员模式。
+
+完成下方 PostgreSQL 或 MongoDB 配置后再启动服务。Linux/macOS 执行
+`./run.sh`，Windows 执行 `run.bat`。
+
+### Release + PostgreSQL
+
+创建用户和空数据库：
+
+```sql
+CREATE USER pearlnote WITH PASSWORD '请替换为强密码';
 CREATE DATABASE pearlnote OWNER pearlnote;
-GRANT ALL PRIVILEGES ON DATABASE pearlnote TO pearlnote;
-\q
 ```
 
-### 3. 初始化数据库
-
-```bash
-# 创建表结构
-psql -U pearlnote -d pearlnote -f database/schema.sql
-
-# 导入安装初始数据
-psql -U pearlnote -d pearlnote -f database/seed.sql
-
-# 验证表是否创建成功
-psql -U pearlnote -d pearlnote -c "\dt"
-```
-
-`database/seed.sql` 由仓库内置 Leanote/Pearlnote MongoDB 安装数据转换生成，但安装时只依赖 PostgreSQL。它包含管理员、演示用户、全局配置、示例笔记和主题等数据，不包含历史 session、token、邮件日志、建议和举报记录。
-
-初始管理员账号为 `admin`，密码为 `pearlnote`。首次登录后必须立即修改密码。SQL 中的插入均使用 `ON CONFLICT DO NOTHING`，可以重复执行；不过正式环境仍应只对空数据库进行首次初始化。
-
-### 4. 配置应用
-
-编辑 `conf/app.conf`:
+编辑 `conf/app.conf`：
 
 ```ini
-# 数据库配置
+db.type=postgresql
 db.host=127.0.0.1
 db.port=5432
 db.dbname=pearlnote
 db.username=pearlnote
-db.password=your_secure_password
-
-# 或使用连接字符串
-db.url=host=127.0.0.1 port=5432 user=pearlnote password=your_secure_password dbname=pearlnote sslmode=disable
+db.password=请替换为强密码
 ```
 
-### 5. 数据库版本与升级
+也可使用 `db.url` 配置 PostgreSQL URL 或参数式 DSN。按实际访问地址修改
+`site.url`。仓库默认 `app.secret` 技术上可以启动，但正式或生产使用必须在首次
+启动前将它改为随机长字符串。
 
-Pearlnote `1.0.0` 起会在启动时自动维护数据库版本。MongoDB 使用 `pearlnote_schema_migrations` 集合，PostgreSQL 使用同名表。
+配置完成后直接运行 `run.sh` 或 `run.bat`。Pearlnote 首次连接真正的空数据库时
+会自动执行 Release 包中的 `database/schema.sql` 和 `database/seed.sql`；已有表的
+数据库不会自动导入初始数据，因此不需要也不应手工执行这两个 SQL 文件。
+
+### Release + MongoDB
+
+全新 MongoDB 可从 Release 内置数据初始化：
 
 ```bash
-# PostgreSQL：查看已执行迁移
-psql -U pearlnote -d pearlnote -c \
-  "SELECT version, applied_at FROM pearlnote_schema_migrations ORDER BY applied_at;"
-
-# MongoDB：查看已执行迁移
-mongo pearlnote --eval \
-  'db.pearlnote_schema_migrations.find().sort({applied_at: 1}).pretty()'
+mongorestore --drop --db pearlnote mongodb_backup/pearlnote_install_data
 ```
 
-升级流程：停止写入并备份数据库及附件文件，更新应用，然后启动服务。服务会在接受业务请求前执行未应用迁移；数据库版本高于应用版本时会拒绝启动。
+配置 `conf/app.conf`：
 
-## 数据迁移（从真实 MongoDB）
-
-新安装不需要 MongoDB。本节仅用于把已有 Leanote/Pearlnote MongoDB 业务库迁移到 PostgreSQL。
-
-### 1. 安装 MongoDB
-
-#### Ubuntu/Debian
-```bash
-sudo apt-get install mongodb
+```ini
+db.type=mongodb
+db.host=127.0.0.1
+db.port=27017
+db.dbname=pearlnote
+db.username=
+db.password=
 ```
 
-#### macOS
-```bash
-brew install mongodb-community
+启用认证或副本集时推荐使用完整 URL：
+
+```ini
+db.url=mongodb://用户名:密码@主机:27017/pearlnote?authSource=admin
 ```
 
-### 2. 导出 MongoDB 数据
+### Release 直接连接旧 Leanote MongoDB
 
-```bash
-# 确保 MongoDB 正在运行
-mongod --dbpath /path/to/mongodb/data
+无需改库名。停止旧 Leanote 写入并备份后，把 Pearlnote 指向原业务库：
 
-# 备份数据
-mongodump --host localhost --port 27017 --db pearlnote --out mongodb_backup
+```ini
+db.type=mongodb
+db.url=mongodb://用户名:密码@数据库主机:27017/leanote?authSource=admin
 ```
 
-### 3. 运行迁移脚本
+未启用认证时可配置 `db.host`、`db.port` 和 `db.dbname=leanote`。Pearlnote 会继续使用旧数据中的 24 位 ObjectId。首次启动会写入版本记录，因此切换前必须备份。这是由 Pearlnote 接管旧数据库，不是让两个服务长期共享同一业务库；Pearlnote 启动后应保持旧 Leanote 服务停止，避免并发写入和 USN 冲突。
+
+### 从 Leanote 的 MongoDB 原始 db 目录恢复
+
+包含 `WiredTiger`、`collection-*.wt` 等文件的是 MongoDB 物理数据目录，不能直接交给 `mongorestore`。必须操作副本，并先用与旧实例兼容的 MongoDB 临时启动，再导出逻辑备份：
 
 ```bash
-# 编译迁移工具
-go build -o migrate ./tools/migration
+mkdir -p recovery-db logical-dump
+cp -a /path/to/leanote-db-backup/. recovery-db/
+docker rm -f leanote-recovery-mongo 2>/dev/null || true
+docker run -d --name leanote-recovery-mongo \
+  -p 127.0.0.1:27018:27017 \
+  -v "$PWD/recovery-db:/data/db" mongo:4.2 --bind_ip_all
+docker logs leanote-recovery-mongo
+docker exec leanote-recovery-mongo mongodump --db leanote --out /tmp/leanote-dump
+docker cp leanote-recovery-mongo:/tmp/leanote-dump/leanote ./logical-dump/
+docker stop leanote-recovery-mongo
+docker rm leanote-recovery-mongo
+```
 
-# 运行迁移（确保 MongoDB 和 PostgreSQL 都在运行）
-./migrate -direction mongo_to_pg \
-  -mongo-url 'mongodb://127.0.0.1:27017/pearlnote' \
+`mongo:4.2` 是当前 Compose 使用的版本，不保证兼容所有旧备份。若日志提示存储格式或 `featureCompatibilityVersion` 不兼容，应停止容器并改用接近原实例的版本；不要对唯一备份执行 `--repair`。MMAPv1 数据（如 `leanote.ns`、`leanote.0`）通常需旧版 MongoDB 启动后导出。
+
+只导出业务库 `leanote`，不要迁移 `admin`、`config`、`local`。恢复并配置相同库名：
+
+```bash
+mongorestore --drop --db leanote logical-dump/leanote
+```
+
+### Release：MongoDB 迁移到 PostgreSQL
+
+创建空的目标 PostgreSQL 数据库，但不要执行 `schema.sql` 或 `seed.sql`；迁移工具默认自行应用 `database/schema.sql`。工具迁移固定支持的 Pearlnote/Leanote 业务集合，保留 ObjectId，并默认比较源、目标记录数：
+
+```bash
+./bin/pearlnote-migrate \
+  -direction mongo_to_pg \
+  -mongo-url 'mongodb://127.0.0.1:27017/leanote' \
+  -postgres-url 'host=127.0.0.1 port=5432 user=pearlnote password=请替换为强密码 dbname=pearlnote sslmode=disable'
+```
+
+Windows：
+
+```bat
+bin\pearlnote-migrate.exe -direction mongo_to_pg -mongo-url "mongodb://127.0.0.1:27017/leanote" -postgres-url "host=127.0.0.1 port=5432 user=pearlnote password=请替换为强密码 dbname=pearlnote sslmode=disable"
+```
+
+可先用相同参数加 `-dry-run` 验证连接和读取而不写入；由于 dry-run 不会自动应用
+schema，目标 PostgreSQL 必须预先具有 `database/schema.sql` 中的表结构。迁移成功后
+把 `conf/app.conf` 切换为 PostgreSQL，再启动服务。不要补导 `seed.sql`。
+
+## 二、使用 Docker Compose 部署
+
+仓库当前提供：
+
+- `docker-compose.postgres.yml`：PostgreSQL 18 + Pearlnote，配置为 `conf/app.docker-postgres.conf`；
+- `docker-compose.mongodb.yml`：MongoDB 4.2 + Pearlnote，配置为 `conf/app.docker-mongodb.conf`。
+
+Web 默认只发布到宿主机 `127.0.0.1:9000`。
+
+### Docker + PostgreSQL
+
+首次启动前创建应用文件持久化目录：
+
+```bash
+mkdir -p files public/upload
+```
+
+```bash
+docker compose -f docker-compose.postgres.yml up -d --build
+docker compose -f docker-compose.postgres.yml ps
+docker compose -f docker-compose.postgres.yml logs -f pearlnote
+```
+
+数据库挂载的宿主机父目录是 `./data`；当前 PostgreSQL 18 镜像的实际数据库目录是
+`./data/18/docker`。`schema.sql` 和 `seed.sql` 只在空数据目录首次启动时执行。
+首次启动前修改密码，需同步修改 Compose 的 `POSTGRES_PASSWORD` 与
+`conf/app.docker-postgres.conf` 的 `db.password`。数据库已经初始化后，修改
+`POSTGRES_PASSWORD` 不会改变数据库内的密码；应先在 PostgreSQL 中执行
+`ALTER ROLE pearlnote WITH PASSWORD '新密码';`，再更新这两处配置。
+
+### Docker + MongoDB
+
+当前 MongoDB 配置默认使用 `db.host=mongodb` 和 `db.dbname=leanote`。全新安装时，先将配置中的库名改为 `pearlnote`，再初始化：
+
+首次启动前创建应用文件持久化目录：
+
+```bash
+mkdir -p files public/upload
+```
+
+启动前确认配置挂载源确实是普通文件，避免 Docker 把缺失路径创建成目录：
+
+```bash
+test -f conf/app.docker-mongodb.conf
+```
+
+```bash
+docker compose -f docker-compose.mongodb.yml up -d mongodb
+docker cp mongodb_backup/pearlnote_install_data mongodb:/tmp/pearlnote-install
+docker compose -f docker-compose.mongodb.yml exec mongodb \
+  mongorestore --drop --db pearlnote /tmp/pearlnote-install
+docker compose -f docker-compose.mongodb.yml up -d --build pearlnote
+```
+
+MongoDB 数据保存在 `./data/mongo/db`。
+
+### Docker 直接连接旧 Leanote MongoDB
+
+只有当旧库目录由当前 Compose 的 MongoDB 4.2 创建、并且曾正常停机时，才可直接
+使用 Compose 的 `./data/mongo/db`。保持当前 `db.host=mongodb`、`db.dbname=leanote` 后启动：
+
+```bash
+docker compose -f docker-compose.mongodb.yml up -d --build
+```
+
+不要把任意 Leanote 物理 db 备份直接复制到该目录；不同 MongoDB 版本或存储引擎的
+备份必须按下一节先转换为逻辑备份。
+
+若 MongoDB 在其他机器，在 `conf/app.docker-mongodb.conf` 设置：
+
+```ini
+db.type=mongodb
+db.url=mongodb://用户名:密码@可从容器访问的主机:27017/leanote?authSource=admin
+```
+
+容器内的 `127.0.0.1` 不是宿主机。Linux 可使用宿主机网关地址，或给 `pearlnote` 服务增加：
+
+```yaml
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+```
+
+再在 URL 中使用 `host.docker.internal`。
+
+### Docker 从原始 MongoDB db 目录恢复
+
+先按 Release 章节的流程，把物理备份转成仅含 `leanote` 的逻辑备份，再恢复：
+
+```bash
+docker compose -f docker-compose.mongodb.yml up -d mongodb
+docker cp logical-dump/leanote mongodb:/tmp/leanote
+docker compose -f docker-compose.mongodb.yml exec mongodb \
+  mongorestore --drop --db leanote /tmp/leanote
+docker compose -f docker-compose.mongodb.yml up -d --build pearlnote
+```
+
+不要恢复 `admin`、`config`、`local`；认证用户应在新实例重新创建。
+
+### Docker 环境迁移 MongoDB 到 PostgreSQL
+
+迁移工具未打入应用镜像，请使用 Release 包中的二进制，或按源码章节运行。MongoDB Compose 已发布 `127.0.0.1:27017`；PostgreSQL Compose 默认未发布端口，迁移期间需临时取消其中以下配置的注释：
+
+```yaml
+    ports:
+      - 127.0.0.1:5432:5432
+```
+
+目标 PostgreSQL 必须是空库，不能让 Compose 先导入 `seed.sql`。建议复制
+`docker-compose.postgres.yml` 为 `docker-compose.postgres-migration.yml`，把 PostgreSQL
+数据挂载改为独立目录：
+
+```yaml
+      - ./data-pg-migration:/var/lib/postgresql
+```
+
+同时在迁移专用文件中移除两个 `/docker-entrypoint-initdb.d/` 挂载，让 migration tool
+自行应用 schema。创建全新的 `./data-pg-migration` 后再启动目标 PostgreSQL。绝对不要
+清空共享父目录 `./data`，因为当前 MongoDB 源数据位于 `./data/mongo/db`；也不要删除任何
+包含有效数据的目录。
+
+```bash
+docker compose -f docker-compose.mongodb.yml up -d mongodb
+docker compose -f docker-compose.postgres-migration.yml up -d postgres
+./bin/pearlnote-migrate -direction mongo_to_pg \
+  -mongo-url 'mongodb://127.0.0.1:27017/leanote' \
   -postgres-url 'host=127.0.0.1 port=5432 user=pearlnote password=pearlnote dbname=pearlnote sslmode=disable'
-
-# 或者直接运行
-go run ./tools/migration -direction mongo_to_pg
+docker compose -f docker-compose.postgres-migration.yml up -d --build pearlnote
 ```
 
-### 4. 验证迁移
+迁移后可重新注释 PostgreSQL 端口发布。
 
-```bash
-# 连接到 PostgreSQL
-psql -U pearlnote -d pearlnote
+### Docker 持久化和迁移 files
 
-# 检查数据
-SELECT COUNT(*) FROM users;
-SELECT COUNT(*) FROM notebooks;
-SELECT COUNT(*) FROM notes;
+两个 Compose 文件已默认挂载附件和旧上传目录：
 
-\q
+```yaml
+      - ./files:/opt/pearlnote/files
+      - ./public/upload:/opt/pearlnote/public/upload
 ```
 
-## 应用部署
-
-### 1. 安装依赖
+停止旧服务写入后复制整个目录，保留相对路径：
 
 ```bash
-# 下载依赖
-go mod download
+mkdir -p files public/upload
+cp -a /path/to/old-leanote/files/. ./files/
+cp -a /path/to/old-leanote/public/upload/. ./public/upload/
+```
 
-# 安装、测试并构建 Vue Web UI
+主要图片和附件位于 `files/`；头像或旧主题资源可能位于 `public/upload/`。遗漏实体文件会导致数据库记录存在但文件无法访问。
+
+## 三、从源码部署
+
+### Linux、macOS 和 Windows
+
+需要 Go 1.22+（当前 CI/Docker 使用 Go 1.24）和 Node.js 22，以及选定数据库的客户端。Linux/macOS 使用以下命令：
+
+```bash
+git clone <repository-url> pearlnote
+cd pearlnote
 npm ci --prefix frontend
 npm test --prefix frontend
 npm run build --prefix frontend
-
-# 如果有新的依赖
-go mod tidy
+go test ./...
+go run github.com/revel/cmd/revel run -a . -m prod
 ```
 
-### 2. 编译应用
+Windows PowerShell：
+
+```powershell
+git clone <repository-url> pearlnote
+Set-Location pearlnote
+npm ci --prefix frontend
+npm test --prefix frontend
+npm run build --prefix frontend
+go test ./...
+go run github.com/revel/cmd/revel run -a . -m prod
+```
+
+开发模式将最后的 `prod` 改为 `dev`。生产环境更适合构建 Release：
 
 ```bash
-# 开发模式
-revel run github.com/pearlnote/pearlnote
-
-# 生产模式编译
-revel build github.com/pearlnote/pearlnote pearlnote
+scripts/build-release.sh <version> <goos> <goarch> <output-dir>
+scripts/build-release.sh 1.0.0 linux amd64 ./dist
 ```
 
-### 3. 运行应用
+Windows 原生环境若无 Bash，可在 Git Bash/WSL 中执行脚本，或使用项目 GitHub Release。
+
+### 源码 + PostgreSQL
+
+创建空数据库，把 `conf/app.conf` 的 `db.type` 设为 `postgresql` 并填写连接信息，
+然后直接启动。Pearlnote 会在首次连接真正的空数据库时自动应用
+`database/schema.sql` 和 `database/seed.sql`，三个平台都无需手工导入。默认
+`app.secret` 可以启动，但正式或生产使用必须在首次启动前更换。
+
+### 源码 + MongoDB 或直连 Leanote
+
+全新 MongoDB：
 
 ```bash
-# 开发环境
-revel run github.com/pearlnote/pearlnote
-
-# 生产环境
-./pearlnote/run.sh
+mongorestore --drop --db pearlnote mongodb_backup/pearlnote_install_data
 ```
 
-## 验证部署
+配置 `db.type=mongodb`、MongoDB 主机和 `db.dbname=pearlnote`。直连旧 Leanote 时改为 `db.dbname=leanote`，或设置完整 `db.url`。原始 db 目录仍须先转换为逻辑备份，不能直接使用 `mongorestore`。
 
-### 1. 检查应用日志
+### 源码迁移 Leanote MongoDB 到 PostgreSQL
+
+创建空目标库，不执行 schema/seed，然后运行：
 
 ```bash
-# 查看日志
-tail -f logs/app.log
-
-# 检查是否有数据库连接错误
-grep "database" logs/app.log
+go run ./tools/migration \
+  -direction mongo_to_pg \
+  -mongo-url 'mongodb://127.0.0.1:27017/leanote' \
+  -postgres-url 'host=127.0.0.1 port=5432 user=pearlnote password=请替换为强密码 dbname=pearlnote sslmode=disable'
 ```
 
-### 2. 测试基本功能
+Windows PowerShell 使用同一入口；参数应使用 PowerShell 的续行符：
 
-1. 访问 `http://localhost:9000`
-2. 注册新用户
-3. 创建笔记
-4. 测试 CRUD 操作
+```powershell
+go run ./tools/migration `
+  -direction mongo_to_pg `
+  -mongo-url "mongodb://127.0.0.1:27017/leanote" `
+  -postgres-url "host=127.0.0.1 port=5432 user=pearlnote password=请替换为强密码 dbname=pearlnote sslmode=disable"
+```
 
-### 3. 监控数据库连接
+可选参数：`-schema <path>`（默认 `database/schema.sql`）、`-dry-run`、`-validate`（默认 `true`）。迁移成功后切换 `conf/app.conf` 到 PostgreSQL，并迁移 `files/` 与需要的 `public/upload/`。
+
+## 验证、备份和安全
+
+部署或迁移后至少验证：账号登录、笔记本和笔记、Markdown、图片、头像、附件、共享笔记与同步，以及：
 
 ```bash
-# 查看当前连接
-psql -U pearlnote -d pearlnote -c "SELECT count(*) FROM pg_stat_activity WHERE datname = 'pearlnote';"
-
-# 查看慢查询
-psql -U pearlnote -d pearlnote -c "SELECT * FROM pg_stat_statements ORDER BY total_time DESC LIMIT 10;"
+curl http://127.0.0.1:9000/api/system/version
 ```
 
-## 性能优化
+升级前停止写入，同时备份数据库、`files/`、`public/upload/` 和实际配置。PostgreSQL 使用 `pg_dump`，MongoDB 只需 `mongodump --db <业务库>`，不要迁移 `admin/config/local`。数据库端口不要暴露到公网，Web 服务通过反向代理提供 HTTPS，启用 HTTPS 后将 `cookie.secure=true`。
 
-### 1. 数据库配置
-
-编辑 `postgresql.conf`:
-
-```ini
-# 内存配置
-shared_buffers = 256MB
-effective_cache_size = 1GB
-maintenance_work_mem = 64MB
-
-# 连接配置
-max_connections = 100
-
-# 查询优化
-random_page_cost = 1.1
-effective_io_concurrency = 200
-work_mem = 4MB
-```
-
-重启 PostgreSQL:
-```bash
-sudo systemctl restart postgresql
-```
-
-### 2. 应用配置
-
-编辑 `app/db/Postgres.go`:
-
-```go
-DB.SetMaxOpenConns(50)
-DB.SetMaxIdleConns(25)
-DB.SetConnMaxLifetime(10 * time.Minute)
-```
-
-### 3. 创建额外索引
-
-根据实际查询模式添加索引：
-
-```sql
--- 示例：为常用查询添加索引
-CREATE INDEX idx_notes_user_notebook ON notes(user_id, notebook_id);
-CREATE INDEX idx_note_contents_updated_time ON note_contents(updated_time DESC);
-```
-
-## 备份和恢复
-
-### 备份
-
-```bash
-# 完整备份
-pg_dump -U pearlnote -d pearlnote > backup_$(date +%Y%m%d_%H%M%S).sql
-
-# 仅备份数据
-pg_dump -U pearlnote -d pearlnote --data-only > data_backup.sql
-
-# 仅备份结构
-pg_dump -U pearlnote -d pearlnote --schema-only > schema_backup.sql
-```
-
-### 恢复
-
-```bash
-# 恢复完整备份
-psql -U pearlnote -d pearlnote < backup_20240116_120000.sql
-
-# 恢复到新数据库
-createdb -U pearlnote pearlnote_new
-psql -U pearlnote -d pearlnote_new < backup_20240116_120000.sql
-```
-
-## 监控和日志
-
-### 1. PostgreSQL 日志
-
-编辑 `postgresql.conf`:
-
-```ini
-logging_collector = on
-log_directory = 'pg_log'
-log_filename = 'postgresql-%Y-%m-%d_%H%M%S.log'
-log_statement = 'all'
-log_duration = on
-```
-
-### 2. 应用监控
-
-添加 Prometheus 监控:
-
-```go
-import "github.com/prometheus/client_golang/prometheus"
-
-var dbConnections = prometheus.NewGauge(prometheus.GaugeOpts{
-    Name: "db_connections",
-    Help: "Number of active database connections",
-})
-```
-
-## 故障排除
-
-### 问题 1: 连接被拒绝
-
-```
-Error: connection refused
-```
-
-**解决方案**:
-```bash
-# 检查 PostgreSQL 是否运行
-sudo systemctl status postgresql
-
-# 检查端口
-netstat -an | grep 5432
-
-# 检查防火墙
-sudo ufw status
-```
-
-### 问题 2: 认证失败
-
-```
-Error: password authentication failed
-```
-
-**解决方案**:
-```bash
-# 重置密码
-sudo -u postgres psql
-ALTER USER pearlnote WITH PASSWORD 'new_password';
-\q
-
-# 更新 conf/app.conf
-```
-
-### 问题 3: 性能问题
-
-**解决方案**:
-```sql
--- 查看慢查询
-SELECT query, mean_exec_time, calls 
-FROM pg_stat_statements 
-ORDER BY mean_exec_time DESC 
-LIMIT 10;
-
--- 查看表大小
-SELECT 
-    schemaname,
-    tablename,
-    pg_size_pretty(pg_total_relation_size(schemaname||'.'||tablename)) AS size
-FROM pg_tables 
-WHERE schemaname = 'public'
-ORDER BY pg_total_relation_size(schemaname||'.'||tablename) DESC;
-
--- 分析表
-ANALYZE users;
-ANALYZE notebooks;
-ANALYZE notes;
-```
-
-### 问题 4: 迁移失败
-
-**解决方案**:
-```bash
-# 检查 MongoDB 连接
-mongo --host localhost --port 27017 --eval "db.version()"
-
-# 检查 PostgreSQL 连接
-psql -U pearlnote -d pearlnote -c "SELECT version();"
-
-# 查看迁移日志
-./migrate 2>&1 | tee migration.log
-```
-
-## 安全建议
-
-### 1. 数据库安全
-
-- 使用强密码
-- 限制远程访问
-- 启用 SSL 连接
-- 定期更新 PostgreSQL
-
-### 2. 应用安全
-
-- 使用环境变量存储敏感信息
-- 启用 HTTPS
-- 实施访问控制
-- 定期备份数据
-
-### 3. 网络安全
-
-- 配置防火墙
-- 使用 VPN 或 SSH 隧道
-- 限制数据库端口访问
-- 实施 IP 白名单
-
-## 生产环境检查清单
-
-- [ ] 使用强密码
-- [ ] 配置 SSL/TLS
-- [ ] 设置定期备份
-- [ ] 配置监控和告警
-- [ ] 优化数据库性能
-- [ ] 配置负载均衡
-- [ ] 设置日志轮转
-- [ ] 实施灾难恢复计划
-- [ ] 进行压力测试
-- [ ] 文档更新
-
-## 支持
-
-如有问题，请参考：
-- [MIGRATION_GUIDE.md](MIGRATION_GUIDE.md)
-- [DATABASE_ABSTRACTION_GUIDE.md](DATABASE_ABSTRACTION_GUIDE.md)
-- [PostgreSQL 文档](https://www.postgresql.org/docs/)
+更专门的数据转换说明参阅 [迁移指南](MIGRATION_GUIDE.md)。

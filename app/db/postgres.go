@@ -1,8 +1,11 @@
 package db
 
 import (
+	"context"
 	"database/sql"
 	"fmt"
+	"os"
+	"path/filepath"
 	"reflect"
 	"regexp"
 	"sort"
@@ -88,7 +91,139 @@ func (p *PostgresDatabase) Initialize() error {
 	}
 
 	Log("Connected to PostgreSQL successfully")
+	if err := initializePostgresDatabase(p.db); err != nil {
+		p.db.Close()
+		return fmt.Errorf("failed to initialize PostgreSQL database: %w", err)
+	}
 	return nil
+}
+
+// initializePostgresDatabase installs the bundled schema and seed only when
+// the public schema has no business base tables. The migration marker table
+// is intentionally ignored because it can be left behind by an interrupted
+// first-run initialization. A database with any other existing table (even if
+// it has no rows) must never receive the installation seed.
+func initializePostgresDatabase(database *sql.DB) (resultErr error) {
+	ctx := context.Background()
+	conn, err := database.Conn(ctx)
+	if err != nil {
+		return err
+	}
+	defer conn.Close()
+
+	// Serialize first-run initialization across processes. The lock is held on
+	// this dedicated connection and the emptiness check is repeated after it is
+	// acquired, so concurrent server starts cannot both install the seed.
+	lockCtx, cancelLock := context.WithTimeout(ctx, 10*time.Second)
+	defer cancelLock()
+	if _, err := conn.ExecContext(lockCtx, postgresBootstrapLockSQL); err != nil {
+		return err
+	}
+	defer conn.ExecContext(ctx, postgresBootstrapUnlockSQL)
+	// schema.sql/seed.sql contain session-level SET statements (including an
+	// empty search_path). Reset the dedicated connection before it is returned
+	// to database/sql, on both success and failure paths.
+	defer func() {
+		if _, err := conn.ExecContext(context.Background(), `RESET ALL`); err != nil && resultErr == nil {
+			resultErr = fmt.Errorf("reset PostgreSQL bootstrap session: %w", err)
+		}
+	}()
+
+	var tableCount int
+	if err := conn.QueryRowContext(ctx, `
+		SELECT COUNT(*) FROM information_schema.tables
+		WHERE table_schema = 'public' AND table_type = 'BASE TABLE'
+		  AND table_name <> 'pearlnote_schema_migrations'
+	`).Scan(&tableCount); err != nil {
+		return err
+	}
+	if tableCount != 0 {
+		return nil
+	}
+
+	databaseDir, err := findInstallationDatabaseDir()
+	if err != nil {
+		return err
+	}
+	schema, err := os.ReadFile(filepath.Join(databaseDir, "schema.sql"))
+	if err != nil {
+		return fmt.Errorf("read schema.sql: %w", err)
+	}
+	seed, err := os.ReadFile(filepath.Join(databaseDir, "seed.sql"))
+	if err != nil {
+		return fmt.Errorf("read seed.sql: %w", err)
+	}
+	tx, err := conn.BeginTx(ctx, nil)
+	if err != nil {
+		return err
+	}
+	// The checked-in scripts are also usable directly by Docker/PostgreSQL,
+	// so they contain their own BEGIN/COMMIT. Remove only those standalone
+	// transaction lines when running both scripts in one outer transaction.
+	if _, err := tx.ExecContext(ctx, stripScriptTransactionBoundaries(string(schema))); err != nil {
+		tx.Rollback()
+		return fmt.Errorf("execute schema.sql: %w", err)
+	}
+	if _, err := tx.ExecContext(ctx, stripScriptTransactionBoundaries(string(seed))); err != nil {
+		tx.Rollback()
+		return fmt.Errorf("execute seed.sql: %w", err)
+	}
+	if err := tx.Commit(); err != nil {
+		return fmt.Errorf("commit PostgreSQL initialization: %w", err)
+	}
+	Log("Initialized PostgreSQL schema and installation seed")
+	return nil
+}
+
+const (
+	postgresBootstrapLockSQL   = `SELECT pg_advisory_lock(hashtextextended('pearlnote:postgres-bootstrap:v1', 0))`
+	postgresBootstrapUnlockSQL = `SELECT pg_advisory_unlock(hashtextextended('pearlnote:postgres-bootstrap:v1', 0))`
+)
+
+var scriptTransactionBoundary = regexp.MustCompile(`(?im)^\s*(BEGIN|COMMIT)\s*;\s*$`)
+
+func stripScriptTransactionBoundaries(script string) string {
+	return scriptTransactionBoundary.ReplaceAllString(script, "")
+}
+
+func findInstallationDatabaseDir() (string, error) {
+	cwd, _ := os.Getwd()
+	executable, _ := os.Executable()
+	return findInstallationDatabaseDirFrom(strings.TrimSpace(os.Getenv("PEARLNOTE_DATABASE_DIR")), cwd, executable)
+}
+
+func findInstallationDatabaseDirFrom(configured, cwd, executable string) (string, error) {
+	var candidates []string
+	// An explicit override is always considered first. Bundled release files
+	// take precedence over cwd so an unrelated directory cannot shadow them.
+	if configured != "" {
+		candidates = append(candidates, configured)
+	}
+	if executable != "" {
+		dir := filepath.Dir(executable)
+		candidates = append(candidates,
+			filepath.Join(dir, "database"),
+			filepath.Join(dir, "..", "database"),
+			filepath.Join(dir, "..", "..", "database"),
+		)
+	}
+	if cwd != "" {
+		candidates = append(candidates, filepath.Join(cwd, "database"))
+	}
+	for _, candidate := range candidates {
+		candidate, err := filepath.Abs(candidate)
+		if err != nil {
+			continue
+		}
+		if _, err := os.Stat(filepath.Join(candidate, "schema.sql")); err != nil {
+			continue
+		}
+		if _, err := os.Stat(filepath.Join(candidate, "seed.sql")); err != nil {
+			continue
+		}
+		return candidate, nil
+	}
+	return "", fmt.Errorf("cannot locate database/schema.sql and database/seed.sql; set PEARLNOTE_DATABASE_DIR or run from the project/release root")
 }
 
 func (p *PostgresDatabase) SetupLegacyVariables() {

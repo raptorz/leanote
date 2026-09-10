@@ -1,229 +1,115 @@
-# 快速开始指南
+# 快速开始
 
-## 5 分钟快速安装
+本文只介绍全新 PostgreSQL 安装。已有 Leanote 数据、MongoDB 部署和生产环境细节请参阅 [安装和部署指南](DEPLOYMENT.md)。
 
-### 前提条件
-- 已安装 Go 1.22+
-- 从源码运行时安装 Node.js 22；Docker/发行包运行时不需要 Node.js
-- 已安装 PostgreSQL 12+
-- 新安装不需要 MongoDB；迁移已有 Leanote 数据时才需要 MongoDB
+## 方式一：使用 Release 包
 
-### 步骤 1: 安装 PostgreSQL
+### 1. 准备 PostgreSQL
 
-```bash
-# Ubuntu/Debian
-sudo apt-get update && sudo apt-get install postgresql postgresql-contrib
+安装 PostgreSQL 12 或更高版本，然后创建用户和空数据库：
 
-# macOS
-brew install postgresql
-
-# 启动服务
-sudo systemctl start postgresql  # Linux
-brew services start postgresql    # macOS
-```
-
-### 步骤 2: 创建数据库
-
-```bash
-sudo -u postgres psql << EOF
-CREATE USER pearlnote WITH PASSWORD 'pearlnote123';
+```sql
+CREATE USER pearlnote WITH PASSWORD '请替换为强密码';
 CREATE DATABASE pearlnote OWNER pearlnote;
-GRANT ALL PRIVILEGES ON DATABASE pearlnote TO pearlnote;
-\q
-EOF
 ```
 
-### 步骤 3: 初始化数据库
+下载与系统架构匹配的 Release 包并解压。Linux/macOS 包为
+`pearlnote-<os>-<arch>-v<version>.tar.gz`，Windows 包为 `.zip`。进入解压后的
+`pearlnote` 目录。Pearlnote 首次连接真正的空数据库时会自动执行包内的
+`database/schema.sql` 和 `database/seed.sql`，不需要手工运行 `psql`。
 
-```bash
-psql -U pearlnote -d pearlnote -f database/schema.sql
-psql -U pearlnote -d pearlnote -f database/seed.sql
-```
+### 2. 配置并启动
 
-`seed.sql` 包含 PostgreSQL 安装所需的管理员、配置和示例数据。初始管理员为 `admin`／`pearlnote`，首次登录后必须立即修改密码。
-
-### 步骤 4: 配置应用
-
-编辑 `conf/app.conf`，确保 PostgreSQL 配置正确：
+编辑 `conf/app.conf`：
 
 ```ini
+db.type=postgresql
 db.host=127.0.0.1
 db.port=5432
 db.dbname=pearlnote
 db.username=pearlnote
-db.password=pearlnote123
+db.password=请替换为强密码
 ```
 
-### 步骤 5: 运行应用
+按实际访问地址修改 `site.url`。默认 `app.secret` 技术上可以启动，但正式或生产
+使用必须在首次启动前将它改为随机长字符串。创建持久文件目录后启动：
 
 ```bash
-# 开发模式
-npm ci --prefix frontend
-npm run build --prefix frontend
-revel run github.com/pearlnote/pearlnote
-
+mkdir -p files public/upload
+./run.sh
 ```
 
-数据库类型由 `conf/app.conf` 的 `db.type` 选择，不需要修改代码。
+macOS 首次运行若被系统拦截，需要在“系统设置 → 隐私与安全性”中允许该程序。
 
-### 步骤 6: 访问应用
+Windows 在 PowerShell 或命令提示符中执行：
 
-打开浏览器访问: http://localhost:9000
+```bat
+mkdir files
+mkdir public\upload
+run.bat
+```
 
-使用 `admin`／`pearlnote` 登录并立即修改密码。纯 PostgreSQL 安装不需要先启动或恢复 MongoDB。
+`run.bat` 首次启动会创建运行时目录联接；若创建失败，请以管理员身份运行一次，
+或在 Windows 设置中启用开发人员模式。
 
-## 从 MongoDB 迁移数据
+## 方式二：使用 Docker Compose
 
-以下步骤只适用于迁移真实使用中的 Leanote/Pearlnote MongoDB；全新安装请使用上面的 `schema.sql` + `seed.sql`。
-
-### 1. 确保 MongoDB 运行
+需要 Docker Engine 和 Compose 插件。两个 Compose 文件已默认持久化图片、附件和旧上传
+资源。创建持久化目录，再启动服务：
 
 ```bash
-mongod --dbpath /path/to/mongodb/data
+mkdir -p files public/upload
+docker compose -f docker-compose.postgres.yml up -d --build
+docker compose -f docker-compose.postgres.yml ps
 ```
 
-### 2. 运行迁移脚本
+当前 Compose 配置使用 PostgreSQL 18，数据库数据保存在 `./data`，实际 PGDATA
+位于 `./data/18/docker`。仅当该 PostgreSQL 数据目录尚未初始化时，官方镜像才会
+自动依次执行 `database/schema.sql` 和 `database/seed.sql`。默认数据库名、用户和
+密码均为 `pearlnote`。
+
+应用读取 `conf/app.docker-postgres.conf`，默认只在宿主机
+`127.0.0.1:9000` 提供服务。正式使用前请至少修改：
+
+- Compose 中的 `POSTGRES_PASSWORD`；
+- `conf/app.docker-postgres.conf` 中对应的 `db.password`；
+- `conf/app.docker-postgres.conf` 中的 `app.secret` 和 `site.url`。
+
+`files/` 保存正文图片和附件，`public/upload/` 用于兼容头像等旧上传资源；上述
+挂载可确保重建应用容器后文件仍然存在。
+
+查看服务日志：
 
 ```bash
-go run ./tools/migration -direction mongo_to_pg \
-  -mongo-url 'mongodb://127.0.0.1:27017/pearlnote' \
-  -postgres-url 'host=127.0.0.1 port=5432 user=pearlnote password=pearlnote dbname=pearlnote sslmode=disable'
+docker compose -f docker-compose.postgres.yml logs -f pearlnote
 ```
 
-迁移脚本会自动：
-- 连接到 MongoDB
-- 读取所有用户、笔记本、笔记等数据
-- 原样保留 24 位 ObjectId 和关联关系
-- 写入 PostgreSQL
+## 使用 Web 界面
 
-### 3. 验证迁移
+默认访问地址为 <http://127.0.0.1:9000>，初始账号为：
+
+```text
+用户名：admin
+密码：pearlnote
+```
+
+首次登录后立即在“账号”中修改密码。随后可以创建笔记本和笔记，或在“管理”中
+配置系统。若修改了 `site.url` 或端口，请使用对应地址访问。
+
+服务版本接口为：
 
 ```bash
-psql -U pearlnote -d pearlnote << EOF
-SELECT 'Users' as table_name, COUNT(*) as count FROM users
-UNION ALL
-SELECT 'Notebooks', COUNT(*) FROM notebooks
-UNION ALL
-SELECT 'Notes', COUNT(*) FROM notes;
-EOF
+curl http://127.0.0.1:9000/api/system/version
 ```
 
-## 验证功能
-
-### 1. 测试用户注册
-
-1. 访问 http://localhost:9000
-2. 点击"注册"
-3. 填写表单
-4. 检查数据库是否有新用户
+停止服务：
 
 ```bash
-psql -U pearlnote -d pearlnote -c "SELECT username, email, created_time FROM users ORDER BY created_time DESC LIMIT 1;"
+# Release：在前台按 Ctrl+C
+
+# Docker（保留数据库和附件）
+docker compose -f docker-compose.postgres.yml down
 ```
 
-### 2. 测试笔记创建
-
-1. 登录系统
-2. 创建新笔记
-3. 检查数据库
-
-```bash
-psql -U pearlnote -d pearlnote -c "SELECT title, created_time FROM notes ORDER BY created_time DESC LIMIT 1;"
-```
-
-### 3. 测试 CRUD 操作
-
-```bash
-# 查看所有用户
-psql -U pearlnote -d pearlnote -c "SELECT username, email FROM users LIMIT 10;"
-
-# 更新用户信息
-psql -U pearlnote -d pearlnote -c "UPDATE users SET logo = 'new_logo.png' WHERE username = 'testuser';"
-
-# 删除测试数据
-psql -U pearlnote -d pearlnote -c "DELETE FROM users WHERE username = 'testuser';"
-```
-
-## 常见问题快速解决
-
-### 问题: 连接被拒绝
-
-```bash
-# 检查 PostgreSQL 是否运行
-sudo systemctl status postgresql
-
-# 启动 PostgreSQL
-sudo systemctl start postgresql
-```
-
-### 问题: 密码认证失败
-
-```bash
-# 重置密码
-sudo -u postgres psql
-ALTER USER pearlnote WITH PASSWORD 'new_password';
-\q
-
-# 更新配置文件中的密码
-```
-
-### 问题: 权限不足
-
-```bash
-# 授予权限
-sudo -u postgres psql
-GRANT ALL PRIVILEGES ON DATABASE pearlnote TO pearlnote;
-GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO pearlnote;
-GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO pearlnote;
-\q
-```
-
-## 下一步
-
-1. **数据库升级**: 升级前备份；服务启动时会自动执行并记录数据库版本迁移
-
-2. **性能优化**: 参考 [DEPLOYMENT.md](DEPLOYMENT.md) 优化数据库配置
-
-3. **生产部署**: 配置 SSL、备份、监控等生产环境设置
-
-4. **测试**: 进行完整的集成测试和性能测试
-
-## 文件位置
-
-- **数据库 Schema**: `database/schema.sql`
-- **PostgreSQL 初始数据**: `database/seed.sql`
-- **数据库连接**: `app/db/`
-- **Service 层**: `app/service/`
-- **迁移工具**: `tools/migration/`
-- **配置文件**: `conf/app.conf`
-- **Vue 前端源码**: `frontend/`
-- **Vue 构建产物**: `frontend/dist/`
-
-## 获取帮助
-
-- 详细迁移指南: [MIGRATION_GUIDE.md](MIGRATION_GUIDE.md)
-- 部署指南: [DEPLOYMENT.md](DEPLOYMENT.md)
-- 数据库抽象完整指南: [DATABASE_ABSTRACTION_GUIDE.md](DATABASE_ABSTRACTION_GUIDE.md)
-
-## 快速命令参考
-
-```bash
-# 数据库操作
-psql -U pearlnote -d pearlnote                           # 连接数据库
-psql -U pearlnote -d pearlnote -f database/schema.sql      # 导入 schema
-psql -U pearlnote -d pearlnote -f database/seed.sql        # 导入初始数据
-pg_dump -U pearlnote -d pearlnote > backup.sql            # 备份
-psql -U pearlnote -d pearlnote < backup.sql               # 恢复
-
-# 应用操作
-go mod download                                        # 下载依赖
-revel run github.com/pearlnote/pearlnote                  # 运行应用
-revel build github.com/pearlnote/pearlnote pearlnote         # 编译应用
-
-# 迁移操作
-go run ./tools/migration -direction mongo_to_pg       # MongoDB → PostgreSQL
-go run ./tools/migration -direction pg_to_mongo       # PostgreSQL → MongoDB
-
-# 监控操作
-psql -U pearlnote -d pearlnote -c "SELECT count(*) FROM pg_stat_activity WHERE datname = 'pearlnote';"  # 查看连接数
-```
+不要使用 `down -v`，也不要删除 `./data` 或 `./files`，除非确认不再需要其中的
+数据。
