@@ -32,8 +32,10 @@ function restoreLayout(){
  if(layoutReady)return
  notebooksWidth.value=Math.min(520,Math.max(180,Number(boot.value.User?.NotebookWidth)||230))
  notesWidth.value=Math.min(520,Math.max(180,Number(boot.value.User?.NoteListWidth)||290))
- notebooksVisible.value=!boot.value.User?.LeftIsMin
- try{const saved=JSON.parse(localStorage.getItem(layoutKey())||'null');if(saved){notebooksVisible.value=saved.notebooksVisible!==false;notesVisible.value=saved.notesVisible!==false;notebooksWidth.value=Math.min(520,Math.max(180,Number(saved.notebooksWidth)||notebooksWidth.value));notesWidth.value=Math.min(520,Math.max(180,Number(saved.notesWidth)||notesWidth.value))}}catch{}
+ // Space visibility is scoped to this workspace view. Returning from account
+ // or admin should always start with the space panel visible.
+ notebooksVisible.value=true
+ try{const saved=JSON.parse(localStorage.getItem(layoutKey())||'null');if(saved){notesVisible.value=saved.notesVisible!==false;notebooksWidth.value=Math.min(520,Math.max(180,Number(saved.notebooksWidth)||notebooksWidth.value));notesWidth.value=Math.min(520,Math.max(180,Number(saved.notesWidth)||notesWidth.value))}}catch{}
  layoutReady=true
 }
 function showNotebooks(){notebooksVisible.value=true;if(window.innerWidth<=1100)sidebar.value=true;persistLayout()}
