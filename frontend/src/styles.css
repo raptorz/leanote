@@ -83,7 +83,7 @@ small,.muted{color:#7a867f;font-size:12px}
 .editor:has(.title-input)::before{content:'文章列表：点击左侧「笔记」';font-size:11px;padding:8px;color:#728478}
 }
 
-.rail-action{border:0;background:transparent;color:inherit;padding:6px;font-size:20px}
+.rail-link{border:0;background:transparent;color:inherit;padding:6px;font-size:12px}
 .user-menu{position:relative}
 .avatar-button{width:38px;height:38px;padding:0;border:1px solid #789087;border-radius:50%;overflow:hidden;background:#e9eee8;color:#193b35;font-weight:700}
 .avatar-button img{width:100%;height:100%;object-fit:cover}

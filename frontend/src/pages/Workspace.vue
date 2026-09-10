@@ -9,9 +9,10 @@ import RichEditor from '../components/RichEditor.vue'
 const route=useRoute(),router=useRouter(),boot=ref<any>({}),notes=ref<any[]>([]),current=ref<any>(null)
 const notebook=ref(''),notebookSearch=ref(''),search=ref(''),tagFilter=ref(''),trash=ref(false),sharedOwner=ref(''),page=ref(1)
 const title=ref(''),content=ref(''),tags=ref(''),dirty=ref(false),saving=ref(false),error=ref(''),info=ref(false),preview=ref(false),panel=ref(''),destination=ref(''),shareEmail=ref(''),sharePerm=ref('0'),histories=ref<any[]>([]),members=ref<any[]>([]),attachments=ref<any[]>([]),sort=ref('UpdatedTime'),sidebar=ref(false)
-const notebooksVisible=ref(true),notesVisible=ref(true),notebooksWidth=ref(230),notesWidth=ref(290),bookMenu=ref('')
+const notebooksVisible=ref(true),notesVisible=ref(true),notebooksWidth=ref(230),notesWidth=ref(290),bookMenu=ref(''),compact=ref(false)
 const mobileNotesVisible=ref(false)
 let layoutReady=false
+function updateCompact(){compact.value=window.innerWidth<=1100}
 const imageInput=ref<HTMLInputElement>(),attachInput=ref<HTMLInputElement>(),sharedQueueMsg=ref('')
 const isSharedNote=computed(()=>!!current.value?.Note.IsShared)
 const sharedCacheLabel=computed(()=>{if(!isSharedNote.value)return'';const state=current.value?.Note.CacheState as string|undefined;const at=current.value?.Note.CachedAt as string|undefined;switch(state){case 'ready':return at?`离线缓存 ${new Date(at).toLocaleString()}`:'离线缓存';case 'stale':return'缓存待更新';case 'pending':return'未下载，请先同步';case 'revoked':return'已撤销访问';default:return''}})
@@ -38,7 +39,7 @@ function restoreLayout(){
 function showNotebooks(){notebooksVisible.value=true;if(window.innerWidth<=1100)sidebar.value=true;persistLayout()}
 function hideNotebooks(){notebooksVisible.value=false;sidebar.value=false;persistLayout()}
 function hideNotes(){notesVisible.value=false;persistLayout()}
-function showNotes(){notesVisible.value=true;mobileNotesVisible.value=true;sidebar.value=false;persistLayout()}
+function showNotes(){notesVisible.value=true;mobileNotesVisible.value=window.innerWidth<=700;sidebar.value=false;persistLayout()}
 async function bootstrap(){boot.value=await request('/web/bootstrap');if(!boot.value.User){await router.replace('/login');return false}restoreLayout();return true}
 async function load(){try{notes.value=await request(sharedOwner.value?'/share/listShareNotes':'/web/notes',sharedOwner.value?{userId:sharedOwner.value,notebookId:notebook.value,page:page.value,sortField:sort.value,isAsc:false}:{notebookId:notebook.value,key:search.value,tag:tagFilter.value,trash:trash.value,page:page.value,sort:sort.value});notes.value ||= []}catch(e){error.value=String(e)}}
 async function attachmentsFor(noteId:string){try{const r:any=await request('/attach/getAttachs',{noteId});attachments.value=r.List||[]}catch(e){attachments.value=[];error.value=String(e)}}
@@ -87,14 +88,14 @@ function download(){const blob=new Blob([content.value],{type:current.value.Note
 function leave(e:BeforeUnloadEvent){if(dirty.value||saving.value){e.preventDefault();e.returnValue=''}}
 function shortcut(e:KeyboardEvent){if(e.key==='Escape')bookMenu.value='';if((e.ctrlKey||e.metaKey)&&e.key==='s'){e.preventDefault();save()}}
 function closeBookMenu(){bookMenu.value=''}
-onMounted(async()=>{window.addEventListener('beforeunload',leave);window.addEventListener('keydown',shortcut);window.addEventListener('pointerdown',closeBookMenu);const wails=(window as any).runtime;if(wails?.EventsOn){wails.EventsOn('shared-notes-revoked',(ids:string[])=>{if(ids?.includes(current.value?.Note?.NoteId)){error.value='该共享笔记已被撤销访问权限';current.value=null;attachments.value=[]}})}try{if(await bootstrap()){await load();if(route.params.noteId)await open(String(route.params.noteId))}}catch(e){error.value=String(e)}})
-onBeforeUnmount(()=>{clearTimeout(saveTimer);stopResize?.();document.body.classList.remove('panel-resizing');window.removeEventListener('beforeunload',leave);window.removeEventListener('keydown',shortcut);window.removeEventListener('pointerdown',closeBookMenu)})
+onMounted(async()=>{updateCompact();window.addEventListener('resize',updateCompact);window.addEventListener('beforeunload',leave);window.addEventListener('keydown',shortcut);window.addEventListener('pointerdown',closeBookMenu);const wails=(window as any).runtime;if(wails?.EventsOn){wails.EventsOn('shared-notes-revoked',(ids:string[])=>{if(ids?.includes(current.value?.Note?.NoteId)){error.value='该共享笔记已被撤销访问权限';current.value=null;attachments.value=[]}})}try{if(await bootstrap()){await load();if(route.params.noteId)await open(String(route.params.noteId))}}catch(e){error.value=String(e)}})
+onBeforeUnmount(()=>{clearTimeout(saveTimer);stopResize?.();document.body.classList.remove('panel-resizing');window.removeEventListener('resize',updateCompact);window.removeEventListener('beforeunload',leave);window.removeEventListener('keydown',shortcut);window.removeEventListener('pointerdown',closeBookMenu)})
 onBeforeRouteLeave(async()=>await flush())
 watch(()=>route.params.noteId,id=>{if(id&&id!==current.value?.Note.NoteId)open(String(id));else if(!id)flush().then(ok=>{if(ok)current.value=null})})
 </script>
 <template>
 <div class="shell workspace" :class="{'mobile-list-open':mobileNotesVisible}">
-<Navigation workspace :admin="boot.IsAdmin" :user="boot.User" :show-spaces-button="!notebooksVisible" @show-spaces="showNotebooks" @show-notes="showNotes"/>
+<Navigation workspace :admin="boot.IsAdmin" :user="boot.User" :show-spaces-button="!notebooksVisible || (compact && !sidebar)" @show-spaces="showNotebooks"/>
 <aside v-if="notebooksVisible" class="notebooks" :class="{mobileOpen:sidebar}" :style="{width:notebooksWidth+'px'}">
 <header>
 <h2>我的空间</h2>
