@@ -2,9 +2,9 @@ package service
 
 import (
 	//	"fmt"
-	"github.com/pearlnote/pearlnote/app/db"
-	"github.com/pearlnote/pearlnote/app/info"
-	. "github.com/pearlnote/pearlnote/app/lea"
+	"github.com/gemsnote/gemsnote/app/db"
+	"github.com/gemsnote/gemsnote/app/info"
+	. "github.com/gemsnote/gemsnote/app/lea"
 	"gopkg.in/mgo.v2/bson"
 	"sort"
 	"strings"

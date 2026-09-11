@@ -8,7 +8,7 @@ import (
 	"path/filepath"
 	"regexp"
 	"strings"
-	. "github.com/pearlnote/pearlnote/app/lea"
+	. "github.com/gemsnote/gemsnote/app/lea"
 )
 
 const (

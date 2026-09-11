@@ -9,9 +9,9 @@ import (
 )
 
 func main() {
-	fmt.Println("检查 Pearlnote 数据库表结构")
+	fmt.Println("检查 Gemsnote 数据库表结构")
 
-	connStr := "host=127.0.0.1 port=5432 user=pearlnote password=pearlnote dbname=pearlnote sslmode=disable"
+	connStr := "host=127.0.0.1 port=5432 user=gemsnote password=gemsnote dbname=gemsnote sslmode=disable"
 
 	db, err := sql.Open("postgres", connStr)
 	if err != nil {

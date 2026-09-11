@@ -1,4 +1,4 @@
-module github.com/pearlnote/pearlnote
+module github.com/gemsnote/gemsnote
 
 go 1.22.0
 

@@ -9,13 +9,13 @@
 安装 PostgreSQL 12 或更高版本，然后创建用户和空数据库：
 
 ```sql
-CREATE USER pearlnote WITH PASSWORD '请替换为强密码';
-CREATE DATABASE pearlnote OWNER pearlnote;
+CREATE USER gemsnote WITH PASSWORD '请替换为强密码';
+CREATE DATABASE gemsnote OWNER gemsnote;
 ```
 
 下载与系统架构匹配的 Release 包并解压。Linux/macOS 包为
-`pearlnote-<os>-<arch>-v<version>.tar.gz`，Windows 包为 `.zip`。进入解压后的
-`pearlnote` 目录。Pearlnote 首次连接真正的空数据库时会自动执行包内的
+`gemsnote-<os>-<arch>-v<version>.tar.gz`，Windows 包为 `.zip`。进入解压后的
+`gemsnote` 目录。Gemsnote 首次连接真正的空数据库时会自动执行包内的
 `database/schema.sql` 和 `database/seed.sql`，不需要手工运行 `psql`。
 
 ### 2. 配置并启动
@@ -26,8 +26,8 @@ CREATE DATABASE pearlnote OWNER pearlnote;
 db.type=postgresql
 db.host=127.0.0.1
 db.port=5432
-db.dbname=pearlnote
-db.username=pearlnote
+db.dbname=gemsnote
+db.username=gemsnote
 db.password=请替换为强密码
 ```
 
@@ -66,7 +66,7 @@ docker compose -f docker-compose.postgres.yml ps
 当前 Compose 配置使用 PostgreSQL 18，数据库数据保存在 `./data`，实际 PGDATA
 位于 `./data/18/docker`。仅当该 PostgreSQL 数据目录尚未初始化时，官方镜像才会
 自动依次执行 `database/schema.sql` 和 `database/seed.sql`。默认数据库名、用户和
-密码均为 `pearlnote`。
+密码均为 `gemsnote`（兼容内置 seed 数据；首次登录后请立即修改）。
 
 应用读取 `conf/app.docker-postgres.conf`，默认只在宿主机
 `127.0.0.1:9000` 提供服务。正式使用前请至少修改：
@@ -81,7 +81,7 @@ docker compose -f docker-compose.postgres.yml ps
 查看服务日志：
 
 ```bash
-docker compose -f docker-compose.postgres.yml logs -f pearlnote
+docker compose -f docker-compose.postgres.yml logs -f gemsnote
 ```
 
 ## 使用 Web 界面
@@ -90,7 +90,7 @@ docker compose -f docker-compose.postgres.yml logs -f pearlnote
 
 ```text
 用户名：admin
-密码：pearlnote
+密码：gemsnote
 ```
 
 首次登录后立即在“账号”中修改密码。随后可以创建笔记本和笔记，或在“管理”中

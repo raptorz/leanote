@@ -1,8 +1,8 @@
 package controllers
 
 import (
-	"github.com/pearlnote/pearlnote/app/info"
-	. "github.com/pearlnote/pearlnote/app/lea"
+	"github.com/gemsnote/gemsnote/app/info"
+	. "github.com/gemsnote/gemsnote/app/lea"
 	"github.com/revel/revel"
 	"strings"
 	//	"strconv"
@@ -32,7 +32,7 @@ func (c Auth) Login(email, from string) revel.Result {
 
 	if c.Has("demo") {
 		c.ViewArgs["demo"] = true
-		c.ViewArgs["email"] = "demo@pearlnote.com"
+		c.ViewArgs["email"] = "demo@gemsnote.com"
 	}
 	return c.RenderTemplate("home/login.html")
 }

@@ -7,7 +7,7 @@ import (
 	"os"
 	"path"
 	"strings"
-	"github.com/pearlnote/pearlnote/app/lea"
+	"github.com/gemsnote/gemsnote/app/lea"
 )
 
 // main functions shows how to TarGz a directory/file and

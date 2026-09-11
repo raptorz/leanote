@@ -1,15 +1,15 @@
 package binder
 
 import (
-	"github.com/pearlnote/pearlnote/app/info"
+	"github.com/gemsnote/gemsnote/app/info"
 	"github.com/revel/revel"
-	//	"github.com/pearlnote/pearlnote/app/controllers/api"
+	//	"github.com/gemsnote/gemsnote/app/controllers/api"
 	"fmt"
 	"reflect"
 	"strings"
 )
 
-// pearlnote binder struct
+// gemsnote binder struct
 // rewrite revel struct binder
 // not need the struct name as prefix,
 // eg:
@@ -54,7 +54,7 @@ func nextKey(key string) string {
 	return key[:fieldLen]
 }
 
-var pearlnoteStructBinder = revel.Binder{
+var gemsnoteStructBinder = revel.Binder{
 	// name == "noteOrContent"
 	Bind: func(params *revel.Params, name string, typ reflect.Type) reflect.Value {
 		result := reflect.New(typ).Elem() // 创建一个该类型的, 然后其field从所有的param去取
@@ -67,7 +67,7 @@ var pearlnoteStructBinder = revel.Binder{
 			map[Title:[test1] METHOD:[POST] NotebookId:[54c4f51705fcd14031000002]
 			files[1][FileId]:[]
 			controller:[note]
-			files[1][LocalFileId]:[54c7ae27d98d0329dd000000] files[1][HasBody]:[true] files[0][FileId]:[] files[0][LocalFileId]:[54c7ae855e94ea2dba000000] action:[addNote] Content:[<p>lifedddddd</p><p><img src="app://pearlnote/data/54bdc65599c37b0da9000002/images/1422368307147_2.png" alt="" data-mce-src="app://pearlnote/data/54bdc65599c37b0da9000002/images/1422368307147_2.png" style="display: block; margin-left: auto; margin-right: auto;"></p><p><img src="http://127.0.0.1:8008/api/file/getImage?fileId=54c7ae27d98d0329dd000000" alt="" data-mce-src="http://127.0.0.1:8008/api/file/getImg?fileId=54c7ae27d98d0329dd000000"></p><p><br></p><p><img src="http://127.0.0.1:8008/api/file/getImage?fileId=54c7ae855e94ea2dba000000" alt="" data-mce-src="http://127.0.0.1:8008/api/file/getImage?fileId=54c7ae855e94ea2dba000000" style="display: block; margin-left: auto; margin-right: auto;"></p><p><br></p><p><br></p>] IsBlog:[false] token:[user1]
+			files[1][LocalFileId]:[54c7ae27d98d0329dd000000] files[1][HasBody]:[true] files[0][FileId]:[] files[0][LocalFileId]:[54c7ae855e94ea2dba000000] action:[addNote] Content:[<p>lifedddddd</p><p><img src="app://gemsnote/data/54bdc65599c37b0da9000002/images/1422368307147_2.png" alt="" data-mce-src="app://gemsnote/data/54bdc65599c37b0da9000002/images/1422368307147_2.png" style="display: block; margin-left: auto; margin-right: auto;"></p><p><img src="http://127.0.0.1:8008/api/file/getImage?fileId=54c7ae27d98d0329dd000000" alt="" data-mce-src="http://127.0.0.1:8008/api/file/getImg?fileId=54c7ae27d98d0329dd000000"></p><p><br></p><p><img src="http://127.0.0.1:8008/api/file/getImage?fileId=54c7ae855e94ea2dba000000" alt="" data-mce-src="http://127.0.0.1:8008/api/file/getImage?fileId=54c7ae855e94ea2dba000000" style="display: block; margin-left: auto; margin-right: auto;"></p><p><br></p><p><br></p>] IsBlog:[false] token:[user1]
 			files[0][HasBody]:[true]]
 		*/
 		nameIsSlice := strings.Contains(name, "[")
@@ -145,12 +145,12 @@ var pearlnoteStructBinder = revel.Binder{
 }
 
 func init() {
-	revel.TypeBinders[reflect.TypeOf(info.UserBlogBase{})] = pearlnoteStructBinder
-	revel.TypeBinders[reflect.TypeOf(info.UserBlogComment{})] = pearlnoteStructBinder
-	revel.TypeBinders[reflect.TypeOf(info.UserBlogStyle{})] = pearlnoteStructBinder
-	revel.TypeBinders[reflect.TypeOf(info.Notebook{})] = pearlnoteStructBinder
-	revel.TypeBinders[reflect.TypeOf(info.UserAccount{})] = pearlnoteStructBinder
-	revel.TypeBinders[reflect.TypeOf(info.NoteOrContent{})] = pearlnoteStructBinder
-	revel.TypeBinders[reflect.TypeOf(info.ApiNote{})] = pearlnoteStructBinder
-	revel.TypeBinders[reflect.TypeOf(info.NoteFile{})] = pearlnoteStructBinder
+	revel.TypeBinders[reflect.TypeOf(info.UserBlogBase{})] = gemsnoteStructBinder
+	revel.TypeBinders[reflect.TypeOf(info.UserBlogComment{})] = gemsnoteStructBinder
+	revel.TypeBinders[reflect.TypeOf(info.UserBlogStyle{})] = gemsnoteStructBinder
+	revel.TypeBinders[reflect.TypeOf(info.Notebook{})] = gemsnoteStructBinder
+	revel.TypeBinders[reflect.TypeOf(info.UserAccount{})] = gemsnoteStructBinder
+	revel.TypeBinders[reflect.TypeOf(info.NoteOrContent{})] = gemsnoteStructBinder
+	revel.TypeBinders[reflect.TypeOf(info.ApiNote{})] = gemsnoteStructBinder
+	revel.TypeBinders[reflect.TypeOf(info.NoteFile{})] = gemsnoteStructBinder
 }

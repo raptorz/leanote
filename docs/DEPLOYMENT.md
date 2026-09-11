@@ -1,6 +1,6 @@
 # 安装和部署指南
 
-Pearlnote 支持 PostgreSQL 和 MongoDB。新安装推荐 PostgreSQL；MongoDB 主要用于直接接入现有 Leanote 数据。数据库中的附件记录不包含文件实体，任何迁移都必须同时处理项目根目录下的 `files/`。
+Gemsnote 支持 PostgreSQL 和 MongoDB。新安装推荐 PostgreSQL；MongoDB 主要用于直接接入现有 Leanote 数据。数据库中的附件记录不包含文件实体，任何迁移都必须同时处理项目根目录下的 `files/`。
 
 ## 部署前准备
 
@@ -8,25 +8,25 @@ Pearlnote 支持 PostgreSQL 和 MongoDB。新安装推荐 PostgreSQL；MongoDB �
 2. 修改 `app.secret`，并设置真实的 `site.url`、数据库密码和 HTTPS。
 3. 确保运行账号对 `files/` 有读写权限。
 
-Pearlnote 会在 PostgreSQL 的 `pearlnote_schema_migrations` 表或 MongoDB 的同名集合记录数据库版本。旧 Leanote 数据库没有版本记录时会登记为 `1.0.0`，不会因此重写业务数据。
+Gemsnote 会在 PostgreSQL 的 `gemsnote_schema_migrations` 表或 MongoDB 的同名集合记录数据库版本。旧 Leanote 数据库没有版本记录时会登记为 `1.0.0`，不会因此重写业务数据。
 
 ## 一、使用 Release 包部署
 
-Release 包包含服务端、Web 前端、数据库文件、文档和编译好的迁移工具 `bin/pearlnote-migrate`（Windows 为 `.exe`）。包名为：
+Release 包包含服务端、Web 前端、数据库文件、文档和编译好的迁移工具 `bin/gemsnote-migrate`（Windows 为 `.exe`）。包名为：
 
 ```text
-pearlnote-linux-amd64-v<version>.tar.gz
-pearlnote-linux-arm64-v<version>.tar.gz
-pearlnote-darwin-amd64-v<version>.tar.gz
-pearlnote-darwin-arm64-v<version>.tar.gz
-pearlnote-windows-amd64-v<version>.zip
+gemsnote-linux-amd64-v<version>.tar.gz
+gemsnote-linux-arm64-v<version>.tar.gz
+gemsnote-darwin-amd64-v<version>.tar.gz
+gemsnote-darwin-arm64-v<version>.tar.gz
+gemsnote-windows-amd64-v<version>.zip
 ```
 
 ### Linux 和 macOS
 
 ```bash
-tar -xzf pearlnote-<os>-<arch>-v<version>.tar.gz
-cd pearlnote
+tar -xzf gemsnote-<os>-<arch>-v<version>.tar.gz
+cd gemsnote
 mkdir -p files public/upload
 ```
 
@@ -34,7 +34,7 @@ macOS 首次运行若被系统拦截，在“系统设置 → 隐私与安全性
 
 ### Windows
 
-解压 ZIP 后进入 `pearlnote` 目录：
+解压 ZIP 后进入 `gemsnote` 目录：
 
 ```bat
 mkdir files
@@ -51,8 +51,8 @@ mkdir public\upload
 创建用户和空数据库：
 
 ```sql
-CREATE USER pearlnote WITH PASSWORD '请替换为强密码';
-CREATE DATABASE pearlnote OWNER pearlnote;
+CREATE USER gemsnote WITH PASSWORD '请替换为强密码';
+CREATE DATABASE gemsnote OWNER gemsnote;
 ```
 
 编辑 `conf/app.conf`：
@@ -61,8 +61,8 @@ CREATE DATABASE pearlnote OWNER pearlnote;
 db.type=postgresql
 db.host=127.0.0.1
 db.port=5432
-db.dbname=pearlnote
-db.username=pearlnote
+db.dbname=gemsnote
+db.username=gemsnote
 db.password=请替换为强密码
 ```
 
@@ -70,7 +70,7 @@ db.password=请替换为强密码
 `site.url`。仓库默认 `app.secret` 技术上可以启动，但正式或生产使用必须在首次
 启动前将它改为随机长字符串。
 
-配置完成后直接运行 `run.sh` 或 `run.bat`。Pearlnote 首次连接真正的空数据库时
+配置完成后直接运行 `run.sh` 或 `run.bat`。Gemsnote 首次连接真正的空数据库时
 会自动执行 Release 包中的 `database/schema.sql` 和 `database/seed.sql`；已有表的
 数据库不会自动导入初始数据，因此不需要也不应手工执行这两个 SQL 文件。
 
@@ -79,7 +79,7 @@ db.password=请替换为强密码
 全新 MongoDB 可从 Release 内置数据初始化：
 
 ```bash
-mongorestore --drop --db pearlnote mongodb_backup/pearlnote_install_data
+mongorestore --drop --db gemsnote mongodb_backup/gemsnote_install_data
 ```
 
 配置 `conf/app.conf`：
@@ -88,7 +88,7 @@ mongorestore --drop --db pearlnote mongodb_backup/pearlnote_install_data
 db.type=mongodb
 db.host=127.0.0.1
 db.port=27017
-db.dbname=pearlnote
+db.dbname=gemsnote
 db.username=
 db.password=
 ```
@@ -96,19 +96,19 @@ db.password=
 启用认证或副本集时推荐使用完整 URL：
 
 ```ini
-db.url=mongodb://用户名:密码@主机:27017/pearlnote?authSource=admin
+db.url=mongodb://用户名:密码@主机:27017/gemsnote?authSource=admin
 ```
 
 ### Release 直接连接旧 Leanote MongoDB
 
-无需改库名。停止旧 Leanote 写入并备份后，把 Pearlnote 指向原业务库：
+无需改库名。停止旧 Leanote 写入并备份后，把 Gemsnote 指向原业务库：
 
 ```ini
 db.type=mongodb
 db.url=mongodb://用户名:密码@数据库主机:27017/leanote?authSource=admin
 ```
 
-未启用认证时可配置 `db.host`、`db.port` 和 `db.dbname=leanote`。Pearlnote 会继续使用旧数据中的 24 位 ObjectId。首次启动会写入版本记录，因此切换前必须备份。这是由 Pearlnote 接管旧数据库，不是让两个服务长期共享同一业务库；Pearlnote 启动后应保持旧 Leanote 服务停止，避免并发写入和 USN 冲突。
+未启用认证时可配置 `db.host`、`db.port` 和 `db.dbname=leanote`。Gemsnote 会继续使用旧数据中的 24 位 ObjectId。首次启动会写入版本记录，因此切换前必须备份。这是由 Gemsnote 接管旧数据库，不是让两个服务长期共享同一业务库；Gemsnote 启动后应保持旧 Leanote 服务停止，避免并发写入和 USN 冲突。
 
 ### 从 Leanote 的 MongoDB 原始 db 目录恢复
 
@@ -138,19 +138,19 @@ mongorestore --drop --db leanote logical-dump/leanote
 
 ### Release：MongoDB 迁移到 PostgreSQL
 
-创建空的目标 PostgreSQL 数据库，但不要执行 `schema.sql` 或 `seed.sql`；迁移工具默认自行应用 `database/schema.sql`。工具迁移固定支持的 Pearlnote/Leanote 业务集合，保留 ObjectId，并默认比较源、目标记录数：
+创建空的目标 PostgreSQL 数据库，但不要执行 `schema.sql` 或 `seed.sql`；迁移工具默认自行应用 `database/schema.sql`。工具迁移固定支持的 Gemsnote/Leanote 业务集合，保留 ObjectId，并默认比较源、目标记录数：
 
 ```bash
-./bin/pearlnote-migrate \
+./bin/gemsnote-migrate \
   -direction mongo_to_pg \
   -mongo-url 'mongodb://127.0.0.1:27017/leanote' \
-  -postgres-url 'host=127.0.0.1 port=5432 user=pearlnote password=请替换为强密码 dbname=pearlnote sslmode=disable'
+  -postgres-url 'host=127.0.0.1 port=5432 user=gemsnote password=请替换为强密码 dbname=gemsnote sslmode=disable'
 ```
 
 Windows：
 
 ```bat
-bin\pearlnote-migrate.exe -direction mongo_to_pg -mongo-url "mongodb://127.0.0.1:27017/leanote" -postgres-url "host=127.0.0.1 port=5432 user=pearlnote password=请替换为强密码 dbname=pearlnote sslmode=disable"
+bin\gemsnote-migrate.exe -direction mongo_to_pg -mongo-url "mongodb://127.0.0.1:27017/leanote" -postgres-url "host=127.0.0.1 port=5432 user=gemsnote password=请替换为强密码 dbname=gemsnote sslmode=disable"
 ```
 
 可先用相同参数加 `-dry-run` 验证连接和读取而不写入；由于 dry-run 不会自动应用
@@ -161,8 +161,8 @@ schema，目标 PostgreSQL 必须预先具有 `database/schema.sql` 中的表结
 
 仓库当前提供：
 
-- `docker-compose.postgres.yml`：PostgreSQL 18 + Pearlnote，配置为 `conf/app.docker-postgres.conf`；
-- `docker-compose.mongodb.yml`：MongoDB 4.2 + Pearlnote，配置为 `conf/app.docker-mongodb.conf`。
+- `docker-compose.postgres.yml`：PostgreSQL 18 + Gemsnote，配置为 `conf/app.docker-postgres.conf`；
+- `docker-compose.mongodb.yml`：MongoDB 4.2 + Gemsnote，配置为 `conf/app.docker-mongodb.conf`。
 
 Web 默认只发布到宿主机 `127.0.0.1:9000`。
 
@@ -177,7 +177,7 @@ mkdir -p files public/upload
 ```bash
 docker compose -f docker-compose.postgres.yml up -d --build
 docker compose -f docker-compose.postgres.yml ps
-docker compose -f docker-compose.postgres.yml logs -f pearlnote
+docker compose -f docker-compose.postgres.yml logs -f gemsnote
 ```
 
 数据库挂载的宿主机父目录是 `./data`；当前 PostgreSQL 18 镜像的实际数据库目录是
@@ -185,11 +185,11 @@ docker compose -f docker-compose.postgres.yml logs -f pearlnote
 首次启动前修改密码，需同步修改 Compose 的 `POSTGRES_PASSWORD` 与
 `conf/app.docker-postgres.conf` 的 `db.password`。数据库已经初始化后，修改
 `POSTGRES_PASSWORD` 不会改变数据库内的密码；应先在 PostgreSQL 中执行
-`ALTER ROLE pearlnote WITH PASSWORD '新密码';`，再更新这两处配置。
+`ALTER ROLE gemsnote WITH PASSWORD '新密码';`，再更新这两处配置。
 
 ### Docker + MongoDB
 
-当前 MongoDB 配置默认使用 `db.host=mongodb` 和 `db.dbname=leanote`。全新安装时，先将配置中的库名改为 `pearlnote`，再初始化：
+当前 MongoDB 配置默认使用 `db.host=mongodb` 和 `db.dbname=leanote`。全新安装时，先将配置中的库名改为 `gemsnote`，再初始化：
 
 首次启动前创建应用文件持久化目录：
 
@@ -205,10 +205,10 @@ test -f conf/app.docker-mongodb.conf
 
 ```bash
 docker compose -f docker-compose.mongodb.yml up -d mongodb
-docker cp mongodb_backup/pearlnote_install_data mongodb:/tmp/pearlnote-install
+docker cp mongodb_backup/gemsnote_install_data mongodb:/tmp/gemsnote-install
 docker compose -f docker-compose.mongodb.yml exec mongodb \
-  mongorestore --drop --db pearlnote /tmp/pearlnote-install
-docker compose -f docker-compose.mongodb.yml up -d --build pearlnote
+  mongorestore --drop --db gemsnote /tmp/gemsnote-install
+docker compose -f docker-compose.mongodb.yml up -d --build gemsnote
 ```
 
 MongoDB 数据保存在 `./data/mongo/db`。
@@ -232,7 +232,7 @@ db.type=mongodb
 db.url=mongodb://用户名:密码@可从容器访问的主机:27017/leanote?authSource=admin
 ```
 
-容器内的 `127.0.0.1` 不是宿主机。Linux 可使用宿主机网关地址，或给 `pearlnote` 服务增加：
+容器内的 `127.0.0.1` 不是宿主机。Linux 可使用宿主机网关地址，或给 `gemsnote` 服务增加：
 
 ```yaml
     extra_hosts:
@@ -250,7 +250,7 @@ docker compose -f docker-compose.mongodb.yml up -d mongodb
 docker cp logical-dump/leanote mongodb:/tmp/leanote
 docker compose -f docker-compose.mongodb.yml exec mongodb \
   mongorestore --drop --db leanote /tmp/leanote
-docker compose -f docker-compose.mongodb.yml up -d --build pearlnote
+docker compose -f docker-compose.mongodb.yml up -d --build gemsnote
 ```
 
 不要恢复 `admin`、`config`、`local`；认证用户应在新实例重新创建。
@@ -280,10 +280,10 @@ docker compose -f docker-compose.mongodb.yml up -d --build pearlnote
 ```bash
 docker compose -f docker-compose.mongodb.yml up -d mongodb
 docker compose -f docker-compose.postgres-migration.yml up -d postgres
-./bin/pearlnote-migrate -direction mongo_to_pg \
+./bin/gemsnote-migrate -direction mongo_to_pg \
   -mongo-url 'mongodb://127.0.0.1:27017/leanote' \
-  -postgres-url 'host=127.0.0.1 port=5432 user=pearlnote password=pearlnote dbname=pearlnote sslmode=disable'
-docker compose -f docker-compose.postgres-migration.yml up -d --build pearlnote
+  -postgres-url 'host=127.0.0.1 port=5432 user=gemsnote password=gemsnote dbname=gemsnote sslmode=disable'
+docker compose -f docker-compose.postgres-migration.yml up -d --build gemsnote
 ```
 
 迁移后可重新注释 PostgreSQL 端口发布。
@@ -293,8 +293,8 @@ docker compose -f docker-compose.postgres-migration.yml up -d --build pearlnote
 两个 Compose 文件已默认挂载附件和旧上传目录：
 
 ```yaml
-      - ./files:/opt/pearlnote/files
-      - ./public/upload:/opt/pearlnote/public/upload
+      - ./files:/opt/gemsnote/files
+      - ./public/upload:/opt/gemsnote/public/upload
 ```
 
 停止旧服务写入后复制整个目录，保留相对路径：
@@ -314,8 +314,8 @@ cp -a /path/to/old-leanote/public/upload/. ./public/upload/
 需要 Go 1.22+（当前 CI/Docker 使用 Go 1.24）和 Node.js 22，以及选定数据库的客户端。Linux/macOS 使用以下命令：
 
 ```bash
-git clone <repository-url> pearlnote
-cd pearlnote
+git clone <repository-url> gemsnote
+cd gemsnote
 npm ci --prefix frontend
 npm test --prefix frontend
 npm run build --prefix frontend
@@ -326,8 +326,8 @@ go run github.com/revel/cmd/revel run -a . -m prod
 Windows PowerShell：
 
 ```powershell
-git clone <repository-url> pearlnote
-Set-Location pearlnote
+git clone <repository-url> gemsnote
+Set-Location gemsnote
 npm ci --prefix frontend
 npm test --prefix frontend
 npm run build --prefix frontend
@@ -347,7 +347,7 @@ Windows 原生环境若无 Bash，可在 Git Bash/WSL 中执行脚本，或使�
 ### 源码 + PostgreSQL
 
 创建空数据库，把 `conf/app.conf` 的 `db.type` 设为 `postgresql` 并填写连接信息，
-然后直接启动。Pearlnote 会在首次连接真正的空数据库时自动应用
+然后直接启动。Gemsnote 会在首次连接真正的空数据库时自动应用
 `database/schema.sql` 和 `database/seed.sql`，三个平台都无需手工导入。默认
 `app.secret` 可以启动，但正式或生产使用必须在首次启动前更换。
 
@@ -356,10 +356,10 @@ Windows 原生环境若无 Bash，可在 Git Bash/WSL 中执行脚本，或使�
 全新 MongoDB：
 
 ```bash
-mongorestore --drop --db pearlnote mongodb_backup/pearlnote_install_data
+mongorestore --drop --db gemsnote mongodb_backup/gemsnote_install_data
 ```
 
-配置 `db.type=mongodb`、MongoDB 主机和 `db.dbname=pearlnote`。直连旧 Leanote 时改为 `db.dbname=leanote`，或设置完整 `db.url`。原始 db 目录仍须先转换为逻辑备份，不能直接使用 `mongorestore`。
+配置 `db.type=mongodb`、MongoDB 主机和 `db.dbname=gemsnote`。直连旧 Leanote 时改为 `db.dbname=leanote`，或设置完整 `db.url`。原始 db 目录仍须先转换为逻辑备份，不能直接使用 `mongorestore`。
 
 ### 源码迁移 Leanote MongoDB 到 PostgreSQL
 
@@ -369,7 +369,7 @@ mongorestore --drop --db pearlnote mongodb_backup/pearlnote_install_data
 go run ./tools/migration \
   -direction mongo_to_pg \
   -mongo-url 'mongodb://127.0.0.1:27017/leanote' \
-  -postgres-url 'host=127.0.0.1 port=5432 user=pearlnote password=请替换为强密码 dbname=pearlnote sslmode=disable'
+  -postgres-url 'host=127.0.0.1 port=5432 user=gemsnote password=请替换为强密码 dbname=gemsnote sslmode=disable'
 ```
 
 Windows PowerShell 使用同一入口；参数应使用 PowerShell 的续行符：
@@ -378,7 +378,7 @@ Windows PowerShell 使用同一入口；参数应使用 PowerShell 的续行符�
 go run ./tools/migration `
   -direction mongo_to_pg `
   -mongo-url "mongodb://127.0.0.1:27017/leanote" `
-  -postgres-url "host=127.0.0.1 port=5432 user=pearlnote password=请替换为强密码 dbname=pearlnote sslmode=disable"
+  -postgres-url "host=127.0.0.1 port=5432 user=gemsnote password=请替换为强密码 dbname=gemsnote sslmode=disable"
 ```
 
 可选参数：`-schema <path>`（默认 `database/schema.sql`）、`-dry-run`、`-validate`（默认 `true`）。迁移成功后切换 `conf/app.conf` 到 PostgreSQL，并迁移 `files/` 与需要的 `public/upload/`。

@@ -1,1 +1,1 @@
-The pearlnote util package
+The gemsnote util package

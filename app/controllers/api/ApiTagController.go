@@ -1,10 +1,10 @@
 package api
 
 import (
-	"github.com/pearlnote/pearlnote/app/info"
+	"github.com/gemsnote/gemsnote/app/info"
 	"github.com/revel/revel"
 	//	"gopkg.in/mgo.v2/bson"
-	//	. "github.com/pearlnote/pearlnote/app/lea"
+	//	. "github.com/gemsnote/gemsnote/app/lea"
 	//	"io/ioutil"
 )
 

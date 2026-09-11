@@ -7,7 +7,7 @@
 # Home is My Blog
 GET     /                                      Web.Page
 GET     /note                                  Web.Page
-# pearlnote home
+# gemsnote home
 GET     /index                                 Web.Page
 
 GET     /login                                  Web.Page

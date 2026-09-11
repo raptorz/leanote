@@ -26,7 +26,7 @@ const sorted=computed(()=>[...notes.value].sort((a,b)=>sort.value==='Title'?a.Ti
 const html=computed(()=>DOMPurify.sanitize(current.value?.Note.IsMarkdown?String(marked.parse(content.value,{async:false})):content.value))
 const writable=computed(()=>!!current.value?.Writable)
 const own=computed(()=>current.value?.Note.UserId===boot.value.User?.UserId)
-function layoutKey(){return `pearlnote:workspace:${boot.value.User?.UserId||'guest'}`}
+function layoutKey(){return `gemsnote:workspace:${boot.value.User?.UserId||'guest'}`}
 function persistLayout(){if(!layoutReady)return;localStorage.setItem(layoutKey(),JSON.stringify({notebooksVisible:notebooksVisible.value,notesVisible:notesVisible.value,notebooksWidth:notebooksWidth.value,notesWidth:notesWidth.value}))}
 function restoreLayout(){
  if(layoutReady)return

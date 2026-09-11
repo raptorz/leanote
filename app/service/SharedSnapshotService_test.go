@@ -9,10 +9,10 @@ import (
 func TestSharedFileDigest(t *testing.T) {
 	dir := t.TempDir()
 	path := filepath.Join(dir, "file.bin")
-	if err := os.WriteFile(path, []byte("pearlnote"), 0600); err != nil {
+	if err := os.WriteFile(path, []byte("gemsnote"), 0600); err != nil {
 		t.Fatal(err)
 	}
-	const expected = "b8b2325547c152a8bb43358c12f3a54ae7e301e15bd52b3aebd8e9342a7795fb"
+	const expected = "029d60ab82c57305820e5e60bc43f8913f14e3670f64f7a55ff06df134ba4163"
 	if got := sharedFileDigest(dir, "file.bin"); got != expected {
 		t.Fatalf("unexpected digest: %s", got)
 	}

@@ -1,4 +1,4 @@
-# Pearlnote 统一 UI 设计
+# Gemsnote 统一 UI 设计
 
 本文档定义 Web、desktop-app 以及后续移动端应共同遵循的笔记界面结构和交互规则。设计以 `desktop-app` 的三栏笔记工作区为基础，吸收 Web 端已经提供的笔记本搜索、共享笔记和文章信息功能。
 

@@ -5,20 +5,17 @@ import (
 	"testing"
 	"time"
 
-	"github.com/pearlnote/pearlnote/app/info"
+	"github.com/gemsnote/gemsnote/app/info"
 	"gopkg.in/mgo.v2/bson"
 )
 
 func TestPostgresCRUDContract(t *testing.T) {
-	dsn := os.Getenv("PEARLNOTE_INTEGRATION_POSTGRES_URL")
+	dsn := os.Getenv("GEMSNOTE_INTEGRATION_POSTGRES_URL")
 	if dsn == "" {
-		dsn = os.Getenv("LEANOTE_INTEGRATION_POSTGRES_URL")
-	}
-	if dsn == "" {
-		t.Skip("set PEARLNOTE_INTEGRATION_POSTGRES_URL to run PostgreSQL integration tests")
+		t.Skip("set GEMSNOTE_INTEGRATION_POSTGRES_URL to run PostgreSQL integration tests")
 	}
 	previousURL, previousDB := initURL, initDBName
-	initURL, initDBName = dsn, "pearlnote"
+	initURL, initDBName = dsn, "gemsnote"
 	defer func() { initURL, initDBName = previousURL, previousDB }()
 
 	p := &PostgresDatabase{}

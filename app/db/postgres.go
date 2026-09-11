@@ -15,7 +15,7 @@ import (
 
 	_ "github.com/lib/pq"
 
-	. "github.com/pearlnote/pearlnote/app/lea"
+	. "github.com/gemsnote/gemsnote/app/lea"
 	"github.com/revel/revel"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
@@ -133,7 +133,7 @@ func initializePostgresDatabase(database *sql.DB) (resultErr error) {
 	if err := conn.QueryRowContext(ctx, `
 		SELECT COUNT(*) FROM information_schema.tables
 		WHERE table_schema = 'public' AND table_type = 'BASE TABLE'
-		  AND table_name <> 'pearlnote_schema_migrations'
+		  AND table_name <> 'gemsnote_schema_migrations'
 	`).Scan(&tableCount); err != nil {
 		return err
 	}
@@ -176,8 +176,8 @@ func initializePostgresDatabase(database *sql.DB) (resultErr error) {
 }
 
 const (
-	postgresBootstrapLockSQL   = `SELECT pg_advisory_lock(hashtextextended('pearlnote:postgres-bootstrap:v1', 0))`
-	postgresBootstrapUnlockSQL = `SELECT pg_advisory_unlock(hashtextextended('pearlnote:postgres-bootstrap:v1', 0))`
+	postgresBootstrapLockSQL   = `SELECT pg_advisory_lock(hashtextextended('gemsnote:postgres-bootstrap:v1', 0))`
+	postgresBootstrapUnlockSQL = `SELECT pg_advisory_unlock(hashtextextended('gemsnote:postgres-bootstrap:v1', 0))`
 )
 
 var scriptTransactionBoundary = regexp.MustCompile(`(?im)^\s*(BEGIN|COMMIT)\s*;\s*$`)
@@ -189,7 +189,7 @@ func stripScriptTransactionBoundaries(script string) string {
 func findInstallationDatabaseDir() (string, error) {
 	cwd, _ := os.Getwd()
 	executable, _ := os.Executable()
-	return findInstallationDatabaseDirFrom(strings.TrimSpace(os.Getenv("PEARLNOTE_DATABASE_DIR")), cwd, executable)
+	return findInstallationDatabaseDirFrom(strings.TrimSpace(os.Getenv("GEMSNOTE_DATABASE_DIR")), cwd, executable)
 }
 
 func findInstallationDatabaseDirFrom(configured, cwd, executable string) (string, error) {
@@ -223,7 +223,7 @@ func findInstallationDatabaseDirFrom(configured, cwd, executable string) (string
 		}
 		return candidate, nil
 	}
-	return "", fmt.Errorf("cannot locate database/schema.sql and database/seed.sql; set PEARLNOTE_DATABASE_DIR or run from the project/release root")
+	return "", fmt.Errorf("cannot locate database/schema.sql and database/seed.sql; set GEMSNOTE_DATABASE_DIR or run from the project/release root")
 }
 
 func (p *PostgresDatabase) SetupLegacyVariables() {
@@ -296,13 +296,13 @@ func (p *PostgresDatabase) GetType() string {
 }
 
 func (p *PostgresDatabase) AppliedMigrations() ([]string, error) {
-	if _, err := p.db.Exec(`CREATE TABLE IF NOT EXISTS pearlnote_schema_migrations (
+	if _, err := p.db.Exec(`CREATE TABLE IF NOT EXISTS gemsnote_schema_migrations (
 		version TEXT PRIMARY KEY,
 		applied_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
 	)`); err != nil {
 		return nil, err
 	}
-	rows, err := p.db.Query("SELECT version FROM pearlnote_schema_migrations")
+	rows, err := p.db.Query("SELECT version FROM gemsnote_schema_migrations")
 	if err != nil {
 		return nil, err
 	}
@@ -319,7 +319,7 @@ func (p *PostgresDatabase) AppliedMigrations() ([]string, error) {
 }
 
 func (p *PostgresDatabase) RecordMigration(version string) error {
-	_, err := p.db.Exec(`INSERT INTO pearlnote_schema_migrations (version)
+	_, err := p.db.Exec(`INSERT INTO gemsnote_schema_migrations (version)
 		VALUES ($1) ON CONFLICT (version) DO NOTHING`, version)
 	return err
 }

@@ -3,10 +3,10 @@ package api
 import (
 	"github.com/revel/revel"
 	//	"encoding/json"
-	//	. "github.com/pearlnote/pearlnote/app/lea"
+	//	. "github.com/gemsnote/gemsnote/app/lea"
 	//	"gopkg.in/mgo.v2/bson"
-	//	"github.com/pearlnote/pearlnote/app/lea/netutil"
-	//	"github.com/pearlnote/pearlnote/app/info"
+	//	"github.com/gemsnote/gemsnote/app/lea/netutil"
+	//	"github.com/gemsnote/gemsnote/app/info"
 	//	"io/ioutil"
 	"os"
 	//	"strconv"

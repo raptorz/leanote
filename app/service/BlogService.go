@@ -1,9 +1,9 @@
 package service
 
 import (
-	"github.com/pearlnote/pearlnote/app/db"
-	"github.com/pearlnote/pearlnote/app/info"
-	. "github.com/pearlnote/pearlnote/app/lea"
+	"github.com/gemsnote/gemsnote/app/db"
+	"github.com/gemsnote/gemsnote/app/info"
+	. "github.com/gemsnote/gemsnote/app/lea"
 	"gopkg.in/mgo.v2/bson"
 	//	"time"
 	//	"sort"
@@ -430,7 +430,7 @@ func (this *BlogService) ListAllBlogs(userId, tag string, keywords string, isRec
 	skipNum, sortFieldR := parsePageAndSort(page, pageSize, sorterField, isAsc)
 
 	// 不是trash的
-	query := bson.M{"IsTrash": false, "IsDeleted": false, "IsBlog": true, "Title": bson.M{"$ne": "欢迎来到pearlnote!"}}
+	query := bson.M{"IsTrash": false, "IsDeleted": false, "IsBlog": true, "Title": bson.M{"$ne": "欢迎来到gemsnote!"}}
 	if tag != "" {
 		query["Tags"] = bson.M{"$in": []string{tag}}
 	}
@@ -1122,7 +1122,7 @@ func (this *BlogService) GetBlogUrls(userBlog *info.UserBlog, userInfo *info.Use
 			archiveUrl = indexUrl + "/archives"
 			tagsUrl = indexUrl + "/tags"
 			tagPostsUrl = indexUrl + "/tag"
-		} else if userBlog.SubDomain != "" { // demo.pearlnote.com
+		} else if userBlog.SubDomain != "" { // demo.gemsnote.com
 			indexUrl = configService.GetUserSubUrl(userBlog.SubDomain)
 			cateUrl = indexUrl + "/cate"     // /xxxxx
 			postUrl = indexUrl + "/post"     // /xxxxx
@@ -1134,7 +1134,7 @@ func (this *BlogService) GetBlogUrls(userBlog *info.UserBlog, userInfo *info.Use
 		} else {
 	*/
 	// ok
-	blogUrl := configService.GetBlogUrl() // blog.pearlnote.com
+	blogUrl := configService.GetBlogUrl() // blog.gemsnote.com
 	userIdOrEmail := ""
 	if userInfo.Username != "" {
 		userIdOrEmail = userInfo.Username
@@ -1146,11 +1146,11 @@ func (this *BlogService) GetBlogUrls(userBlog *info.UserBlog, userInfo *info.Use
 	indexUrl = blogUrl + "/" + userIdOrEmail
 	cateUrl = blogUrl + "/cate/" + userIdOrEmail        // /username/notebookId
 	postUrl = blogUrl + "/post/" + userIdOrEmail        // /username/xxxxx
-	searchUrl = blogUrl + "/search/" + userIdOrEmail    // blog.pearlnote.com/search/username
-	singleUrl = blogUrl + "/single/" + userIdOrEmail    // blog.pearlnote.com/single/username/singleId
-	archiveUrl = blogUrl + "/archives/" + userIdOrEmail // blog.pearlnote.com/archive/username
+	searchUrl = blogUrl + "/search/" + userIdOrEmail    // blog.gemsnote.com/search/username
+	singleUrl = blogUrl + "/single/" + userIdOrEmail    // blog.gemsnote.com/single/username/singleId
+	archiveUrl = blogUrl + "/archives/" + userIdOrEmail // blog.gemsnote.com/archive/username
 	tagsUrl = blogUrl + "/tags/" + userIdOrEmail
-	tagPostsUrl = blogUrl + "/tag/" + userIdOrEmail // blog.pearlnote.com/archive/username
+	tagPostsUrl = blogUrl + "/tag/" + userIdOrEmail // blog.gemsnote.com/archive/username
 	// }
 
 	return info.BlogUrls{

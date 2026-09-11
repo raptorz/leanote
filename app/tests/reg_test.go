@@ -1,10 +1,10 @@
 package tests
 
 import (
-    // "github.com/pearlnote/pearlnote/app/db"
+    // "github.com/gemsnote/gemsnote/app/db"
     "testing"
-    //  . "github.com/pearlnote/pearlnote/app/lea"
-    // "github.com/pearlnote/pearlnote/app/service"
+    //  . "github.com/gemsnote/gemsnote/app/lea"
+    // "github.com/gemsnote/gemsnote/app/service"
     //  "gopkg.in/mgo.v2"
     //  "fmt"
     "regexp"

@@ -28,8 +28,8 @@ COPY --from=frontend-builder /build/frontend/dist ./frontend/dist
 
 # Generate the Revel application entrypoint, then build the server rather than
 # the Revel command-line helper in app/cmd.
-RUN go run ./app/cmd build . /tmp/pearlnote-revel-build prod && \
-    CGO_ENABLED=0 GOOS=linux go build -trimpath -o /pearlnote -ldflags="-s -w" ./app/tmp
+RUN go run ./app/cmd build . /tmp/gemsnote-revel-build prod && \
+    CGO_ENABLED=0 GOOS=linux go build -trimpath -o /gemsnote -ldflags="-s -w" ./app/tmp
 
 RUN REVEL_DIR="$(go list -m -f '{{.Dir}}' github.com/revel/revel)" && \
     mkdir -p /runtime/github.com/revel/revel && \
@@ -43,25 +43,25 @@ LABEL maintainer="raptor<raptor.zh@gmail.com>"
 # Install ca-certificates for HTTPS connections and timezone data
 RUN apk --no-cache add ca-certificates tzdata
 
-WORKDIR /opt/pearlnote
+WORKDIR /opt/gemsnote
 
 # Copy the binary from builder
-COPY --from=builder /pearlnote /opt/pearlnote/pearlnote
-COPY --from=builder /runtime /opt/pearlnote/runtime
+COPY --from=builder /gemsnote /opt/gemsnote/gemsnote
+COPY --from=builder /runtime /opt/gemsnote/runtime
 
 # Copy necessary runtime files
-COPY conf/ /opt/pearlnote/conf/
-COPY messages/ /opt/pearlnote/messages/
-COPY public/ /opt/pearlnote/public/
-COPY database/ /opt/pearlnote/database/
-COPY --from=frontend-builder /build/frontend/dist/ /opt/pearlnote/frontend/dist/
-COPY app/views/ /opt/pearlnote/app/views/
-RUN mkdir -p /opt/pearlnote/runtime/github.com/pearlnote && \
-    ln -s /opt/pearlnote /opt/pearlnote/runtime/github.com/pearlnote/pearlnote
+COPY conf/ /opt/gemsnote/conf/
+COPY messages/ /opt/gemsnote/messages/
+COPY public/ /opt/gemsnote/public/
+COPY database/ /opt/gemsnote/database/
+COPY --from=frontend-builder /build/frontend/dist/ /opt/gemsnote/frontend/dist/
+COPY app/views/ /opt/gemsnote/app/views/
+RUN mkdir -p /opt/gemsnote/runtime/github.com/gemsnote && \
+    ln -s /opt/gemsnote /opt/gemsnote/runtime/github.com/gemsnote/gemsnote
 
 EXPOSE 9000
 
 # Set working directory to where the app needs to run
-WORKDIR /opt/pearlnote
+WORKDIR /opt/gemsnote
 
-CMD ["/opt/pearlnote/pearlnote", "-importPath", "github.com/pearlnote/pearlnote", "-srcPath", "/opt/pearlnote/runtime", "-runMode", "prod"]
+CMD ["/opt/gemsnote/gemsnote", "-importPath", "github.com/gemsnote/gemsnote", "-srcPath", "/opt/gemsnote/runtime", "-runMode", "prod"]

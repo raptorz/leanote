@@ -6,7 +6,7 @@ routes/
 pkg
 bin2
 bin/i18n
-bin/pearlnote*
+bin/gemsnote*
 bin/release
 bin/test.sh
 bin/tmp
@@ -27,9 +27,9 @@ files/
 .idea
 *.iml
 target/
-package/pearlnote.tar.gz
-package/pearlnote/
-pearlnote.log
+package/gemsnote.tar.gz
+package/gemsnote/
+gemsnote.log
 desktop-app
 mobile-app
 .omo

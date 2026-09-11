@@ -1,8 +1,8 @@
 package service
 
 import (
-	"github.com/pearlnote/pearlnote/app/db"
-	"github.com/pearlnote/pearlnote/app/info"
+	"github.com/gemsnote/gemsnote/app/db"
+	"github.com/gemsnote/gemsnote/app/info"
 	"gopkg.in/mgo.v2/bson"
 )
 

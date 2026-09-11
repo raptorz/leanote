@@ -4,7 +4,7 @@ import (
 	"os"
 	"strings"
 	//	"path/filepath"
-	. "github.com/pearlnote/pearlnote/app/lea"
+	. "github.com/gemsnote/gemsnote/app/lea"
 	"io/ioutil"
 	"net"
 	"net/http"

@@ -1,4 +1,4 @@
-# Pearlnote 数据库抽象
+# Gemsnote 数据库抽象
 
 数据库后端由 `db.type` 选择，可配置为 `mongodb` 或 `postgresql`。业务 service 不直接使用 `mgo.Collection`，统一通过 `app/db` 的 CRUD、条件查询、排序、分页和投影接口访问数据库。
 
@@ -30,8 +30,8 @@ DDL 位于 `database/schema.sql`，安装初始数据位于 `database/seed.sql`�
 
 当前应用及数据库版本为 `1.0.0`，集中定义在 `app/version/version.go`。启动时会依次执行 `app/db/migrations.go` 中尚未应用的迁移，并把结果写入：
 
-- MongoDB：`pearlnote_schema_migrations` 集合；
-- PostgreSQL：`pearlnote_schema_migrations` 表。
+- MongoDB：`gemsnote_schema_migrations` 集合；
+- PostgreSQL：`gemsnote_schema_migrations` 表。
 
 无版本记录的旧 Leanote MongoDB 会被识别为基线数据库，在不修改业务数据的情况下登记 `1.0.0`。数据库存在比应用更新的迁移记录时，应用会拒绝启动。
 
@@ -57,14 +57,14 @@ go test ./...
 PostgreSQL CRUD 集成测试：
 
 ```bash
-PEARLNOTE_INTEGRATION_POSTGRES_URL='host=127.0.0.1 port=5432 user=pearlnote password=pearlnote dbname=pearlnote sslmode=disable' \
+GEMSNOTE_INTEGRATION_POSTGRES_URL='host=127.0.0.1 port=5432 user=gemsnote password=gemsnote dbname=gemsnote sslmode=disable' \
   go test ./app/db -run TestPostgresCRUDContract -v
 ```
 
 双向迁移往返测试：
 
 ```bash
-PEARLNOTE_INTEGRATION_MONGO_URL='mongodb://127.0.0.1:27017/pearlnote' \
-PEARLNOTE_INTEGRATION_POSTGRES_URL='host=127.0.0.1 port=5432 user=pearlnote password=pearlnote dbname=pearlnote sslmode=disable' \
+GEMSNOTE_INTEGRATION_MONGO_URL='mongodb://127.0.0.1:27017/gemsnote' \
+GEMSNOTE_INTEGRATION_POSTGRES_URL='host=127.0.0.1 port=5432 user=gemsnote password=gemsnote dbname=gemsnote sslmode=disable' \
   go test ./tools/migration -run TestRoundTripMigration -v
 ```

@@ -1,9 +1,9 @@
 package route
 
 import (
-	"github.com/pearlnote/pearlnote/app/db"
+	"github.com/gemsnote/gemsnote/app/db"
 	"github.com/revel/revel"
-	// . "github.com/pearlnote/pearlnote/app/lea"
+	// . "github.com/gemsnote/gemsnote/app/lea"
 	"net/url"
 	"strings"
 )
@@ -66,7 +66,7 @@ func RouterFilter(c *revel.Controller, fc []revel.Filter) {
 		// Log("---------" + route.ControllerName + "  " + path)
 
 		// api设置
-		// pearlnote.com/api/user/get => ApiUser::Get
+		// gemsnote.com/api/user/get => ApiUser::Get
 		//*       /api/login               ApiAuth.Login,  这里的设置, 其实已经转成了ApiAuth了
 		if strings.HasPrefix(path, "/api") && !strings.HasPrefix(route.ControllerName, "App\\api") {
 			route.ControllerName = "App\\api" + strings.Split(route.ControllerName, "\\")[1]

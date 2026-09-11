@@ -1,8 +1,8 @@
 package admin
 
 import (
-	"github.com/pearlnote/pearlnote/app/info"
-	. "github.com/pearlnote/pearlnote/app/lea"
+	"github.com/gemsnote/gemsnote/app/info"
+	. "github.com/gemsnote/gemsnote/app/lea"
 	"github.com/revel/revel"
 	"gopkg.in/mgo.v2/bson"
 	//	"time"

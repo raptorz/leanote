@@ -15,7 +15,7 @@ func TestFindInstallationDatabaseDirHonorsEnvironment(t *testing.T) {
 	if err := os.WriteFile(filepath.Join(dir, "seed.sql"), []byte("-- seed"), 0600); err != nil {
 		t.Fatal(err)
 	}
-	got, err := findInstallationDatabaseDirFrom(dir, t.TempDir(), filepath.Join(t.TempDir(), "bin", "pearlnote"))
+	got, err := findInstallationDatabaseDirFrom(dir, t.TempDir(), filepath.Join(t.TempDir(), "bin", "gemsnote"))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -30,7 +30,7 @@ func TestFindInstallationDatabaseDirRejectsIncompleteDirectory(t *testing.T) {
 	if err := os.WriteFile(filepath.Join(dir, "schema.sql"), []byte("-- schema"), 0600); err != nil {
 		t.Fatal(err)
 	}
-	if _, err := findInstallationDatabaseDirFrom(dir, t.TempDir(), filepath.Join(t.TempDir(), "bin", "pearlnote")); err == nil {
+	if _, err := findInstallationDatabaseDirFrom(dir, t.TempDir(), filepath.Join(t.TempDir(), "bin", "gemsnote")); err == nil {
 		t.Fatal("expected missing seed.sql to be rejected")
 	}
 }
@@ -55,7 +55,7 @@ func TestFindInstallationDatabaseDirPrefersReleaseOverCwd(t *testing.T) {
 		}
 	}
 
-	got, err := findInstallationDatabaseDirFrom("", cwd, filepath.Join(releaseRoot, "bin", "pearlnote"))
+	got, err := findInstallationDatabaseDirFrom("", cwd, filepath.Join(releaseRoot, "bin", "gemsnote"))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -76,7 +76,7 @@ func TestFindInstallationDatabaseDirFallsBackToCwd(t *testing.T) {
 			t.Fatal(err)
 		}
 	}
-	got, err := findInstallationDatabaseDirFrom("", cwd, filepath.Join(t.TempDir(), "bin", "pearlnote"))
+	got, err := findInstallationDatabaseDirFrom("", cwd, filepath.Join(t.TempDir(), "bin", "gemsnote"))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -97,8 +97,8 @@ func TestPostgresBootstrapLockIsProjectScoped(t *testing.T) {
 	if postgresBootstrapLockSQL == "" || postgresBootstrapUnlockSQL == "" {
 		t.Fatal("bootstrap advisory lock SQL must be configured")
 	}
-	if !strings.Contains(postgresBootstrapLockSQL, "pearlnote:postgres-bootstrap:v1") ||
-		!strings.Contains(postgresBootstrapUnlockSQL, "pearlnote:postgres-bootstrap:v1") {
+	if !strings.Contains(postgresBootstrapLockSQL, "gemsnote:postgres-bootstrap:v1") ||
+		!strings.Contains(postgresBootstrapUnlockSQL, "gemsnote:postgres-bootstrap:v1") {
 		t.Fatalf("bootstrap lock is not project scoped: %q / %q", postgresBootstrapLockSQL, postgresBootstrapUnlockSQL)
 	}
 }

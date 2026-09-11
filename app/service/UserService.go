@@ -1,9 +1,9 @@
 package service
 
 import (
-	"github.com/pearlnote/pearlnote/app/db"
-	"github.com/pearlnote/pearlnote/app/info"
-	. "github.com/pearlnote/pearlnote/app/lea"
+	"github.com/gemsnote/gemsnote/app/db"
+	"github.com/gemsnote/gemsnote/app/info"
+	. "github.com/gemsnote/gemsnote/app/lea"
 	"gopkg.in/mgo.v2/bson"
 	"strings"
 	"time"
@@ -46,8 +46,8 @@ func (this *UserService) AddUser(user info.User) bool {
 		// 发送验证邮箱
 		go func() {
 			emailService.RegisterSendActiveEmail(user, user.Email)
-			// 发送给我 life@pearlnote.com
-			// emailService.SendEmail("life@pearlnote.com", "新增用户", "{header}用户名"+user.Email+"{footer}")
+			// 发送给我 life@gemsnote.com
+			// emailService.SendEmail("life@gemsnote.com", "新增用户", "{header}用户名"+user.Email+"{footer}")
 		}()
 	}
 

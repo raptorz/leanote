@@ -10,10 +10,10 @@ import (
 	"sync"
 	"time"
 
-	"github.com/pearlnote/pearlnote/app/db"
-	"github.com/pearlnote/pearlnote/app/info"
-	. "github.com/pearlnote/pearlnote/app/lea"
-	"github.com/pearlnote/pearlnote/app/service"
+	"github.com/gemsnote/gemsnote/app/db"
+	"github.com/gemsnote/gemsnote/app/info"
+	. "github.com/gemsnote/gemsnote/app/lea"
+	"github.com/gemsnote/gemsnote/app/service"
 	"github.com/revel/revel"
 	"gopkg.in/mgo.v2/bson"
 )
@@ -165,7 +165,7 @@ func (c ApiShared) NoteFile(noteId, fileId string) revel.Result {
 		return c.RenderJSON(map[string]interface{}{"Ok": false, "Msg": "fileReadFailed"})
 	}
 	digest := hex.EncodeToString(hash.Sum(nil))
-	c.Response.Out.Header().Set("X-Pearlnote-SHA256", digest)
+	c.Response.Out.Header().Set("X-Gemsnote-SHA256", digest)
 	c.Response.Out.Header().Set("ETag", `"`+digest+`"`)
 	if inline {
 		return c.RenderFile(file, revel.Inline)

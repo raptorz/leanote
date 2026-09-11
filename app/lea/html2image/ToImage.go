@@ -1,7 +1,7 @@
 package html2image
 
 import (
-	"github.com/pearlnote/pearlnote/app/info"
+	"github.com/gemsnote/gemsnote/app/info"
 )
 
 func Html2Image(userInfo info.User, note info.Note, content, toPath string) bool {

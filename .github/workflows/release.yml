@@ -101,7 +101,7 @@ jobs:
       - name: Upload release artifact
         uses: actions/upload-artifact@v4
         with:
-          name: pearlnote-${{ matrix.goos }}-${{ matrix.goarch }}
+          name: gemsnote-${{ matrix.goos }}-${{ matrix.goarch }}
           path: ${{ runner.temp }}/release/*
           if-no-files-found: error
 
@@ -124,4 +124,4 @@ jobs:
       - name: Create GitHub Release
         env:
           GH_TOKEN: ${{ github.token }}
-        run: gh release create "$GITHUB_REF_NAME" release/* --verify-tag --generate-notes --title "Pearlnote $GITHUB_REF_NAME"
+        run: gh release create "$GITHUB_REF_NAME" release/* --verify-tag --generate-notes --title "Gemsnote $GITHUB_REF_NAME"

@@ -3,8 +3,8 @@ package controllers
 import (
 	"github.com/revel/revel"
 	//	"encoding/json"
-	"github.com/pearlnote/pearlnote/app/info"
-	. "github.com/pearlnote/pearlnote/app/lea"
+	"github.com/gemsnote/gemsnote/app/info"
+	. "github.com/gemsnote/gemsnote/app/lea"
 	"gopkg.in/mgo.v2/bson"
 	"os"
 	"os/exec"
@@ -12,7 +12,7 @@ import (
 	"runtime"
 	"strings"
 	"time"
-	//	"github.com/pearlnote/pearlnote/app/types"
+	//	"github.com/gemsnote/gemsnote/app/types"
 	//	"io/ioutil"
 	"fmt"
 	//	"bytes"
@@ -356,7 +356,7 @@ func (c Note) ToPdf(noteId, appKey string) revel.Result {
 	regImage, _ := regexp.Compile(`<img .*?(src=('|")` + siteUrlPattern + `/(file/outputImage|api/file/getImage)\?fileId=([a-z0-9A-Z]{24})("|'))`)
 
 	findsImage := regImage.FindAllStringSubmatch(contentStr, -1) // 查找所有的
-	//	[<img src="http://pearlnote.com/api/getImage?fileId=3354672e8d38f411286b000069" alt="" width="692" height="302" data-mce-src="http://pearlnote.com/file/outputImage?fileId=54672e8d38f411286b000069" src="http://pearlnote.com/file/outputImage?fileId=54672e8d38f411286b000069" " file/outputImage 54672e8d38f411286b000069 "]
+	//	[<img src="http://gemsnote.com/api/getImage?fileId=3354672e8d38f411286b000069" alt="" width="692" height="302" data-mce-src="http://gemsnote.com/file/outputImage?fileId=54672e8d38f411286b000069" src="http://gemsnote.com/file/outputImage?fileId=54672e8d38f411286b000069" " file/outputImage 54672e8d38f411286b000069 "]
 	for _, eachFind := range findsImage {
 		if len(eachFind) == 6 {
 			fileId := eachFind[4]
@@ -367,7 +367,7 @@ func (c Note) ToPdf(noteId, appKey string) revel.Result {
 			}
 
 			// 1
-			// src="http://pearlnote.com/file/outputImage?fileId=54672e8d38f411286b000069"
+			// src="http://gemsnote.com/file/outputImage?fileId=54672e8d38f411286b000069"
 			allFixed := strings.Replace(eachFind[0], eachFind[1], "src=\""+fileBase64+"\"", -1)
 			contentStr = strings.Replace(contentStr, eachFind[0], allFixed, -1)
 		}
@@ -388,7 +388,7 @@ func (c Note) ToPdf(noteId, appKey string) revel.Result {
 				}
 
 				// 1
-				// src="http://pearlnote.com/file/outputImage?fileId=54672e8d38f411286b000069"
+				// src="http://gemsnote.com/file/outputImage?fileId=54672e8d38f411286b000069"
 				allFixed := "![](" + fileBase64 + ")"
 				contentStr = strings.Replace(contentStr, eachFind[0], allFixed, -1)
 			}
@@ -438,8 +438,8 @@ func (c Note) ExportPdf(noteId string) revel.Result {
 	filename := guid + ".pdf"
 	path := dir + "/" + filename
 
-	// pearlnote.com的secret
-	appKey, _ := revel.Config.String("app.secretPearlnote")
+	// gemsnote.com的secret
+	appKey, _ := revel.Config.String("app.secretGemsnote")
 	if appKey == "" {
 		// Keep existing deployments compatible with the pre-rename setting.
 		appKey, _ = revel.Config.String("app.secretLeanote")

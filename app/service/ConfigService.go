@@ -2,10 +2,10 @@ package service
 
 import (
 	"fmt"
-	"github.com/pearlnote/pearlnote/app/db"
-	"github.com/pearlnote/pearlnote/app/info"
-	. "github.com/pearlnote/pearlnote/app/lea"
-	appversion "github.com/pearlnote/pearlnote/app/version"
+	"github.com/gemsnote/gemsnote/app/db"
+	"github.com/gemsnote/gemsnote/app/info"
+	. "github.com/gemsnote/gemsnote/app/lea"
+	appversion "github.com/gemsnote/gemsnote/app/version"
 	"github.com/revel/revel"
 	"gopkg.in/mgo.v2/bson"
 	"os"
@@ -319,7 +319,7 @@ func (this *ConfigService) Backup(remark string) (ok bool, msg string) {
 	port, _ := revel.Config.String("db.port")
 	username, _ := revel.Config.String("db.username")
 	password, _ := revel.Config.String("db.password")
-	// mongodump -h localhost -d pearlnote -o /root/mongodb_backup/pearlnote-9-22/ -u pearlnote -p nKFAkxKnWkEQy8Vv2LlM
+	// mongodump -h localhost -d gemsnote -o /root/mongodb_backup/gemsnote-9-22/ -u gemsnote -p nKFAkxKnWkEQy8Vv2LlM
 	binPath = binPath + " -h " + host + " -d " + dbname + " --port " + port
 	if username != "" {
 		binPath += " -u " + username + " -p " + password
@@ -368,7 +368,7 @@ func (this *ConfigService) Restore(createdTime string) (ok bool, msg string) {
 		return
 	}
 
-	// mongorestore -h localhost -d pearlnote --directoryperdb /home/user1/gopackage/src/github.com/pearlnote/pearlnote/mongodb_backup/pearlnote_install_data/
+	// mongorestore -h localhost -d gemsnote --directoryperdb /home/user1/gopackage/src/github.com/gemsnote/gemsnote/mongodb_backup/gemsnote_install_data/
 	binPath := configService.GetGlobalStringConfig("mongorestorePath")
 	config := revel.Config
 	dbname, _ := config.String("db.dbname")
@@ -376,7 +376,7 @@ func (this *ConfigService) Restore(createdTime string) (ok bool, msg string) {
 	port, _ := revel.Config.String("db.port")
 	username, _ := revel.Config.String("db.username")
 	password, _ := revel.Config.String("db.password")
-	// mongorestore -h localhost -d pearlnote -o /root/mongodb_backup/pearlnote-9-22/ -u pearlnote -p nKFAkxKnWkEQy8Vv2LlM
+	// mongorestore -h localhost -d gemsnote -o /root/mongodb_backup/gemsnote-9-22/ -u gemsnote -p nKFAkxKnWkEQy8Vv2LlM
 	binPath = binPath + " --drop -h " + host + " -d " + dbname + " --port " + port
 	if username != "" {
 		binPath += " -u " + username + " -p " + password
@@ -481,7 +481,7 @@ func init() {
 			}
 		*/
 
-		siteUrl, _ := revel.Config.String("site.url") // 已包含:9000, http, 去掉成 pearlnote.com
+		siteUrl, _ := revel.Config.String("site.url") // 已包含:9000, http, 去掉成 gemsnote.com
 		if strings.HasPrefix(siteUrl, "http://") {
 			defaultDomain = siteUrl[len("http://"):]
 		} else if strings.HasPrefix(siteUrl, "https://") {

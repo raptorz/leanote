@@ -4,8 +4,8 @@ import (
 	"github.com/revel/revel"
 	//	"encoding/json"
 	//	"gopkg.in/mgo.v2/bson"
-	//	. "github.com/pearlnote/pearlnote/app/lea"
-	"github.com/pearlnote/pearlnote/app/info"
+	//	. "github.com/gemsnote/gemsnote/app/lea"
+	"github.com/gemsnote/gemsnote/app/info"
 	//	"os/exec"
 )
 

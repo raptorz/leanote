@@ -3,10 +3,10 @@ package service
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/pearlnote/pearlnote/app/db"
-	"github.com/pearlnote/pearlnote/app/info"
-	. "github.com/pearlnote/pearlnote/app/lea"
-	"github.com/pearlnote/pearlnote/app/lea/archive"
+	"github.com/gemsnote/gemsnote/app/db"
+	"github.com/gemsnote/gemsnote/app/info"
+	. "github.com/gemsnote/gemsnote/app/lea"
+	"github.com/gemsnote/gemsnote/app/lea/archive"
 	"github.com/revel/revel"
 	"gopkg.in/mgo.v2/bson"
 	"html/template"
@@ -59,27 +59,27 @@ func (this *ThemeService) getDefaultTheme(style string) info.Theme {
 		return info.Theme{
 			IsDefault: true,
 			Path:      "public/blog/themes/elegant",
-			Name:      "pearlnote elegant",
-			Author:    "pearlnote",
-			AuthorUrl: "http://pearlnote.com",
+			Name:      "gemsnote elegant",
+			Author:    "gemsnote",
+			AuthorUrl: "http://gemsnote.com",
 			Version:   "1.0",
 		}
 	} else if style == fixedStyle {
 		return info.Theme{
 			IsDefault: true,
 			Path:      "public/blog/themes/nav_fixed",
-			Name:      "pearlnote nav fixed",
-			Author:    "pearlnote",
-			AuthorUrl: "http://pearlnote.com",
+			Name:      "gemsnote nav fixed",
+			Author:    "gemsnote",
+			AuthorUrl: "http://gemsnote.com",
 			Version:   "1.0",
 		}
 	} else { // blog default
 		return info.Theme{
 			IsDefault: true,
 			Path:      "public/blog/themes/default",
-			Name:      "pearlnote default",
-			Author:    "pearlnote",
-			AuthorUrl: "http://pearlnote.com",
+			Name:      "gemsnote default",
+			Author:    "gemsnote",
+			AuthorUrl: "http://gemsnote.com",
 			Version:   "1.0",
 		}
 	}

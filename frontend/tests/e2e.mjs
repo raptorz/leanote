@@ -1,14 +1,14 @@
 import { chromium } from '@playwright/test'
 import { existsSync } from 'node:fs'
 
-const baseURL = process.env.PEARLNOTE_E2E_URL
-const username = process.env.PEARLNOTE_E2E_USERNAME
-const password = process.env.PEARLNOTE_E2E_PASSWORD
+const baseURL = process.env.GEMSNOTE_E2E_URL
+const username = process.env.GEMSNOTE_E2E_USERNAME
+const password = process.env.GEMSNOTE_E2E_PASSWORD
 if (!baseURL || !username || !password) {
-  throw new Error('PEARLNOTE_E2E_URL, PEARLNOTE_E2E_USERNAME and PEARLNOTE_E2E_PASSWORD are required')
+  throw new Error('GEMSNOTE_E2E_URL, GEMSNOTE_E2E_USERNAME and GEMSNOTE_E2E_PASSWORD are required')
 }
 
-const executablePath = [process.env.PEARLNOTE_CHROMIUM_PATH, '/usr/bin/chromium', '/usr/bin/chromium-browser', '/usr/bin/google-chrome'].find(path => path && existsSync(path))
+const executablePath = [process.env.GEMSNOTE_CHROMIUM_PATH, '/usr/bin/chromium', '/usr/bin/chromium-browser', '/usr/bin/google-chrome'].find(path => path && existsSync(path))
 const browser = await chromium.launch({ headless: true, ...(executablePath ? { executablePath } : {}) })
 const page = await browser.newPage()
 page.setDefaultTimeout(15_000)
@@ -58,7 +58,7 @@ try {
   const noteTitle = `Vue 端到端验收 ${Date.now()}`
   await page.getByTitle('新建 Markdown 笔记').click()
   await page.getByLabel('文章标题').fill(noteTitle)
-  await page.getByLabel('Markdown 正文').fill('# Pearlnote\n\nVue Web UI 正常保存。')
+  await page.getByLabel('Markdown 正文').fill('# Gemsnote\n\nVue Web UI 正常保存。')
   await page.getByRole('button', { name: '保存', exact: true }).click()
   await page.getByText('已保存', { exact: true }).waitFor()
 
@@ -72,11 +72,11 @@ try {
   await page.getByRole('button', { name: /Info/ }).click()
   await page.getByRole('heading', { name: '文章信息' }).waitFor()
 
-  const attachmentName = `pearlnote-e2e-${Date.now()}.txt`
+  const attachmentName = `gemsnote-e2e-${Date.now()}.txt`
   await page.locator('input[type="file"]').nth(1).setInputFiles({
     name: attachmentName,
     mimeType: 'text/plain',
-    buffer: Buffer.from('Pearlnote attachment E2E'),
+    buffer: Buffer.from('Gemsnote attachment E2E'),
   })
   await page.getByRole('heading', { name: '附件' }).waitFor()
   await page.getByRole('link', { name: attachmentName }).waitFor()
@@ -90,7 +90,7 @@ try {
 
   // Attachment mutations increment the note USN; saving afterwards verifies
   // that the UI refreshed its optimistic-concurrency metadata.
-  await page.getByLabel('Markdown 正文').fill('# Pearlnote\n\n附件后继续保存正常。')
+  await page.getByLabel('Markdown 正文').fill('# Gemsnote\n\n附件后继续保存正常。')
   await page.getByRole('button', { name: '保存', exact: true }).click()
   await page.getByText('已保存', { exact: true }).waitFor()
 
@@ -102,7 +102,7 @@ try {
 
   const removed = await page.request.get(`${baseURL}/blog`)
   if (removed.status() !== 410) throw new Error(`blog returned ${removed.status()}, expected 410`)
-  console.log('Pearlnote Vue Web E2E passed')
+  console.log('Gemsnote Vue Web E2E passed')
 } finally {
   await browser.close()
 }

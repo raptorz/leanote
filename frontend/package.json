@@ -1,5 +1,5 @@
 {
-  "name": "pearlnote-frontend",
+  "name": "gemsnote-frontend",
   "private": true,
   "type": "module",
   "engines": { "node": ">=22.12.0" },

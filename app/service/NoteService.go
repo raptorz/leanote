@@ -1,9 +1,9 @@
 package service
 
 import (
-	"github.com/pearlnote/pearlnote/app/db"
-	"github.com/pearlnote/pearlnote/app/info"
-	. "github.com/pearlnote/pearlnote/app/lea"
+	"github.com/gemsnote/gemsnote/app/db"
+	"github.com/gemsnote/gemsnote/app/info"
+	. "github.com/gemsnote/gemsnote/app/lea"
 	"gopkg.in/mgo.v2/bson"
 	"regexp"
 	"strings"
@@ -986,7 +986,7 @@ func (this *NoteService) UpdateNoteToDeleteTag(userId string, targetTag string) 
 
 // api
 
-// 得到笔记的内容, 此时将笔记内的链接转成标准的Pearlnote Url
+// 得到笔记的内容, 此时将笔记内的链接转成标准的Gemsnote Url
 // 将笔记的图片, 附件链接转换成 site.url/file/getImage?fileId=xxx,  site.url/file/getAttach?fileId=xxxx
 func (this *NoteService) FixContentBad(content string, isMarkdown bool) string {
 	baseUrl := configService.GetSiteUrl()
@@ -1013,8 +1013,8 @@ func (this *NoteService) FixContentBad(content string, isMarkdown bool) string {
 
 			// 富文本处理
 
-			// <img src="http://pearlnote.com/file/outputImage?fileId=5503537b38f4111dcb0000d1">
-			// <a href="http://pearlnote.com/attach/download?attachId=5504243a38f4111dcb00017d"></a>
+			// <img src="http://gemsnote.com/file/outputImage?fileId=5503537b38f4111dcb0000d1">
+			// <a href="http://gemsnote.com/attach/download?attachId=5504243a38f4111dcb00017d"></a>
 
 			var reg *regexp.Regexp
 			if eachPattern["src"] == "src" {
@@ -1037,9 +1037,9 @@ func (this *NoteService) FixContentBad(content string, isMarkdown bool) string {
 		} else {
 
 			// markdown处理
-			// ![](http://pearlnote.com/file/outputImage?fileId=5503537b38f4111dcb0000d1)
-			// [selection 2.html](http://pearlnote.com/attach/download?attachId=5504262638f4111dcb00017f)
-			// [all.tar.gz](http://pearlnote.com/attach/downloadAll?noteId=5503b57d59f81b4eb4000000)
+			// ![](http://gemsnote.com/file/outputImage?fileId=5503537b38f4111dcb0000d1)
+			// [selection 2.html](http://gemsnote.com/attach/download?attachId=5504262638f4111dcb00017f)
+			// [all.tar.gz](http://gemsnote.com/attach/downloadAll?noteId=5503b57d59f81b4eb4000000)
 
 			pre := "!"                        // 默认图片
 			if eachPattern["src"] == "href" { // 是attach
@@ -1048,9 +1048,9 @@ func (this *NoteService) FixContentBad(content string, isMarkdown bool) string {
 
 			regImageMarkdown, _ := regexp.Compile(pre + `\[([^]]*?)\]\(` + baseUrlPattern + eachPattern["middle"] + `\?` + eachPattern["param"] + `=([a-z0-9A-Z]{24})\)`)
 			findsImageMarkdown := regImageMarkdown.FindAllStringSubmatch(content, -1) // 查找所有的
-			// [[![](http://pearlnote.com/file/outputImage?fileId=5503537b38f4111dcb0000d1) 5503537b38f4111dcb0000d1] [![你好啊, 我很好, 为什么?](http://pearlnote.com/file/outputImage?fileId=5503537b38f4111dcb0000d1) 5503537b38f4111dcb0000d1]]
+			// [[![](http://gemsnote.com/file/outputImage?fileId=5503537b38f4111dcb0000d1) 5503537b38f4111dcb0000d1] [![你好啊, 我很好, 为什么?](http://gemsnote.com/file/outputImage?fileId=5503537b38f4111dcb0000d1) 5503537b38f4111dcb0000d1]]
 			for _, eachFind := range findsImageMarkdown {
-				// [![你好啊, 我很好, 为什么?](http://pearlnote.com/file/outputImage?fileId=5503537b38f4111dcb0000d1) 你好啊, 我很好, 为什么? 5503537b38f4111dcb0000d1]
+				// [![你好啊, 我很好, 为什么?](http://gemsnote.com/file/outputImage?fileId=5503537b38f4111dcb0000d1) 你好啊, 我很好, 为什么? 5503537b38f4111dcb0000d1]
 				if len(eachFind) == 3 {
 					content = strings.Replace(content, eachFind[0], pre+"["+eachFind[1]+"]("+baseUrl+"/api/file/"+eachPattern["to"]+eachFind[2]+")", 1)
 				}
@@ -1061,7 +1061,7 @@ func (this *NoteService) FixContentBad(content string, isMarkdown bool) string {
 	return content
 }
 
-// 得到笔记的内容, 此时将笔记内的链接转成标准的Pearlnote Url
+// 得到笔记的内容, 此时将笔记内的链接转成标准的Gemsnote Url
 // 将笔记的图片, 附件链接转换成 site.url/file/getImage?fileId=xxx,  site.url/file/getAttach?fileId=xxxx
 // 性能更好, 5倍的差距
 func (this *NoteService) FixContent(content string, isMarkdown bool) string {
@@ -1096,8 +1096,8 @@ func (this *NoteService) FixContent(content string, isMarkdown bool) string {
 
 			// 富文本处理
 
-			// <img src="http://pearlnote.com/file/outputImage?fileId=5503537b38f4111dcb0000d1">
-			// <a href="http://pearlnote.com/attach/download?attachId=5504243a38f4111dcb00017d"></a>
+			// <img src="http://gemsnote.com/file/outputImage?fileId=5503537b38f4111dcb0000d1">
+			// <a href="http://gemsnote.com/attach/download?attachId=5504243a38f4111dcb00017d"></a>
 
 			var reg *regexp.Regexp
 			var reg2 *regexp.Regexp
@@ -1140,9 +1140,9 @@ func (this *NoteService) FixContent(content string, isMarkdown bool) string {
 		} else {
 
 			// markdown处理
-			// ![](http://pearlnote.com/file/outputImage?fileId=5503537b38f4111dcb0000d1)
-			// [selection 2.html](http://pearlnote.com/attach/download?attachId=5504262638f4111dcb00017f)
-			// [all.tar.gz](http://pearlnote.com/attach/downloadAll?noteId=5503b57d59f81b4eb4000000)
+			// ![](http://gemsnote.com/file/outputImage?fileId=5503537b38f4111dcb0000d1)
+			// [selection 2.html](http://gemsnote.com/attach/download?attachId=5504262638f4111dcb00017f)
+			// [all.tar.gz](http://gemsnote.com/attach/downloadAll?noteId=5503b57d59f81b4eb4000000)
 
 			pre := "!"                        // 默认图片
 			if eachPattern["src"] == "href" { // 是attach
@@ -1165,9 +1165,9 @@ func (this *NoteService) FixContent(content string, isMarkdown bool) string {
 
 			/*
 				findsImageMarkdown := regImageMarkdown.FindAllStringSubmatch(content, -1) // 查找所有的
-				// [[![](http://pearlnote.com/file/outputImage?fileId=5503537b38f4111dcb0000d1) 5503537b38f4111dcb0000d1] [![你好啊, 我很好, 为什么?](http://pearlnote.com/file/outputImage?fileId=5503537b38f4111dcb0000d1) 5503537b38f4111dcb0000d1]]
+				// [[![](http://gemsnote.com/file/outputImage?fileId=5503537b38f4111dcb0000d1) 5503537b38f4111dcb0000d1] [![你好啊, 我很好, 为什么?](http://gemsnote.com/file/outputImage?fileId=5503537b38f4111dcb0000d1) 5503537b38f4111dcb0000d1]]
 				for _, eachFind := range findsImageMarkdown {
-					// [![你好啊, 我很好, 为什么?](http://pearlnote.com/file/outputImage?fileId=5503537b38f4111dcb0000d1) 你好啊, 我很好, 为什么? 5503537b38f4111dcb0000d1]
+					// [![你好啊, 我很好, 为什么?](http://gemsnote.com/file/outputImage?fileId=5503537b38f4111dcb0000d1) 你好啊, 我很好, 为什么? 5503537b38f4111dcb0000d1]
 					if len(eachFind) == 3 {
 						content = strings.Replace(content, eachFind[0], pre+"["+eachFind[1]+"]("+baseUrl+"/api/file/"+eachPattern["to"]+eachFind[2]+")", 1)
 					}

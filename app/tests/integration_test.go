@@ -6,8 +6,8 @@ import (
 	"sync"
 	"testing"
 
-	"github.com/pearlnote/pearlnote/app/db"
-	"github.com/pearlnote/pearlnote/app/service"
+	"github.com/gemsnote/gemsnote/app/db"
+	"github.com/gemsnote/gemsnote/app/service"
 	"github.com/revel/config"
 	"github.com/revel/revel"
 )
@@ -16,12 +16,12 @@ var integrationOnce sync.Once
 
 func requireMongoIntegration(t *testing.T) {
 	t.Helper()
-	url := os.Getenv("PEARLNOTE_INTEGRATION_MONGO_URL")
+	url := os.Getenv("GEMSNOTE_INTEGRATION_MONGO_URL")
 	if url == "" {
 		url = os.Getenv("LEANOTE_INTEGRATION_MONGO_URL")
 	}
 	if url == "" {
-		t.Skip("set PEARLNOTE_INTEGRATION_MONGO_URL to run database integration tests")
+		t.Skip("set GEMSNOTE_INTEGRATION_MONGO_URL to run database integration tests")
 	}
 	integrationOnce.Do(func() {
 		basePath, err := filepath.Abs("../..")

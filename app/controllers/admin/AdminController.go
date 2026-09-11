@@ -14,7 +14,7 @@ type Admin struct {
 func (c Admin) Index() revel.Result {
 	c.SetUserInfo()
 
-	c.ViewArgs["title"] = "pearlnote"
+	c.ViewArgs["title"] = "gemsnote"
 	c.SetLocale()
 
 	c.ViewArgs["countUser"] = userService.CountUser()

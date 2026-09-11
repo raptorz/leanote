@@ -4,7 +4,7 @@
 
 ## 目标与边界
 
-依据 [统一 UI 设计](UI.md)，使用 Vue 重写 Pearlnote Web 界面，实现前后端分离。前端构建为 `frontend/dist`，由现有 Go/Revel 服务端提供静态文件服务。生产环境继续通过原来的域名、端口和路径访问，默认仍为 `http://localhost:9000`，无需额外启动 Node 服务或部署独立前端服务器。
+依据 [统一 UI 设计](UI.md)，使用 Vue 重写 Gemsnote Web 界面，实现前后端分离。前端构建为 `frontend/dist`，由现有 Go/Revel 服务端提供静态文件服务。生产环境继续通过原来的域名、端口和路径访问，默认仍为 `http://localhost:9000`，无需额外启动 Node 服务或部署独立前端服务器。
 
 新界面完成并通过功能验收后，移除被替代的旧 Web 模板、页面脚本、样式和渲染代码。保持原有 HTTP API、Leanote desktop-app 兼容性、MongoDB/PostgreSQL 数据访问及迁移能力。本次实施范围是 Web；desktop-app 用作布局和兼容性参照，不在本次重写客户端。
 

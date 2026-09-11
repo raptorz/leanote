@@ -2,14 +2,14 @@ package member
 
 import (
 	"fmt"
-	"github.com/pearlnote/pearlnote/app/info"
-	. "github.com/pearlnote/pearlnote/app/lea"
+	"github.com/gemsnote/gemsnote/app/info"
+	. "github.com/gemsnote/gemsnote/app/lea"
 	"github.com/revel/revel"
 	"io/ioutil"
 	"os"
 	"strings"
 	"time"
-	//	"github.com/pearlnote/pearlnote/app/lea/blog"
+	//	"github.com/gemsnote/gemsnote/app/lea/blog"
 )
 
 // 博客管理

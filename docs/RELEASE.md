@@ -16,7 +16,7 @@
 正式版本标签必须采用 `vMAJOR.MINOR.PATCH` 格式，并与 `app/version/version.go` 中的 `Current` 完全一致。例如当前版本的发布标签为：
 
 ```bash
-git tag -a v1.0.0 -m "Pearlnote 1.0.0"
+git tag -a v1.0.0 -m "Gemsnote 1.0.0"
 git push origin v1.0.0
 ```
 

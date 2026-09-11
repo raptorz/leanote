@@ -11,7 +11,7 @@ target_os=$2
 target_arch=$3
 output_dir=$4
 project_root=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)
-package_name="pearlnote-${target_os}-${target_arch}-v${version}"
+package_name="gemsnote-${target_os}-${target_arch}-v${version}"
 stage_dir=$(mktemp -d)
 revel_stage=$(mktemp -d)
 cleanup() {
@@ -27,50 +27,50 @@ fi
 npm run build --prefix frontend
 go run ./app/cmd build . "$revel_stage" prod
 
-binary_name=pearlnote
-migration_name=pearlnote-migrate
+binary_name=gemsnote
+migration_name=gemsnote-migrate
 if [[ $target_os == windows ]]; then
-  binary_name=pearlnote.exe
-  migration_name=pearlnote-migrate.exe
+  binary_name=gemsnote.exe
+  migration_name=gemsnote-migrate.exe
 fi
 
-mkdir -p "$stage_dir/pearlnote/bin" \
-  "$stage_dir/pearlnote/runtime/github.com/revel/revel" \
-  "$stage_dir/pearlnote/runtime/github.com/pearlnote"
+mkdir -p "$stage_dir/gemsnote/bin" \
+  "$stage_dir/gemsnote/runtime/github.com/revel/revel" \
+  "$stage_dir/gemsnote/runtime/github.com/gemsnote"
 
 CGO_ENABLED=0 GOOS="$target_os" GOARCH="$target_arch" \
   go build -trimpath -ldflags="-s -w" \
-  -o "$stage_dir/pearlnote/bin/$binary_name" ./app/tmp
+  -o "$stage_dir/gemsnote/bin/$binary_name" ./app/tmp
 CGO_ENABLED=0 GOOS="$target_os" GOARCH="$target_arch" \
   go build -trimpath -ldflags="-s -w" \
-  -o "$stage_dir/pearlnote/bin/$migration_name" ./tools/migration
+  -o "$stage_dir/gemsnote/bin/$migration_name" ./tools/migration
 
 cp -R conf messages public app/views mongodb_backup database docs \
-  "$stage_dir/pearlnote/"
-mkdir -p "$stage_dir/pearlnote/frontend"
-cp -R frontend/dist "$stage_dir/pearlnote/frontend/"
-cp README.md "$stage_dir/pearlnote/"
-rm -rf "$stage_dir/pearlnote/public/upload"
-mkdir -p "$stage_dir/pearlnote/public/upload"
+  "$stage_dir/gemsnote/"
+mkdir -p "$stage_dir/gemsnote/frontend"
+cp -R frontend/dist "$stage_dir/gemsnote/frontend/"
+cp README.md "$stage_dir/gemsnote/"
+rm -rf "$stage_dir/gemsnote/public/upload"
+mkdir -p "$stage_dir/gemsnote/public/upload"
 
 revel_dir=$(go list -m -f '{{.Dir}}' github.com/revel/revel)
 cp -R "$revel_dir/conf" "$revel_dir/templates" \
-  "$stage_dir/pearlnote/runtime/github.com/revel/revel/"
+  "$stage_dir/gemsnote/runtime/github.com/revel/revel/"
 
 if [[ $target_os == windows ]]; then
-  cp scripts/release/run.bat "$stage_dir/pearlnote/run.bat"
+  cp scripts/release/run.bat "$stage_dir/gemsnote/run.bat"
 else
-  ln -s ../../.. "$stage_dir/pearlnote/runtime/github.com/pearlnote/pearlnote"
-  cp scripts/release/run.sh "$stage_dir/pearlnote/run.sh"
-  chmod +x "$stage_dir/pearlnote/run.sh"
+  ln -s ../../.. "$stage_dir/gemsnote/runtime/github.com/gemsnote/gemsnote"
+  cp scripts/release/run.sh "$stage_dir/gemsnote/run.sh"
+  chmod +x "$stage_dir/gemsnote/run.sh"
 fi
 
 mkdir -p "$output_dir"
 if [[ $target_os == windows ]]; then
   (
     cd "$stage_dir"
-    zip -qr "$output_dir/$package_name.zip" pearlnote
+    zip -qr "$output_dir/$package_name.zip" gemsnote
   )
 else
-  tar -C "$stage_dir" -czf "$output_dir/$package_name.tar.gz" pearlnote
+  tar -C "$stage_dir" -czf "$output_dir/$package_name.tar.gz" gemsnote
 fi

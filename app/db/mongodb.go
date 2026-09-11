@@ -5,7 +5,7 @@ import (
 	"strings"
 	"time"
 
-	. "github.com/pearlnote/pearlnote/app/lea"
+	. "github.com/gemsnote/gemsnote/app/lea"
 	"github.com/revel/revel"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
@@ -231,7 +231,7 @@ type mongoMigration struct {
 
 func (m *MongoDatabase) AppliedMigrations() ([]string, error) {
 	var records []mongoMigration
-	if err := m.db.C("pearlnote_schema_migrations").Find(nil).All(&records); err != nil {
+	if err := m.db.C("gemsnote_schema_migrations").Find(nil).All(&records); err != nil {
 		return nil, err
 	}
 	versions := make([]string, 0, len(records))
@@ -242,7 +242,7 @@ func (m *MongoDatabase) AppliedMigrations() ([]string, error) {
 }
 
 func (m *MongoDatabase) RecordMigration(version string) error {
-	_, err := m.db.C("pearlnote_schema_migrations").UpsertId(version, mongoMigration{
+	_, err := m.db.C("gemsnote_schema_migrations").UpsertId(version, mongoMigration{
 		Version: version, AppliedAt: time.Now().UTC(),
 	})
 	return err

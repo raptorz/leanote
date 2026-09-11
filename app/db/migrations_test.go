@@ -3,7 +3,7 @@ package db
 import (
 	"testing"
 
-	appversion "github.com/pearlnote/pearlnote/app/version"
+	appversion "github.com/gemsnote/gemsnote/app/version"
 )
 
 func TestMigrationListEndsAtCurrentVersion(t *testing.T) {

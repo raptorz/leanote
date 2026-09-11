@@ -3,7 +3,7 @@ package admin
 import (
 	"github.com/revel/revel"
 	//	"encoding/json"
-	"github.com/pearlnote/pearlnote/app/info"
+	"github.com/gemsnote/gemsnote/app/info"
 	//	"io/ioutil"
 )
 

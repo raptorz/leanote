@@ -1,9 +1,9 @@
 package controllers
 
 import (
-	"github.com/pearlnote/pearlnote/app/info"
+	"github.com/gemsnote/gemsnote/app/info"
 	"github.com/revel/revel"
-	//	. "github.com/pearlnote/pearlnote/app/lea"
+	//	. "github.com/gemsnote/gemsnote/app/lea"
 )
 
 // 首页
@@ -20,10 +20,10 @@ func (c Index) Default() revel.Result {
 	return c.Index()
 }
 
-// pearlnote展示页, 没有登录的, 或已登录明确要进该页的
+// gemsnote展示页, 没有登录的, 或已登录明确要进该页的
 func (c Index) Index() revel.Result {
 	c.SetUserInfo()
-	c.ViewArgs["title"] = "pearlnote"
+	c.ViewArgs["title"] = "gemsnote"
 	c.ViewArgs["openRegister"] = configService.GlobalStringConfigs["openRegister"]
 	c.SetLocale()
 
@@ -37,7 +37,7 @@ func (c Index) Suggestion(addr, suggestion string) revel.Result {
 
 	// 发给我
 	go func() {
-		emailService.SendEmail("pearlnote@pearlnote.com", "建议", "UserId: "+c.GetUserId()+" <br /> Suggestions: "+suggestion)
+		emailService.SendEmail("gemsnote@gemsnote.com", "建议", "UserId: "+c.GetUserId()+" <br /> Suggestions: "+suggestion)
 	}()
 
 	return c.RenderJSON(re)

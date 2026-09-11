@@ -2,7 +2,7 @@ package controllers
 
 import "github.com/revel/revel"
 
-// Deprecated handles Web features deliberately removed from Pearlnote.
+// Deprecated handles Web features deliberately removed from Gemsnote.
 type Deprecated struct{ BaseController }
 
 func (c Deprecated) Gone() revel.Result {

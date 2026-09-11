@@ -45,7 +45,7 @@ type Database interface {
 	GetType() string
 }
 
-// QueryOptions is the common subset of query options used by Pearlnote services.
+// QueryOptions is the common subset of query options used by Gemsnote services.
 // Sort fields use mgo's convention: "Field" for ascending and "-Field" for
 // descending order.
 type QueryOptions struct {

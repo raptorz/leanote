@@ -9,10 +9,10 @@ services:
     volumes:
       - ./data/mongo/db:/data/db
 
-  pearlnote:
+  gemsnote:
     build: .
-    image: pearlnote:1.0.0
-    container_name: pearlnote
+    image: gemsnote:1.0.0
+    container_name: gemsnote
     restart: always
     depends_on:
       - mongodb
@@ -21,9 +21,9 @@ services:
     volumes:
       - type: bind
         source: ./conf/app.docker-mongodb.conf
-        target: /opt/pearlnote/conf/app.conf
+        target: /opt/gemsnote/conf/app.conf
         read_only: true
         bind:
           create_host_path: false
-      - ./files:/opt/pearlnote/files
-      - ./public/upload:/opt/pearlnote/public/upload
+      - ./files:/opt/gemsnote/files
+      - ./public/upload:/opt/gemsnote/public/upload

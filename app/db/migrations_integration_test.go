@@ -4,13 +4,13 @@ import (
 	"os"
 	"testing"
 
-	appversion "github.com/pearlnote/pearlnote/app/version"
+	appversion "github.com/gemsnote/gemsnote/app/version"
 )
 
 func TestMongoMigrationVersionPersistence(t *testing.T) {
-	url := os.Getenv("PEARLNOTE_INTEGRATION_MONGO_URL")
+	url := os.Getenv("GEMSNOTE_INTEGRATION_MONGO_URL")
 	if url == "" {
-		t.Skip("set PEARLNOTE_INTEGRATION_MONGO_URL to run MongoDB migration tests")
+		t.Skip("set GEMSNOTE_INTEGRATION_MONGO_URL to run MongoDB migration tests")
 	}
 	previousURL, previousDB := initURL, initDBName
 	initURL, initDBName = url, ""
@@ -25,9 +25,9 @@ func TestMongoMigrationVersionPersistence(t *testing.T) {
 }
 
 func TestPostgresMigrationVersionPersistence(t *testing.T) {
-	url := os.Getenv("PEARLNOTE_INTEGRATION_POSTGRES_URL")
+	url := os.Getenv("GEMSNOTE_INTEGRATION_POSTGRES_URL")
 	if url == "" {
-		t.Skip("set PEARLNOTE_INTEGRATION_POSTGRES_URL to run PostgreSQL migration tests")
+		t.Skip("set GEMSNOTE_INTEGRATION_POSTGRES_URL to run PostgreSQL migration tests")
 	}
 	previousURL, previousDB := initURL, initDBName
 	initURL, initDBName = url, ""

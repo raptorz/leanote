@@ -5,18 +5,15 @@ import (
 	"testing"
 	"time"
 
-	"github.com/pearlnote/pearlnote/app/info"
-	"github.com/pearlnote/pearlnote/app/lea"
+	"github.com/gemsnote/gemsnote/app/info"
+	"github.com/gemsnote/gemsnote/app/lea"
 	"gopkg.in/mgo.v2/bson"
 )
 
 func TestMongoPasswordStorageContract(t *testing.T) {
-	url := os.Getenv("PEARLNOTE_INTEGRATION_MONGO_URL")
+	url := os.Getenv("GEMSNOTE_INTEGRATION_MONGO_URL")
 	if url == "" {
-		url = os.Getenv("LEANOTE_INTEGRATION_MONGO_URL")
-	}
-	if url == "" {
-		t.Skip("set PEARLNOTE_INTEGRATION_MONGO_URL to run MongoDB integration tests")
+		t.Skip("set GEMSNOTE_INTEGRATION_MONGO_URL to run MongoDB integration tests")
 	}
 
 	previousURL, previousDB := initURL, initDBName
@@ -32,16 +29,13 @@ func TestMongoPasswordStorageContract(t *testing.T) {
 }
 
 func TestPostgresPasswordStorageContract(t *testing.T) {
-	url := os.Getenv("PEARLNOTE_INTEGRATION_POSTGRES_URL")
+	url := os.Getenv("GEMSNOTE_INTEGRATION_POSTGRES_URL")
 	if url == "" {
-		url = os.Getenv("LEANOTE_INTEGRATION_POSTGRES_URL")
-	}
-	if url == "" {
-		t.Skip("set PEARLNOTE_INTEGRATION_POSTGRES_URL to run PostgreSQL integration tests")
+		t.Skip("set GEMSNOTE_INTEGRATION_POSTGRES_URL to run PostgreSQL integration tests")
 	}
 
 	previousURL, previousDB := initURL, initDBName
-	initURL, initDBName = url, "pearlnote"
+	initURL, initDBName = url, "gemsnote"
 	defer func() { initURL, initDBName = previousURL, previousDB }()
 
 	postgres := &PostgresDatabase{}

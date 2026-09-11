@@ -6,7 +6,7 @@ import (
 	"strconv"
 	"strings"
 
-	appversion "github.com/pearlnote/pearlnote/app/version"
+	appversion "github.com/gemsnote/gemsnote/app/version"
 )
 
 type migration struct {
@@ -16,7 +16,7 @@ type migration struct {
 
 // migrations must contain every database change in ascending version order.
 // Version 1.0.0 establishes the migration baseline for existing Leanote and
-// Pearlnote databases; it intentionally makes no changes to business data.
+// Gemsnote databases; it intentionally makes no changes to business data.
 var migrations = []migration{
 	{version: "1.0.0", up: func(Database) error { return nil }},
 }

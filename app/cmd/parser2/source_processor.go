@@ -100,12 +100,12 @@ func (s *SourceProcessor) fsWalk(fname string, linkName string, walkFn filepath.
 		path = filepath.Join(linkName, name)
 
 		// 改了这里
-		if strings.Contains(path, "/pearlnote/public") ||
-			strings.Contains(path, "/pearlnote/files") ||
-			strings.Contains(path, "/pearlnote/doc") ||
-			strings.Contains(path, "/pearlnote/logs") ||
-			strings.Contains(path, "/pearlnote/build") ||
-			strings.Contains(path, "/pearlnote/target") {
+		if strings.Contains(path, "/gemsnote/public") ||
+			strings.Contains(path, "/gemsnote/files") ||
+			strings.Contains(path, "/gemsnote/doc") ||
+			strings.Contains(path, "/gemsnote/logs") ||
+			strings.Contains(path, "/gemsnote/build") ||
+			strings.Contains(path, "/gemsnote/target") {
 			s.log.Warn("public 或 files 不要处理", "path", path)
 			return filepath.SkipDir
 		}

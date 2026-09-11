@@ -1,4 +1,4 @@
-// Command migration copies Pearlnote data between MongoDB and PostgreSQL.
+// Command migration copies Gemsnote data between MongoDB and PostgreSQL.
 // Both databases use the same 24-character ObjectId values, so relationships
 // survive a round trip without an external ID mapping table.
 package main
@@ -45,8 +45,8 @@ type migrator struct {
 
 func main() {
 	direction := flag.String("direction", "", "mongo_to_pg or pg_to_mongo")
-	mongoURL := flag.String("mongo-url", "mongodb://127.0.0.1:27017/pearlnote", "MongoDB URL")
-	postgresURL := flag.String("postgres-url", "host=127.0.0.1 port=5432 user=pearlnote password=pearlnote dbname=pearlnote sslmode=disable", "PostgreSQL DSN")
+	mongoURL := flag.String("mongo-url", "mongodb://127.0.0.1:27017/gemsnote", "MongoDB URL")
+	postgresURL := flag.String("postgres-url", "host=127.0.0.1 port=5432 user=gemsnote password=gemsnote dbname=gemsnote sslmode=disable", "PostgreSQL DSN")
 	schema := flag.String("schema", "database/schema.sql", "schema applied before mongo_to_pg; empty disables it")
 	dryRun := flag.Bool("dry-run", false, "read and validate without writing")
 	validate := flag.Bool("validate", true, "compare collection/table counts after copying")
