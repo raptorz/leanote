@@ -13,7 +13,6 @@ GET     /index                                 Web.Page
 GET     /login                                  Web.Page
 POST     /doLogin                                   Auth.DoLogin
 GET     /logout                                     Auth.Logout
-Get     /demo                                   	Auth.Demo
 
 GET     /register                              Web.Page
 POST     /doRegister                                Auth.DoRegister

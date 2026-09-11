@@ -14,7 +14,7 @@ type Auth struct {
 	BaseController
 }
 
-//--------
+// --------
 // 登录
 func (c Auth) Login(email, from string) revel.Result {
 	c.ViewArgs["title"] = c.Message("login")
@@ -30,14 +30,10 @@ func (c Auth) Login(email, from string) revel.Result {
 
 	c.SetLocale()
 
-	if c.Has("demo") {
-		c.ViewArgs["demo"] = true
-		c.ViewArgs["email"] = "demo@gemsnote.com"
-	}
 	return c.RenderTemplate("home/login.html")
 }
 
-// 为了demo和register
+// Shared login helper used by legacy server-rendered clients.
 func (c Auth) doLogin(email, pwd string) revel.Result {
 	sessionId := c.Session.ID()
 	var msg = ""
@@ -85,22 +81,7 @@ func (c Auth) Logout() revel.Result {
 	return c.Redirect("/login")
 }
 
-// 体验一下
-func (c Auth) Demo() revel.Result {
-	email := configService.GetGlobalStringConfig("demoUsername")
-	pwd := configService.GetGlobalStringConfig("demoPassword")
-
-	userInfo, err := authService.Login(email, pwd)
-	if err != nil {
-		return c.RenderJSON(info.Re{Ok: false})
-	} else {
-		c.SetSession(userInfo)
-		return c.Redirect("/note")
-	}
-	return nil
-}
-
-//--------
+// --------
 // 注册
 func (c Auth) Register(from, iu string) revel.Result {
 	if !configService.IsOpenRegister() {
@@ -141,7 +122,7 @@ func (c Auth) DoRegister(email, pwd, iu string) revel.Result {
 	return c.RenderRe(re)
 }
 
-//--------
+// --------
 // 找回密码
 func (c Auth) FindPassword() revel.Result {
 	c.SetLocale()

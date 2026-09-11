@@ -40,7 +40,7 @@ onMounted(async()=>{try{const bootstrap=await request('/web/bootstrap');user.val
       <h3>上传限制（MB）</h3>
       <label>图片<input v-model="data.Settings.uploadImageSize" type="number" min="0" step="0.1"></label><label>头像<input v-model="data.Settings.uploadAvatarSize" type="number" min="0" step="0.1"></label><label>附件<input v-model="data.Settings.uploadAttachSize" type="number" min="0" step="0.1"></label>
       <h3>其他非博客设置</h3>
-      <label>PDF 导出程序路径<input v-model="data.Settings.exportPdfBinPath"></label><label>Demo 用户名<input v-model="data.Settings.demoUsername"></label><label>Demo 密码<input v-model="data.Settings.demoPassword" type="password" placeholder="留空保持原值"></label>
+      <label>PDF 导出程序路径<input v-model="data.Settings.exportPdfBinPath"></label>
       <button class="primary">保存设置</button>
     </form></section>
   </main></div>

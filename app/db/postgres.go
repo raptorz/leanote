@@ -138,7 +138,17 @@ func initializePostgresDatabase(database *sql.DB) (resultErr error) {
 		return err
 	}
 	if tableCount != 0 {
-		return nil
+		// A failed container init can leave schema.sql applied while seed.sql
+		// never ran. Recover only that schema-only state: every public business
+		// table must still be empty, so an existing database with real data is
+		// never populated with the installation seed.
+		empty, err := postgresBusinessTablesEmpty(ctx, conn)
+		if err != nil {
+			return err
+		}
+		if !empty {
+			return nil
+		}
 	}
 
 	databaseDir, err := findInstallationDatabaseDir()
@@ -173,6 +183,43 @@ func initializePostgresDatabase(database *sql.DB) (resultErr error) {
 	}
 	Log("Initialized PostgreSQL schema and installation seed")
 	return nil
+}
+
+func postgresBusinessTablesEmpty(ctx context.Context, conn *sql.Conn) (bool, error) {
+	rows, err := conn.QueryContext(ctx, `
+		SELECT table_name FROM information_schema.tables
+		WHERE table_schema = 'public' AND table_type = 'BASE TABLE'
+		  AND table_name <> 'gemsnote_schema_migrations'
+	`)
+	if err != nil {
+		return false, err
+	}
+	var tables []string
+	for rows.Next() {
+		var table string
+		if err := rows.Scan(&table); err != nil {
+			return false, err
+		}
+		tables = append(tables, table)
+	}
+	if err := rows.Err(); err != nil {
+		rows.Close()
+		return false, err
+	}
+	if err := rows.Close(); err != nil {
+		return false, err
+	}
+	for _, table := range tables {
+		identifier := `"` + strings.ReplaceAll(table, `"`, `""`) + `"`
+		var count int
+		if err := conn.QueryRowContext(ctx, `SELECT COUNT(*) FROM public.`+identifier).Scan(&count); err != nil {
+			return false, err
+		}
+		if count != 0 {
+			return false, nil
+		}
+	}
+	return true, nil
 }
 
 const (

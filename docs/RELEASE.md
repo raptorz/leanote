@@ -45,3 +45,55 @@ git push origin v1.0.0
 ## 权限
 
 CI 工作流只有仓库内容只读权限。Release 工作流只在正式标签触发，并使用 GitHub 自动提供的 `GITHUB_TOKEN` 创建 Release，无需配置个人访问令牌。
+
+## 手工构建 Release
+
+不使用 GitHub Actions 时，可在仓库根目录执行：
+
+```bash
+npm ci --prefix frontend
+npm test --prefix frontend
+npm run build --prefix frontend
+go test ./...
+version=$(sed -n 's/^const Current = "\([^"]*\)"/\1/p' app/version/version.go)
+chmod +x scripts/build-release.sh
+scripts/build-release.sh "$version" linux amd64 "$PWD/release"
+```
+
+`scripts/build-release.sh` 的参数格式为：
+
+```bash
+scripts/build-release.sh <version> <goos> <goarch> <绝对输出目录>
+```
+
+可用目标包括 `linux amd64`、`linux arm64`、`windows amd64`、`darwin amd64` 和 `darwin arm64`。POSIX 目标生成 `.tar.gz`，Windows 目标生成 `.zip`。输出目录必须使用绝对路径，因为 Windows 打包阶段会切换到临时目录。脚本会构建 Vue、生成 Revel 生产入口，并编译服务端和 `gemsnote-migrate` 工具；脚本本身不执行测试，也不会校验版本参数与 `app/version/version.go` 中的 `Current` 是否一致。
+
+发布包包含服务端、迁移工具、`frontend/dist`、配置、数据库 Schema、初始数据和文档，运行时不需要 Node.js。包内通过 `run.sh`（Linux/macOS）或 `run.bat`（Windows）启动。发布前应检查包内 `conf`，不要带入本地密码、`.env` 或运行时数据；`files/` 不会打包，`public/upload` 为空目录。
+
+启动前编辑 `conf/app.conf`，配置数据库连接并修改 `app.secret`。全新 PostgreSQL 数据库按部署方式执行 Schema 和 seed；MongoDB 不会自动导入 BSON，需要先按 [DEPLOYMENT.md](DEPLOYMENT.md) 恢复或连接数据库。已有数据库不会因重新构建 Release 而重置 seed 或密码。
+
+## 手工构建 Desktop
+
+Desktop 复用仓库根目录的 Vue 前端：
+
+```bash
+bash desktop-app/build-frontend.sh
+cd desktop-app
+wails build
+```
+
+需要 Go、Node.js/npm、Wails CLI 及当前操作系统的 WebKit/GTK 编译依赖。Desktop 输出通常位于 `desktop-app/build/bin/`，应用图标来自 `desktop-app/build/appicon.png`。Desktop 不使用服务端 Release 脚本的 CGO 交叉编译方式，跨平台时建议在对应系统原生构建。
+
+## 发布包校验和
+
+```bash
+cd release
+sha256sum gemsnote-* > checksums.txt       # Linux
+shasum -a 256 gemsnote-* > checksums.txt   # macOS
+```
+
+Windows PowerShell：
+
+```powershell
+Get-FileHash .\gemsnote-*.zip -Algorithm SHA256
+```

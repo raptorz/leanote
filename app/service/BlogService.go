@@ -437,11 +437,6 @@ func (this *BlogService) ListAllBlogs(userId, tag string, keywords string, isRec
 	if userId != "" {
 		query["UserId"] = bson.ObjectIdHex(userId)
 	}
-	// 不是demo的博客
-	demoUserId := configService.GetGlobalStringConfig("demoUserId")
-	if userId == "" && demoUserId != "" {
-		query["UserId"] = bson.M{"$ne": bson.ObjectIdHex(demoUserId)}
-	}
 
 	if isRecommend {
 		query["IsRecommend"] = isRecommend

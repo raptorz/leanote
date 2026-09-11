@@ -190,7 +190,7 @@ func (c Web) isAdmin() bool { return c.GetUsername() == configService.GetAdminUs
 
 var webSettingKeys = []string{
 	"siteUrl", "openRegister", "emailHost", "emailPort", "emailUsername", "emailPassword", "emailSSL",
-	"uploadImageSize", "uploadAvatarSize", "uploadAttachSize", "exportPdfBinPath", "demoUsername", "demoPassword",
+	"uploadImageSize", "uploadAvatarSize", "uploadAttachSize", "exportPdfBinPath",
 }
 
 func (c Web) AdminData(keywords string, page int) revel.Result {
@@ -204,7 +204,7 @@ func (c Web) AdminData(keywords string, page int) revel.Result {
 	_, users := userService.ListUsers(page, 20, "CreatedTime", false, keywords)
 	settings := map[string]string{}
 	for _, key := range webSettingKeys {
-		if key != "emailPassword" && key != "demoPassword" {
+		if key != "emailPassword" {
 			settings[key] = configService.GetGlobalStringConfig(key)
 		}
 	}
@@ -219,7 +219,7 @@ func (c Web) AdminSettings() revel.Result {
 	for _, key := range webSettingKeys {
 		if c.Has(key) {
 			value := c.Params.Values.Get(key)
-			if (key == "emailPassword" || key == "demoPassword") && value == "" {
+			if key == "emailPassword" && value == "" {
 				continue
 			}
 			if !configService.UpdateGlobalStringConfig(c.GetUserId(), key, value) {

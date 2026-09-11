@@ -19,7 +19,6 @@ func TestPostgresInstallationSeed(t *testing.T) {
 		"INSERT INTO public.users",
 		"'admin@gemsnote.com'",
 		"'4533cd5ac65d7b5ccb02f396ff4b6615'",
-		"'demo@gemsnote.com'",
 		"INSERT INTO public.configs",
 		"INSERT INTO public.notebooks",
 		"INSERT INTO public.notes",
@@ -27,6 +26,11 @@ func TestPostgresInstallationSeed(t *testing.T) {
 	} {
 		if !strings.Contains(seed, required) {
 			t.Errorf("installation seed is missing %q", required)
+		}
+	}
+	for _, removed := range []string{"'demo@gemsnote.com'", "'demoUserId'", "'demoUsername'", "'demoPassword'"} {
+		if strings.Contains(seed, removed) {
+			t.Errorf("installation seed contains removed demo data %s", removed)
 		}
 	}
 
