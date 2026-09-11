@@ -67,11 +67,14 @@ func (c ApiNotebook) GetNotebooks() revel.Result {
 // 添加notebook
 // [OK]
 func (c ApiNotebook) AddNotebook(title, parentNotebookId string, seq int) revel.Result {
+	if parentNotebookId != "" && !bson.IsObjectIdHex(parentNotebookId) {
+		return c.RenderJSON(info.Re{Ok: false, Msg: "invalidParentNotebook"})
+	}
 	notebook := info.Notebook{NotebookId: bson.NewObjectId(),
 		Title:  title,
 		Seq:    seq,
 		UserId: bson.ObjectIdHex(c.getUserId())}
-	if parentNotebookId != "" && bson.IsObjectIdHex(parentNotebookId) {
+	if parentNotebookId != "" {
 		notebook.ParentNotebookId = bson.ObjectIdHex(parentNotebookId)
 	}
 	re := info.NewRe()

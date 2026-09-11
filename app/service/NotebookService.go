@@ -161,6 +161,12 @@ func (this *NotebookService) AddNotebook(notebook info.Notebook) (bool, info.Not
 	if notebook.NotebookId == "" {
 		notebook.NotebookId = bson.NewObjectId()
 	}
+	if notebook.ParentNotebookId != "" {
+		parent := this.GetNotebookById(notebook.ParentNotebookId.Hex())
+		if parent.NotebookId == "" || parent.UserId != notebook.UserId || parent.IsDeleted {
+			return false, notebook
+		}
+	}
 
 	notebook.UrlTitle = GetUrTitle(notebook.UserId.Hex(), notebook.Title, "notebook", notebook.NotebookId.Hex())
 	notebook.Usn = userService.IncrUsn(notebook.UserId.Hex())

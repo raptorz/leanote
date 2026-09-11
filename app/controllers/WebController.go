@@ -48,7 +48,7 @@ func (c Web) Bootstrap() revel.Result {
 			notebooks[key] = []info.ShareNotebooks{{IsDefault: true, Notebook: info.Notebook{Title: owner.Username}}}
 		}
 	}
-	return c.RenderJSON(map[string]interface{}{"Ok": true, "User": c.GetUserInfo(), "IsAdmin": c.GetUsername() == configService.GetAdminUsername(), "Notebooks": notebookService.GetNotebooks(userId), "SharedNotebooks": notebooks, "SharedUsers": users, "Tags": tagService.GetTags(userId), "Version": configService.GetVersion()})
+	return c.RenderJSON(map[string]interface{}{"Ok": true, "User": c.GetUserInfo(), "IsAdmin": c.GetUsername() == configService.GetAdminUsername(), "Notebooks": notebookService.GetNotebooks(userId), "SharedNotebooks": notebooks, "SharedUsers": users, "Tags": tagService.GetTags(userId), "TotalNotes": noteService.CountNote(userId), "Version": configService.GetVersion()})
 }
 
 func (c Web) RequireSession() revel.Result {

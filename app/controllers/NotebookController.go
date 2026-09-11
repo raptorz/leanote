@@ -30,6 +30,9 @@ func (c Notebook) DeleteNotebook(notebookId string) revel.Result {
 
 // 添加notebook
 func (c Notebook) AddNotebook(notebookId, title, parentNotebookId string) revel.Result {
+	if !bson.IsObjectIdHex(notebookId) || (parentNotebookId != "" && !bson.IsObjectIdHex(parentNotebookId)) {
+		return c.RenderJSON(false)
+	}
 	notebook := info.Notebook{NotebookId: bson.ObjectIdHex(notebookId),
 		Title:  title,
 		Seq:    -1,

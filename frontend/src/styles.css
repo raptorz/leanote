@@ -21,7 +21,8 @@ small,.muted{color:#7a867f;font-size:12px}
 .shell{display:flex;height:100dvh}
 .rail{width:68px;flex-shrink:0;background:#193b35;color:#d5e1d9;display:flex;align-items:center;flex-direction:column;gap:24px;padding:22px 6px}
 .rail a{color:inherit;font-size:12px}
-.rail .mark{font-size:30px;color:#dfddbb}
+.rail .mark{font-size:30px;color:#dfddbb;display:grid;place-items:center}
+.rail .mark img{width:34px;height:34px;object-fit:contain}
 .rail-bottom{margin-top:auto;display:grid;gap:24px;text-align:center}
 .notebooks{width:230px;flex-shrink:0;background:#eef1eb;padding:18px 14px;overflow:auto;border-right:1px solid #dce2da}
 .notebooks>button,.notebooks>div>button{display:block;width:100%;text-align:left;margin:5px 0;border:0;background:transparent}
@@ -52,7 +53,7 @@ small,.muted{color:#7a867f;font-size:12px}
 .pearl{font-size:72px;color:#b6cbb9}
 .auth-shell{min-height:100dvh;display:grid;place-items:center;background:radial-gradient(ellipse at top left,#dce9db,transparent 60%),#f4f4ed}
 .auth-card{width:min(420px,92vw);padding:40px;background:white;border:1px solid #e5e8df;border-radius:16px;box-shadow:0 16px 80px #294b3210}
-.brand{font-size:24px;font-weight:600}
+.brand{font-size:24px;font-weight:600;display:flex;align-items:center;gap:8px}.brand img{width:34px;height:34px;object-fit:contain}
 .auth-card form>button{width:100%;margin:18px 0}
 .auth-card nav{justify-content:space-between;font-size:13px}
 .settings{max-width:1000px;width:100%;padding:32px;overflow:auto}
@@ -93,7 +94,7 @@ small,.muted{color:#7a867f;font-size:12px}
 .notebooks,.note-list{position:relative}
 .notebooks>div.notebook-row{display:flex;width:100%}
 .notebooks>div.notebook-row>button{margin:0}
-.panel-actions,.create-row{display:flex;align-items:center;gap:5px}
+.panel-actions,.create-row,.create-inline{display:flex;align-items:center;gap:5px}
 .icon-button{display:inline-grid;place-items:center;min-width:34px;padding:7px}
 .notebook-row{position:relative;align-items:center;margin:4px 0;border-radius:7px}
 .notebook-select{flex:1;min-width:0;display:flex;gap:7px;align-items:center;text-align:left;border:0;background:transparent}
