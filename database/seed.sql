@@ -1413,4 +1413,41 @@ INSERT INTO public.users (id, email, verified, username, username_raw, pwd, crea
 -- PostgreSQL database dump complete
 --
 
+-- Gemsnote welcome notes for new installations.
+UPDATE public.notes SET title = 'About Gemsnote', description = 'Gemsnote features and deployment overview', src = '', img_src = '', tags = '{}', is_blog = false, url_title = 'about-gemsnote', is_markdown = true WHERE id = '5483207cf4e87203a4000001';
+UPDATE public.note_contents SET is_blog = false, content = $gemsnote_en$# About Gemsnote
+
+Gemsnote originates from Leanote and is a self-hosted knowledge and notes service.
+
+## Features
+
+- Choose MongoDB or PostgreSQL through configuration.
+- Connect directly to an existing Leanote MongoDB database, or migrate it to PostgreSQL.
+- Use the Web interface or the Desktop client.
+- Create rich-text and Markdown notes.
+- Synchronize across devices, share notes, and cache shared notes for offline Desktop use.
+- Manage accounts and the server from the administration interface.
+- Blog functionality is intentionally not included.
+
+Gemsnote is designed to run on your own server, so your data remains under your control.$gemsnote_en$, abstract = 'Gemsnote features and deployment overview' WHERE id = '5483207cf4e87203a4000001';
+UPDATE public.note_content_histories SET histories = jsonb_build_array(jsonb_build_object('Content', (SELECT content FROM public.note_contents WHERE id = '5483207cf4e87203a4000001'), 'UpdatedTime', '2015-06-15T18:37:30.724+08:00', 'UpdatedUserId', user_id)) WHERE id = '5483207cf4e87203a4000001';
+
+UPDATE public.notes SET title = '关于 Gemsnote', description = 'Gemsnote 功能与部署简介', src = '', img_src = '', tags = '{}', is_blog = false, url_title = 'about-gemsnote-zh', is_markdown = true WHERE id = '557eaa9905fcd14d95000001';
+UPDATE public.note_contents SET is_blog = false, content = $gemsnote_zh$# 关于 Gemsnote
+
+Gemsnote 源自 Leanote，是一个可自托管的知识与笔记服务。
+
+## 功能
+
+- 可通过配置选择 MongoDB 或 PostgreSQL。
+- 可直接连接已有的 Leanote MongoDB，或将数据迁移到 PostgreSQL。
+- 提供 Web 界面和 Desktop 客户端。
+- 支持富文本与 Markdown 笔记。
+- 支持多端同步、笔记共享，以及 Desktop 端共享笔记离线缓存。
+- 提供账号管理和系统管理。
+- 不再提供博客功能。
+
+Gemsnote 适合部署在自己的服务器上，让数据始终由你掌控。$gemsnote_zh$, abstract = 'Gemsnote 功能与部署简介' WHERE id = '557eaa9905fcd14d95000001';
+UPDATE public.note_content_histories SET histories = jsonb_build_array(jsonb_build_object('Content', (SELECT content FROM public.note_contents WHERE id = '557eaa9905fcd14d95000001'), 'UpdatedTime', '2015-06-15T18:37:24.15+08:00', 'UpdatedUserId', user_id)) WHERE id = '557eaa9905fcd14d95000001';
+
 COMMIT;
