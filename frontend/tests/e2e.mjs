@@ -42,7 +42,7 @@ try {
   await page.getByLabel('文章排序方式').waitFor()
   await verifyKeyboardResize('.note-list', '调节文章栏宽度')
   await page.getByLabel('隐藏文章栏').click()
-  await page.getByRole('button', { name: '所有文章' }).click()
+  await page.getByRole('button', { name: '所有笔记' }).click()
   await page.getByLabel('隐藏文章栏').waitFor()
   await page.getByLabel('隐藏我的空间').click()
   await page.getByLabel('展开我的空间').click()
@@ -63,7 +63,7 @@ try {
   await page.getByText('已保存', { exact: true }).waitFor()
 
   await page.setViewportSize({ width: 640, height: 700 })
-  await page.getByRole('button', { name: '所有文章' }).click()
+  await page.getByRole('button', { name: '所有笔记' }).click()
   await page.locator('.note-list').waitFor()
   await page.getByText(noteTitle, { exact: true }).click()
   await page.getByLabel('文章标题').waitFor()

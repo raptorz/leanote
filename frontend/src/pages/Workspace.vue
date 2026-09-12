@@ -7,7 +7,7 @@ import {request,objectId,upload} from '../api'
 import Navigation from '../components/Navigation.vue'
 import RichEditor from '../components/RichEditor.vue'
 const route=useRoute(),router=useRouter(),boot=ref<any>({}),notes=ref<any[]>([]),current=ref<any>(null)
-const notebook=ref(''),notebookSearch=ref(''),search=ref(''),tagFilter=ref(''),trash=ref(false),sharedOwner=ref(''),page=ref(1)
+const notebook=ref(''),notebookSearch=ref(''),search=ref(''),tagFilter=ref(''),trash=ref(false),starred=ref(false),sharedOwner=ref(''),page=ref(1)
 const title=ref(''),content=ref(''),tags=ref(''),dirty=ref(false),saving=ref(false),error=ref(''),info=ref(false),preview=ref(false),panel=ref(''),destination=ref(''),shareEmail=ref(''),sharePerm=ref('0'),histories=ref<any[]>([]),members=ref<any[]>([]),attachments=ref<any[]>([]),sort=ref('UpdatedTime'),sidebar=ref(false)
 const notebooksVisible=ref(true),notesVisible=ref(true),notebooksWidth=ref(230),notesWidth=ref(290),bookMenu=ref(''),compact=ref(false)
 const expandedNotebooks=ref<Set<string>>(new Set())
@@ -46,11 +46,12 @@ function hideNotebooks(){notebooksVisible.value=false;sidebar.value=false;persis
 function hideNotes(){notesVisible.value=false;persistLayout()}
 function showNotes(){notesVisible.value=true;mobileNotesVisible.value=window.innerWidth<=700;sidebar.value=false;persistLayout()}
 async function bootstrap(){boot.value=await request('/web/bootstrap');if(!boot.value.User){await router.replace('/login');return false}restoreLayout();return true}
-async function load(){try{notes.value=await request(sharedOwner.value?'/share/listShareNotes':'/web/notes',sharedOwner.value?{userId:sharedOwner.value,notebookId:notebook.value,page:page.value,sortField:sort.value,isAsc:false}:{notebookId:notebook.value,key:search.value,tag:tagFilter.value,trash:trash.value,page:page.value,sort:sort.value});notes.value ||= []}catch(e){error.value=String(e)}}
+async function load(){try{notes.value=await request(sharedOwner.value?'/share/listShareNotes':'/web/notes',sharedOwner.value?{userId:sharedOwner.value,notebookId:notebook.value,page:page.value,sortField:sort.value,isAsc:false}:{notebookId:notebook.value,key:search.value,tag:tagFilter.value,trash:trash.value,starred:starred.value,page:page.value,sort:sort.value});notes.value ||= []}catch(e){error.value=String(e)}}
+async function setStar(n:any){if(sharedOwner.value)return;try{await request('/web/star',{noteId:n.NoteId,starred:!n.IsStar});n.IsStar=!n.IsStar;if(starred.value)await load()}catch(e){error.value=String(e)}}
 async function attachmentsFor(noteId:string){try{const r:any=await request('/attach/getAttachs',{noteId});attachments.value=r.List||[]}catch(e){attachments.value=[];error.value=String(e)}}
 async function refreshDocument(){if(!current.value)return;current.value=await request('/web/document',{noteId:current.value.Note.NoteId})}
 async function open(id:string){if(!await flush())return;const token=++loadId;try{const doc=await request('/web/document',{noteId:id});if(token!==loadId)return;current.value=doc;mobileNotesVisible.value=false;title.value=doc.Note.Title;content.value=doc.Content||'';tags.value=(doc.Note.Tags||[]).join(',');dirty.value=false;info.value=false;panel.value='';await attachmentsFor(id);await router.replace(`/note/${id}`)}catch(e){error.value=String(e)}}
-async function select(id='',owner='',isTrash=false){if(!await flush())return;showNotes();notebook.value=id;sharedOwner.value=owner;trash.value=isTrash;page.value=1;search.value='';tagFilter.value='';bookMenu.value='';await load();sidebar.value=false}
+async function select(id='',owner='',isTrash=false,isStar=false){if(!await flush())return;showNotes();notebook.value=id;sharedOwner.value=owner;trash.value=isTrash;starred.value=isStar;page.value=1;search.value='';tagFilter.value='';bookMenu.value='';await load();sidebar.value=false}
 function hasChildren(n:any){return Array.isArray(n.Subs)&&n.Subs.length>0}
 async function selectBook(n:any){if(hasChildren(n)){const next=new Set(expandedNotebooks.value);if(next.has(n.NotebookId))next.delete(n.NotebookId);else next.add(n.NotebookId);expandedNotebooks.value=next}await select(n.NotebookId)}
 let stopResize:(()=>void)|undefined
@@ -108,7 +109,8 @@ watch(()=>route.params.noteId,id=>{if(id&&id!==current.value?.Note.NoteId)open(S
 <div class="panel-actions"><button class="icon-button" @click="addBook()" title="新建笔记本" aria-label="新建笔记本">＋</button><button class="icon-button desktop-only" @click="hideNotebooks" title="隐藏我的空间" aria-label="隐藏我的空间">‹</button></div>
 </header>
 <input v-model="notebookSearch" placeholder="搜索笔记本" aria-label="搜索笔记本">
-<button :class="{selected:!notebook&&!trash&&!sharedOwner}" @click="select()">所有文章 <small>{{boot.TotalNotes||0}}</small></button>
+<button :class="{selected:!notebook&&!trash&&!starred&&!sharedOwner}" @click="select()">所有笔记 <small>{{boot.TotalNotes||0}}</small></button>
+<button :class="{selected:starred}" @click="select('','',false,true)">★ 已加星</button>
 <div v-for="n in filteredBooks" :key="n.NotebookId" class="notebook-row" :class="{selected:notebook===n.NotebookId}" :style="{paddingLeft:4+n.depth*16+'px'}">
 <button class="notebook-select" @click="selectBook(n)"><span class="tree-toggle" :aria-hidden="true">{{hasChildren(n)?(expandedNotebooks.has(n.NotebookId)?'▾':'▸'):'▱'}}</span> <span>{{n.Title}}</span><small>{{n.NumberNotes}}</small></button>
 <button class="notebook-more" aria-haspopup="menu" :aria-expanded="bookMenu===n.NotebookId" :aria-label="`${n.Title} 菜单`" @pointerdown.stop @click.stop="bookMenu=bookMenu===n.NotebookId?'':n.NotebookId">⋯</button>
@@ -122,7 +124,7 @@ watch(()=>route.params.noteId,id=>{if(id&&id!==current.value?.Note.NoteId)open(S
 <p v-if="!Object.keys(boot.SharedNotebooks||{}).length" class="muted">暂无共享内容</p>
 <h3>标签</h3>
 <div class="tags">
-<button v-for="t in boot.Tags" :key="t.Tag" @click="tagFilter=t.Tag;load()">#{{t.Tag}}</button>
+<button v-for="t in boot.Tags" :key="t.Tag" @click="starred=false;tagFilter=t.Tag;page=1;load()">#{{t.Tag}}</button>
 </div>
 <button @click="select('','',true)">回收站</button>
 <div class="resize-handle" role="separator" tabindex="0" aria-orientation="vertical" aria-label="调节我的空间宽度" :aria-valuenow="notebooksWidth" aria-valuemin="180" aria-valuemax="520" @keydown.arrow-left.prevent="resizeBy('notebooks',-10)" @keydown.arrow-right.prevent="resizeBy('notebooks',10)" @pointerdown.prevent="resizePanel('notebooks',$event)"></div>
@@ -137,17 +139,20 @@ watch(()=>route.params.noteId,id=>{if(id&&id!==current.value?.Note.NoteId)open(S
 </div>
 <button class="icon-button desktop-only" @click="hideNotes" title="隐藏文章栏" aria-label="隐藏文章栏">‹</button>
 </header>
-<form @submit.prevent="page=1;load()">
+<form @submit.prevent="starred=false;page=1;load()">
 <label class="sort-control" title="排序"><span aria-hidden="true">⇅</span><select v-model="sort" aria-label="文章排序方式" @change="page=1;load()"><option value="UpdatedTime">最近修改</option><option value="CreatedTime">最近创建</option><option value="Title">标题</option></select></label>
 <input v-model="search" placeholder="搜索文章">
 <button class="icon-button" title="搜索" aria-label="搜索">⌕</button>
 </form>
 <div class="list-items">
-<button v-for="n in sorted" :key="n.NoteId" class="note-item" :class="{selected:current?.Note.NoteId===n.NoteId}" @click="open(n.NoteId)">
+<div v-for="n in sorted" :key="n.NoteId" class="note-row">
+<button v-if="!sharedOwner&&!trash" class="star-button" :aria-label="n.IsStar?'取消加星':'加星'" @click="setStar(n)">{{n.IsStar?'★':'☆'}}</button>
+<button class="note-item" :class="{selected:current?.Note.NoteId===n.NoteId}" @click="open(n.NoteId)">
 <strong>{{n.Title||'未命名'}}</strong>
 <p>{{n.Desc||'暂无摘要'}}</p>
 <small>{{new Date(n.UpdatedTime).toLocaleDateString()}} {{n.Perm===0?'· 只读':''}}</small>
 </button>
+</div>
 <p v-if="!notes.length" class="empty">这里还没有文章</p>
 </div>
 <footer class="inline">
@@ -183,7 +188,7 @@ watch(()=>route.params.noteId,id=>{if(id&&id!==current.value?.Note.NoteId)open(S
 <input class="tag-input" v-model="tags" :readonly="!writable" @input="changed" placeholder="标签，以逗号分隔">
 <aside v-if="info" class="info-panel">
 <h3>文章信息</h3>
-<p>所属笔记本：{{notebooks.find(n=>n.NotebookId===current.Note.NotebookId)?.Title||'共享笔记本'}}</p>
+<p>所属笔记本：{{isSharedNote?'共享笔记本':(notebooks.find(n=>n.NotebookId===current.Note.NotebookId)?.Title||'未知笔记本')}}</p>
 <p>创建：{{new Date(current.Note.CreatedTime).toLocaleString()}}</p>
 <p>修改：{{new Date(current.Note.UpdatedTime).toLocaleString()}}</p>
 <p>{{content.length}} 字符 · {{current.Note.IsMarkdown?'Markdown':'富文本'}} · {{writable?'可编辑':'只读'}}</p>
@@ -256,4 +261,4 @@ watch(()=>route.params.noteId,id=>{if(id&&id!==current.value?.Note.NoteId)open(S
 </main>
 </div>
 </template>
-<style scoped>.visually-hidden{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}.attachments{padding:0;list-style:none}.attachments li{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid #edf0e9}.attachments li a{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.attachments li small{margin-left:auto}.attachments li button{padding:4px 8px;font-size:12px}</style>
+<style scoped>.visually-hidden{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}.note-row{position:relative}.note-row .note-item{padding-left:40px}.star-button{position:absolute;z-index:1;left:8px;top:13px;padding:3px;border:0;background:transparent;color:#b17b18;font-size:18px;cursor:pointer}.star-button:focus-visible{outline:2px solid currentColor;outline-offset:2px;border-radius:2px}.attachments{padding:0;list-style:none}.attachments li{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid #edf0e9}.attachments li a{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.attachments li small{margin-left:auto}.attachments li button{padding:4px 8px;font-size:12px}</style>

@@ -5,9 +5,9 @@ import (
 	"time"
 )
 
-//---------
+// ---------
 // 数据结构
-//---------
+// ---------
 type NoteFile struct {
 	FileId      string // 服务器端Id
 	LocalFileId string // 客户端Id
@@ -29,6 +29,7 @@ type ApiNote struct {
 	IsMarkdown bool
 	//	FromUserId string // 为共享而新建
 	IsBlog      bool // 是否是blog, 更新note不需要修改, 添加note时才有可能用到, 此时需要判断notebook是否设为Blog
+	IsStar      bool // 星标笔记；旧客户端不传时服务端保持原值
 	IsTrash     bool
 	IsDeleted   bool
 	Usn         int
@@ -67,9 +68,9 @@ type ApiUser struct {
 	Logo     string
 }
 
-//----------
+// ----------
 // Notebook
-//----------
+// ----------
 type ApiNotebook struct {
 	NotebookId       bson.ObjectId `bson:"_id,omitempty"` // 必须要设置bson:"_id" 不然mgo不会认为是主键
 	UserId           bson.ObjectId `bson:"UserId"`

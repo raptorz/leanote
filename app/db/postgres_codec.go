@@ -426,7 +426,7 @@ func setPostgresField(field reflect.Value, raw interface{}) error {
 		return nil
 	}
 	if field.Type() == bsonObjectIDType {
-		id := rawString(raw)
+		id := strings.TrimSpace(rawString(raw))
 		if id == "" {
 			field.SetString("")
 			return nil

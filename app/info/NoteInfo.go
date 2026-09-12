@@ -15,7 +15,7 @@ type Note struct {
 	Title         string        `Title` // 标题
 	Desc          string        `Desc`  // 描述, 非html
 
-	Src string   `Src,omitempty` // 来源, 2016/4/22
+	Src string `Src,omitempty` // 来源, 2016/4/22
 
 	ImgSrc string   `ImgSrc` // 图片, 第一张缩略图地址
 	Tags   []string `Tags,omitempty`
@@ -26,6 +26,7 @@ type Note struct {
 	UrlTitle       string `UrlTitle,omitempty`    // 博客的url标题, 为了更友好的url, 在UserId, UrlName下唯一
 	IsRecommend    bool   `IsRecommend,omitempty` // 是否为推荐博客 2014/9/24新加
 	IsTop          bool   `IsTop,omitempty`       // blog是否置顶
+	IsStar         bool   `IsStar,omitempty`      // 用户星标
 	HasSelfDefined bool   `HasSelfDefined`        // 是否已经自定义博客图片, desc, abstract
 
 	// 2014/9/28 添加评论社交功能
@@ -107,6 +108,6 @@ type NoteOrContent struct {
 
 // 分开的
 type NoteAndContentSep struct {
-	NoteInfo Note
+	NoteInfo        Note
 	NoteContentInfo NoteContent
 }

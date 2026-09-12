@@ -73,16 +73,29 @@ func (c Web) Notes(notebookId, key, tag, sort string, trash bool) revel.Result {
 	if sort != "Title" && sort != "CreatedTime" && sort != "UpdatedTime" {
 		sort = defaultSortField
 	}
-	if key != "" {
-		_, notes := noteService.SearchNote(key, c.GetUserId(), c.GetPage(), 100, sort, false, false)
-		return c.RenderJSON(notes)
+	var notes []info.Note
+	starred := c.Params.Form.Get("starred") == "true"
+	if starred {
+		_, notes = noteService.ListStarNotes(c.GetUserId(), c.GetPage(), 100, sort, false)
+	} else if key != "" {
+		_, notes = noteService.SearchNote(key, c.GetUserId(), c.GetPage(), 100, sort, false, false)
+	} else if tag != "" {
+		_, notes = noteService.SearchNoteByTags([]string{tag}, c.GetUserId(), c.GetPage(), 100, sort, false)
+	} else {
+		_, notes = noteService.ListNotes(c.GetUserId(), notebookId, trash, c.GetPage(), 100, sort, false, false)
 	}
-	if tag != "" {
-		_, notes := noteService.SearchNoteByTags([]string{tag}, c.GetUserId(), c.GetPage(), 100, sort, false)
-		return c.RenderJSON(notes)
-	}
-	_, notes := noteService.ListNotes(c.GetUserId(), notebookId, trash, c.GetPage(), 100, sort, false, false)
 	return c.RenderJSON(notes)
+}
+
+func (c Web) Star(noteId string, starred bool) revel.Result {
+	if !bson.IsObjectIdHex(noteId) {
+		return c.RenderJSON(info.Re{Ok: false, Msg: "invalidNote"})
+	}
+	note := noteService.GetNoteById(noteId)
+	if note.NoteId == "" || note.IsDeleted || note.IsTrash || note.UserId.Hex() != c.GetUserId() {
+		return c.RenderJSON(info.Re{Ok: false, Msg: "noAuth"})
+	}
+	return c.RenderJSON(info.Re{Ok: noteService.SetStar(c.GetUserId(), noteId, starred)})
 }
 
 func (c Web) Document(noteId string) revel.Result {

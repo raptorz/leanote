@@ -300,6 +300,7 @@ func (c ApiNote) AddNote(noteOrContent info.ApiNote) revel.Result {
 		Desc:       noteOrContent.Desc,
 		//		ImgSrc:     noteOrContent.ImgSrc,
 		IsBlog:      noteOrContent.IsBlog,
+		IsStar:      noteOrContent.IsStar,
 		IsMarkdown:  noteOrContent.IsMarkdown,
 		AttachNum:   attachNum,
 		CreatedTime: noteOrContent.CreatedTime,
@@ -451,13 +452,16 @@ func (c ApiNote) UpdateNote(noteOrContent info.ApiNote) revel.Result {
 		needUpdateNote = true
 		noteUpdate["IsTrash"] = noteOrContent.IsTrash
 	}
+	if c.Has("IsStar") {
+		needUpdateNote = true
+		noteUpdate["IsStar"] = noteOrContent.IsStar
+	}
 
 	// 是否是博客
 	if c.Has("IsBlog") {
 		needUpdateNote = true
 		noteUpdate["IsBlog"] = noteOrContent.IsBlog
 	}
-
 	/*
 		Log(c.Has("tags[0]"))
 		Log(c.Has("Tags[]"))

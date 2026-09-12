@@ -165,6 +165,7 @@ func (this *NoteService) ToApiNote(note *info.Note, files []info.NoteFile) info.
 		Tags:        note.Tags,
 		IsMarkdown:  note.IsMarkdown,
 		IsBlog:      note.IsBlog,
+		IsStar:      note.IsStar,
 		IsTrash:     note.IsTrash,
 		IsDeleted:   note.IsDeleted,
 		Usn:         note.Usn,
@@ -239,6 +240,17 @@ func (this *NoteService) ListNotes(userId, notebookId string,
 	db.ListByQOptions(db.Notes, query, &notes, db.QueryOptions{
 		Sort: []string{sortFieldR}, Skip: skipNum, Limit: pageSize,
 	})
+	return
+}
+
+// ListStarNotes returns only active notes marked with the legacy-compatible
+// IsStar field, applying pagination before returning results.
+func (this *NoteService) ListStarNotes(userId string, pageNumber, pageSize int, sortField string, isAsc bool) (count int, notes []info.Note) {
+	notes = []info.Note{}
+	skipNum, sortFieldR := parsePageAndSort(pageNumber, pageSize, sortField, isAsc)
+	query := bson.M{"UserId": bson.ObjectIdHex(userId), "IsStar": true, "IsTrash": false, "IsDeleted": false}
+	count = db.Count(db.Notes, query)
+	db.ListByQOptions(db.Notes, query, &notes, db.QueryOptions{Sort: []string{sortFieldR}, Skip: skipNum, Limit: pageSize})
 	return
 }
 
@@ -662,6 +674,10 @@ func (this *NoteService) updateNoteImages(noteId string, content string) bool {
 // [ok] [del]
 func (this *NoteService) UpdateTags(noteId string, userId string, tags []string) bool {
 	return db.UpdateByIdAndUserIdMap(db.Notes, noteId, userId, bson.M{"Tags": tags, "Usn": userService.IncrUsn(userId)})
+}
+
+func (this *NoteService) SetStar(userId, noteId string, starred bool) bool {
+	return db.UpdateByIdAndUserIdMap(db.Notes, noteId, userId, bson.M{"IsStar": starred, "Usn": userService.IncrUsn(userId)})
 }
 
 func (this *NoteService) ToBlog(userId, noteId string, isBlog, isTop bool) bool {

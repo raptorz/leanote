@@ -95,6 +95,10 @@ func (p *PostgresDatabase) Initialize() error {
 		p.db.Close()
 		return fmt.Errorf("failed to initialize PostgreSQL database: %w", err)
 	}
+	if _, err := p.db.Exec(`ALTER TABLE notes ADD COLUMN IF NOT EXISTS is_star BOOLEAN NOT NULL DEFAULT FALSE`); err != nil {
+		p.db.Close()
+		return fmt.Errorf("failed to ensure PostgreSQL star schema: %w", err)
+	}
 	return nil
 }
 
