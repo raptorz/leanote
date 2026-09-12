@@ -561,18 +561,65 @@ func (c ApiNote) DeleteTrash(noteId string, usn int) revel.Result {
 	return c.RenderJSON(re)
 }
 
-// 得到历史列表
-/*
+// 历史版本(元数据, 不含Content, 全文通过 GetHistoryContent 按HistoryId获取)
 func (c ApiNote) GetHistories(noteId string) revel.Result {
 	re := info.NewRe()
-	histories := noteContentHistoryService.ListHistories(noteId, c.getUserId())
-	if len(histories) > 0 {
-		re.Ok = true
-		re.Item = histories
+	if !bson.IsObjectIdHex(noteId) {
+		re.Msg = "noteIdInvalid"
+		return c.RenderJSON(re)
 	}
+	// History belongs to the note owner.  In particular, do not expose the
+	// owner's history to users who merely have a shared-note permission.
+	if note := noteService.GetNoteByIdAndUserId(noteId, c.getUserId()); note.NoteId == "" {
+		re.Msg = "noteNotExists"
+		return c.RenderJSON(re)
+	}
+
+	histories := noteContentHistoryService.ListHistories(noteId, c.getUserId())
+	metas := make([]info.HistoryMeta, len(histories))
+	for i, each := range histories {
+		metas[i] = info.HistoryMeta{
+			Index:         i,
+			HistoryId:     each.HistoryId.Hex(),
+			UpdatedUserId: each.UpdatedUserId.Hex(),
+			UpdatedTime:   each.UpdatedTime,
+		}
+	}
+	re.Ok = true
+	re.Item = metas
 	return c.RenderJSON(re)
 }
-*/
+
+// 历史版本全文
+func (c ApiNote) GetHistoryContent(noteId, historyId string, index int) revel.Result {
+	re := info.NewRe()
+	if !bson.IsObjectIdHex(noteId) {
+		re.Msg = "noteIdInvalid"
+		return c.RenderJSON(re)
+	}
+	if note := noteService.GetNoteByIdAndUserId(noteId, c.getUserId()); note.NoteId == "" {
+		re.Msg = "noteNotExists"
+		return c.RenderJSON(re)
+	}
+
+	var history info.EachHistory
+	var found bool
+	if historyId != "" {
+		history, found = noteContentHistoryService.GetHistoryByID(noteId, c.getUserId(), historyId)
+	} else {
+		histories := noteContentHistoryService.ListHistories(noteId, c.getUserId())
+		if index >= 0 && index < len(histories) {
+			history, found = histories[index], true
+		}
+	}
+	if !found {
+		re.Msg = "historyNotFound"
+		return c.RenderJSON(re)
+	}
+	re.Ok = true
+	re.Item = history
+	return c.RenderJSON(re)
+}
 
 // 0.2 新增
 // 导出成PDF

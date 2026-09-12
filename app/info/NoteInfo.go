@@ -74,9 +74,20 @@ type NoteAndContent struct {
 // 历史记录
 // 每一个历史记录对象
 type EachHistory struct {
+	// HistoryId is a stable identifier for this version. Older Mongo/JSON
+	// snapshots may omit it; the history service derives a deterministic ID.
+	HistoryId     bson.ObjectId `bson:"HistoryId,omitempty" json:"HistoryId"`
 	UpdatedUserId bson.ObjectId `UpdatedUserId`
 	UpdatedTime   time.Time     `UpdatedTime`
 	Content       string        `Content`
+}
+
+// 历史版本元数据(API用, 不含Content)
+type HistoryMeta struct {
+	Index         int       `json:"Index"`
+	HistoryId     string    `json:"HistoryId"`
+	UpdatedUserId string    `json:"UpdatedUserId"`
+	UpdatedTime   time.Time `json:"UpdatedTime"`
 }
 type NoteContentHistory struct {
 	NoteId    bson.ObjectId `bson:"_id,omitempty"`

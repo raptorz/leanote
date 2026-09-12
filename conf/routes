@@ -58,6 +58,9 @@ GET     /api/shared/notes/:noteId/content       ApiShared.NoteContent
 GET     /api/shared/notes/:noteId/files/:fileId ApiShared.NoteFile
 POST    /web/notes                              Web.Notes
 POST    /web/star                               Web.Star
+# Note content history (explicit routes preserve the legacy query-parameter API).
+GET     /api/note/getHistories                  ApiNote.GetHistories
+GET     /api/note/getHistoryContent             ApiNote.GetHistoryContent
 POST    /web/document                           Web.Document
 POST    /web/save                               Web.Save
 POST    /web/restore                            Web.Restore
